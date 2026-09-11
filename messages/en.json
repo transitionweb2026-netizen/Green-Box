@@ -1,0 +1,71 @@
+{
+  "common": {
+    "siteName": "Green Box",
+    "tagline": "Fresh vegetables and fruit, delivered to your door",
+    "loading": "Loading...",
+    "language": "Language",
+    "switchToEnglish": "English",
+    "switchToArabic": "العربية"
+  },
+  "nav": {
+    "home": "Home",
+    "categories": "Categories",
+    "search": "Search",
+    "searchPlaceholder": "Search for a product...",
+    "cart": "Cart",
+    "account": "Account",
+    "login": "Log in",
+    "register": "Sign up"
+  },
+  "home": {
+    "heroTitle": "Fresh vegetables and fruit, delivered to your door",
+    "heroSubtitle": "From the farm to your kitchen, with quality you can trust.",
+    "heroCta": "Browse products",
+    "categoriesTitle": "Categories",
+    "categoriesComingSoon": "Categories and products will appear here once the database is connected in Phase 2.",
+    "foundationNotice": "This site is still in its foundation phase (Phase 1) — real product data and pricing will be added later from the admin dashboard."
+  },
+  "footer": {
+    "rights": "All rights reserved"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "subtitle": "Welcome back! Log in to track your orders.",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Log in",
+      "submitting": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Create an account",
+      "errorInvalidCredentials": "Incorrect email or password.",
+      "errorGeneric": "Something went wrong while logging in. Please try again."
+    },
+    "register": {
+      "title": "Create an account",
+      "subtitle": "Sign up to place orders and track them.",
+      "fullNameLabel": "Full name",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone number",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm password",
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "errorPasswordMismatch": "Passwords do not match.",
+      "errorGeneric": "Something went wrong while creating your account. Please try again.",
+      "successCheckEmail": "Account created! Check your email to confirm your account."
+    }
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "description": "Sorry, we ran into a problem loading this page. Please try again.",
+    "retry": "Try again"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been removed.",
+    "backHome": "Back to home"
+  }
+}
