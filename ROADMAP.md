@@ -13,17 +13,17 @@ Status legend: ✅ done · 🔜 next · ⏳ pending · 🧊 blocked on business 
 - [x] Architectural decisions requiring upfront judgment: payment abstraction, boxes-as-products, subscriptions-as-data-only, search approach
 - **Exit criteria:** user has reviewed and approved this plan before any code is written.
 
-## Phase 1 — Project Foundation 🔜
-- [ ] `npx create-next-app` (TypeScript, App Router, Tailwind) inside `GREEN BOX`, aligned to versions in [ARCHITECTURE.md](ARCHITECTURE.md) §1
-- [ ] `git init` + initial commit (currently not a git repo)
-- [ ] Install `@supabase/supabase-js`, `next-intl`, `zod`, Supabase SSR helpers
-- [ ] `.env.local` / `.env.local.example` scaffolding (no secrets committed)
-- [ ] `next-intl` routing: `ar` (default) + `en`, message catalogs scaffolded
-- [ ] Base layout, RTL (`dir` per locale), design-system primitives (Button, Input, Card...)
-- [ ] Global `loading.tsx` / `error.tsx` conventions
-- [ ] Supabase project connected (URL + anon key wired, service role kept server-only)
-- [ ] Auth foundation: login/register pages wired to Supabase Auth (no protected data yet)
-- **Exit criteria:** app runs locally with no TS/lint errors, locale switch + RTL works, a user can sign up/log in.
+## Phase 1 — Project Foundation ✅ done
+- [x] `create-next-app` (TypeScript, App Router, Tailwind) inside `GREEN BOX` — landed on Next 16.3.5 / React 19.2.8 / Tailwind 4
+- [x] `git init` + initial commit
+- [x] Install `@supabase/supabase-js`, `@supabase/ssr`, `next-intl`, `zod`
+- [x] `.env.local` / `.env.local.example` scaffolding (placeholder Supabase credentials, no secrets committed)
+- [x] `next-intl` routing: `ar` (default) + `en`, message catalogs scaffolded — storefront only, `app/admin` deliberately excluded
+- [x] Base layout, RTL (`dir`/`lang` per locale), design-system primitives (Button, Input, Label, Card, FormMessage)
+- [x] `loading.tsx` / `error.tsx` conventions, plus `not-found.tsx` and `global-not-found.tsx` (the latter required by this app's multiple-root-layout shape, per Next.js 16 docs)
+- [x] Supabase project client helpers wired (URL + anon key via env, service-role key untouched by application code per [ARCHITECTURE.md](ARCHITECTURE.md) — real credentials still pending from the user)
+- [x] Auth foundation: login/register pages wired to Supabase Auth via Server Actions (no protected data yet)
+- **Exit criteria:** ✅ app runs locally with no TS/lint errors, locale switch + RTL works, a user gets a graceful (not crashed) error on invalid login credentials against the placeholder project — verified with `npm run build`/`lint` and a Playwright pass against the running dev server (screenshots reviewed). Two real bugs found during that verification (an invalid `"use server"` export, a Turbopack workspace-root ambiguity) were fixed, not just noted — see `TODO.md`.
 
 ## Phase 2 — Database & Security ⏳
 - [ ] Implement schema from [DATABASE.md](DATABASE.md) as ordered migrations
