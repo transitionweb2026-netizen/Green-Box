@@ -13,10 +13,15 @@ const nextConfig: NextConfig = {
     globalNotFound: true,
   },
   images: {
-    // Product/category/banner images will be served from Supabase Storage
-    // once a real project is connected (Phase 2+). No remote patterns are
-    // configured yet against the placeholder project.
-    remotePatterns: [],
+    // Product/category/banner images are served from the real Supabase
+    // project's Storage bucket (see supabase/migrations/0012_storage.sql).
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "yvmfzvsahjfjxymnjxzk.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
   },
   turbopack: {
     // Pinned explicitly: this project sits inside a Desktop folder that

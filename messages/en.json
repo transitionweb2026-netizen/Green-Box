@@ -23,6 +23,7 @@
     "heroCta": "Browse products",
     "categoriesTitle": "Categories",
     "categoriesComingSoon": "Categories and products will appear here once the database is connected in Phase 2.",
+    "featuredTitle": "Featured Products",
     "foundationNotice": "This site is still in its foundation phase (Phase 1) — real product data and pricing will be added later from the admin dashboard."
   },
   "footer": {
@@ -67,5 +68,168 @@
     "title": "Page not found",
     "description": "The page you're looking for doesn't exist or has been removed.",
     "backHome": "Back to home"
+  },
+  "product": {
+    "noImage": "No image",
+    "outOfStock": "Currently unavailable",
+    "addToCart": "Add to cart",
+    "addShort": "Add",
+    "adding": "Adding...",
+    "added": "Added",
+    "quantity": "Quantity",
+    "related": "Related products",
+    "description": "Description",
+    "backToCategory": "Back to category",
+    "boxContents": "Box contents",
+    "notFoundTitle": "Product not found",
+    "notFoundDescription": "This product doesn't exist or was removed."
+  },
+  "categoryPage": {
+    "empty": "No products in this category yet.",
+    "notFoundTitle": "Category not found",
+    "browseAll": "Browse all categories"
+  },
+  "search": {
+    "placeholder": "Search for a product...",
+    "resultsFor": "Search results for",
+    "noResults": "No matching results. Try a different word.",
+    "suggestionsCategory": "Category"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty.",
+    "emptyCta": "Browse products",
+    "subtotal": "Subtotal",
+    "checkout": "Checkout",
+    "remove": "Remove",
+    "notesPlaceholder": "Notes for this item (optional)",
+    "continueShopping": "Continue shopping"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "addressTitle": "Delivery Address",
+    "addAddress": "Add a new address",
+    "noAddresses": "You have no saved addresses. Add one to continue.",
+    "slotTitle": "Delivery Time",
+    "paymentTitle": "Payment Method",
+    "notesTitle": "Order Notes",
+    "notesPlaceholder": "Any extra delivery instructions (optional)",
+    "loyaltyTitle": "Use Loyalty Points",
+    "loyaltyAvailable": "Your current balance",
+    "loyaltyRedeem": "Redeem points",
+    "reviewTitle": "Review Order",
+    "subtotal": "Subtotal",
+    "deliveryFee": "Delivery fee",
+    "discount": "Discount",
+    "total": "Total",
+    "placeOrder": "Place Order",
+    "placing": "Placing order...",
+    "orderFailed": "Sorry, something went wrong creating your order. Please try again.",
+    "cartEmpty": "Your cart is empty, there's nothing to check out.",
+    "selectRequired": "Please select an address, delivery time, and payment method."
+  },
+  "orders": {
+    "title": "My Orders",
+    "empty": "You haven't placed any orders yet.",
+    "orderNumber": "Order number",
+    "viewDetails": "View details",
+    "trackingTitle": "Order Tracking",
+    "itemsTitle": "Items",
+    "subtotal": "Subtotal",
+    "deliveryFee": "Delivery fee",
+    "discount": "Discount",
+    "total": "Total",
+    "paymentMethod": "Payment method",
+    "paymentStatus": "Payment status",
+    "deliveryAddress": "Delivery address",
+    "deliverySlot": "Delivery time",
+    "notes": "Notes",
+    "confirmationTitle": "Your order is in!",
+    "confirmationSubtitle": "Thanks for ordering from Green Box. We'll keep you posted on its status.",
+    "backToOrders": "View all my orders",
+    "status": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "PREPARING": "Preparing",
+      "PACKING": "Packing",
+      "OUT_FOR_DELIVERY": "Out for delivery",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled"
+    },
+    "paymentStatusLabels": {
+      "PENDING": "Pending",
+      "AWAITING_VERIFICATION": "Awaiting verification",
+      "PAID": "Paid",
+      "FAILED": "Failed",
+      "REFUNDED": "Refunded"
+    }
+  },
+  "account": {
+    "nav": {
+      "profile": "Profile",
+      "addresses": "Addresses",
+      "orders": "Orders",
+      "loyalty": "Loyalty Points",
+      "subscriptions": "Weekly Subscriptions",
+      "logout": "Log out"
+    },
+    "profileTitle": "Profile",
+    "fullNameLabel": "Full name",
+    "phoneLabel": "Phone number",
+    "emailLabel": "Email",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saved": "Saved successfully."
+  },
+  "addresses": {
+    "title": "My Addresses",
+    "empty": "No saved addresses yet.",
+    "add": "Add a new address",
+    "edit": "Edit address",
+    "delete": "Delete",
+    "setDefault": "Set as default",
+    "default": "Default address",
+    "labelField": "Address name (e.g. Home, Work)",
+    "recipientName": "Recipient name",
+    "phone": "Phone number",
+    "area": "Area",
+    "selectArea": "Select an area",
+    "detailedAddress": "Detailed address",
+    "landmark": "Landmark (optional)",
+    "notesLabel": "Additional notes (optional)",
+    "save": "Save address",
+    "saving": "Saving...",
+    "confirmDelete": "Are you sure you want to delete this address?",
+    "noAreasNotice": "No delivery areas are available yet. Contact us for delivery details."
+  },
+  "loyalty": {
+    "title": "Loyalty Points",
+    "currentBalance": "Your current balance",
+    "points": "points",
+    "howItWorks": "The more you shop, the more points you earn -- use them for discounts on future orders.",
+    "historyTitle": "Points History",
+    "empty": "No points activity yet.",
+    "type": {
+      "EARNED": "Points earned",
+      "REDEEMED": "Points redeemed",
+      "ADJUSTED": "Manual adjustment",
+      "REVERSED": "Points reversed"
+    },
+    "disabled": "The loyalty program isn't currently enabled."
+  },
+  "subscriptions": {
+    "title": "Weekly Subscriptions",
+    "empty": "You don't have any weekly subscriptions yet.",
+    "create": "Create a new subscription",
+    "status": {
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "CANCELLED": "Cancelled"
+    },
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel subscription",
+    "itemsTitle": "Products",
+    "notice": "Renewal and automatic weekly order rules are still being finalized by the store team."
   }
 }

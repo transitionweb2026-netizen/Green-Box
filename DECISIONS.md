@@ -35,6 +35,14 @@ Two kinds of entries: **confirmed** decisions (with rationale, so they can be re
 | D22 | `profiles.email` is denormalized from `auth.users.email`, kept in sync by trigger | `auth.users` is a protected schema the app can't safely query directly under RLS; the admin "Customers" section needs to list/search by email, which is a stated admin requirement (spec §13/§15) |
 | D23 | Anything a historical order can reference (categories, products, delivery zones/areas, time slots, payment methods) is soft-deleted (`is_active = false`) from the admin UI; hard `DELETE` is not exposed for referenced rows | Historical orders carry live FKs back to several of these tables (in addition to JSON snapshots) specifically so admin can filter/report by them; a hard delete would break that referential integrity for no benefit over deactivating |
 
+### Added while building the full application (Phase 2 code + Phases 3-10)
+
+| # | Decision | Rationale |
+|---|---|---|
+| D24 | The admin dashboard's "low-stock products" metric is implemented as an "unavailable products" count instead | The schema deliberately has no stock-count column (Q10, not yet confirmed) -- only the `is_available` boolean. Inventing a quantity-based low-stock threshold would mean inventing a business rule; the unavailable-count is the honest equivalent of what the schema actually supports today |
+| D25 | Storage uses a single `media` bucket with folder prefixes (`products/`, `categories/`, `banners/`) rather than one bucket per entity | Nothing needs different access rules per folder (all are public-read, admin-write); one bucket is simpler to manage and matches ARCHITECTURE.md's original intent without adding bucket-per-entity complexity nobody asked for |
+| D26 | Weekly subscriptions ship with customer-controlled CRUD (create from cart, view, pause/resume/cancel) but no automatic weekly order generation | Renewal cadence, payment-on-renewal, and failure handling are all still unconfirmed (Q5-Q7). Plain data management the customer directly controls is safe to build now; automation with unconfirmed behavior is not -- see ARCHITECTURE.md, Subscriptions |
+
 ## B. Open Business Decisions (do not implement until answered)
 
 These are tracked so they are visible, not forgotten — each maps to a specific schema/service hook already prepared so the answer can be dropped in without a redesign.

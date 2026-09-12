@@ -23,6 +23,7 @@
     "heroCta": "تصفح المنتجات",
     "categoriesTitle": "الأقسام",
     "categoriesComingSoon": "الأقسام والمنتجات هتظهر هنا بعد ربط قاعدة البيانات في المرحلة الثانية.",
+    "featuredTitle": "منتجات مميزة",
     "foundationNotice": "الموقع لسه في مرحلة التأسيس (المرحلة الأولى) — البيانات الحقيقية للمنتجات والأسعار هتُضاف لاحقًا من لوحة التحكم."
   },
   "footer": {
@@ -67,5 +68,168 @@
     "title": "الصفحة غير موجودة",
     "description": "الصفحة اللي بتدوّر عليها مش موجودة أو اتشالت.",
     "backHome": "الرجوع للرئيسية"
+  },
+  "product": {
+    "noImage": "لا توجد صورة",
+    "outOfStock": "غير متوفر حاليًا",
+    "addToCart": "أضف للسلة",
+    "addShort": "أضف",
+    "adding": "جارٍ الإضافة...",
+    "added": "تمت الإضافة",
+    "quantity": "الكمية",
+    "related": "منتجات مشابهة",
+    "description": "الوصف",
+    "backToCategory": "الرجوع للقسم",
+    "boxContents": "محتويات الصندوق",
+    "notFoundTitle": "المنتج غير موجود",
+    "notFoundDescription": "المنتج ده مش موجود أو اتشال."
+  },
+  "categoryPage": {
+    "empty": "لا توجد منتجات في هذا القسم حاليًا.",
+    "notFoundTitle": "القسم غير موجود",
+    "browseAll": "تصفح كل الأقسام"
+  },
+  "search": {
+    "placeholder": "ابحث عن منتج...",
+    "resultsFor": "نتائج البحث عن",
+    "noResults": "مفيش نتائج مطابقة. جرب كلمة تانية.",
+    "suggestionsCategory": "قسم"
+  },
+  "cart": {
+    "title": "سلة المشتريات",
+    "empty": "السلة فاضية دلوقتي.",
+    "emptyCta": "تصفح المنتجات",
+    "subtotal": "الإجمالي الفرعي",
+    "checkout": "إتمام الطلب",
+    "remove": "إزالة",
+    "notesPlaceholder": "ملاحظات على هذا المنتج (اختياري)",
+    "continueShopping": "متابعة التسوق"
+  },
+  "checkout": {
+    "title": "إتمام الطلب",
+    "addressTitle": "عنوان التوصيل",
+    "addAddress": "إضافة عنوان جديد",
+    "noAddresses": "لا يوجد لديك عنوان محفوظ. أضف عنوان جديد للمتابعة.",
+    "slotTitle": "ميعاد التوصيل",
+    "paymentTitle": "طريقة الدفع",
+    "notesTitle": "ملاحظات على الطلب",
+    "notesPlaceholder": "أي تعليمات إضافية للتوصيل (اختياري)",
+    "loyaltyTitle": "استخدام نقاط الولاء",
+    "loyaltyAvailable": "رصيدك الحالي",
+    "loyaltyRedeem": "استخدم النقاط",
+    "reviewTitle": "مراجعة الطلب",
+    "subtotal": "الإجمالي الفرعي",
+    "deliveryFee": "رسوم التوصيل",
+    "discount": "الخصم",
+    "total": "الإجمالي الكلي",
+    "placeOrder": "تأكيد الطلب",
+    "placing": "جارٍ تأكيد الطلب...",
+    "orderFailed": "معلش، حصل خطأ أثناء إنشاء الطلب. حاول تاني.",
+    "cartEmpty": "السلة فاضية، مفيش حاجة لإتمام الطلب.",
+    "selectRequired": "من فضلك اختر العنوان وميعاد التوصيل وطريقة الدفع."
+  },
+  "orders": {
+    "title": "طلباتي",
+    "empty": "لسه معملتش أي طلب.",
+    "orderNumber": "رقم الطلب",
+    "viewDetails": "عرض التفاصيل",
+    "trackingTitle": "متابعة الطلب",
+    "itemsTitle": "المنتجات",
+    "subtotal": "الإجمالي الفرعي",
+    "deliveryFee": "رسوم التوصيل",
+    "discount": "الخصم",
+    "total": "الإجمالي الكلي",
+    "paymentMethod": "طريقة الدفع",
+    "paymentStatus": "حالة الدفع",
+    "deliveryAddress": "عنوان التوصيل",
+    "deliverySlot": "ميعاد التوصيل",
+    "notes": "ملاحظات",
+    "confirmationTitle": "تم استلام طلبك!",
+    "confirmationSubtitle": "شكرًا لطلبك من جرين بوكس. هنبعتلك تحديثات على حالة الطلب.",
+    "backToOrders": "عرض كل طلباتي",
+    "status": {
+      "PENDING": "قيد الانتظار",
+      "CONFIRMED": "تم التأكيد",
+      "PREPARING": "جارٍ التحضير",
+      "PACKING": "جارٍ التغليف",
+      "OUT_FOR_DELIVERY": "في الطريق إليك",
+      "DELIVERED": "تم التوصيل",
+      "CANCELLED": "ملغي"
+    },
+    "paymentStatusLabels": {
+      "PENDING": "في الانتظار",
+      "AWAITING_VERIFICATION": "بانتظار التأكيد",
+      "PAID": "تم الدفع",
+      "FAILED": "فشلت",
+      "REFUNDED": "تم الاسترجاع"
+    }
+  },
+  "account": {
+    "nav": {
+      "profile": "الملف الشخصي",
+      "addresses": "العناوين",
+      "orders": "الطلبات",
+      "loyalty": "نقاط الولاء",
+      "subscriptions": "الاشتراكات الأسبوعية",
+      "logout": "تسجيل الخروج"
+    },
+    "profileTitle": "الملف الشخصي",
+    "fullNameLabel": "الاسم بالكامل",
+    "phoneLabel": "رقم الهاتف",
+    "emailLabel": "البريد الإلكتروني",
+    "save": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ...",
+    "saved": "تم الحفظ بنجاح."
+  },
+  "addresses": {
+    "title": "عناويني",
+    "empty": "لسه مفيش عناوين محفوظة.",
+    "add": "إضافة عنوان جديد",
+    "edit": "تعديل العنوان",
+    "delete": "حذف",
+    "setDefault": "تعيين كعنوان أساسي",
+    "default": "العنوان الأساسي",
+    "labelField": "اسم العنوان (مثال: المنزل، الشغل)",
+    "recipientName": "اسم المستلم",
+    "phone": "رقم الهاتف",
+    "area": "المنطقة",
+    "selectArea": "اختر المنطقة",
+    "detailedAddress": "العنوان بالتفصيل",
+    "landmark": "علامة مميزة (اختياري)",
+    "notesLabel": "ملاحظات إضافية (اختياري)",
+    "save": "حفظ العنوان",
+    "saving": "جارٍ الحفظ...",
+    "confirmDelete": "متأكد إنك عايز تحذف العنوان ده؟",
+    "noAreasNotice": "لسه مفيش مناطق توصيل متاحة. تواصل معانا لمعرفة تفاصيل التوصيل."
+  },
+  "loyalty": {
+    "title": "نقاط الولاء",
+    "currentBalance": "رصيدك الحالي",
+    "points": "نقطة",
+    "howItWorks": "كل ما تتسوق أكتر، تكسب نقاط تقدر تستخدمها في خصومات على طلباتك الجاية.",
+    "historyTitle": "سجل النقاط",
+    "empty": "لسه مفيش أي حركة نقاط.",
+    "type": {
+      "EARNED": "نقاط مكتسبة",
+      "REDEEMED": "نقاط مستخدمة",
+      "ADJUSTED": "تعديل يدوي",
+      "REVERSED": "نقاط مُرجعة"
+    },
+    "disabled": "برنامج نقاط الولاء غير مفعّل حاليًا."
+  },
+  "subscriptions": {
+    "title": "الاشتراكات الأسبوعية",
+    "empty": "لسه معملتش أي اشتراك أسبوعي.",
+    "create": "إنشاء اشتراك جديد",
+    "status": {
+      "ACTIVE": "نشط",
+      "PAUSED": "متوقف مؤقتًا",
+      "CANCELLED": "ملغي"
+    },
+    "pause": "إيقاف مؤقت",
+    "resume": "استئناف",
+    "cancel": "إلغاء الاشتراك",
+    "itemsTitle": "المنتجات",
+    "notice": "قواعد التجديد وتوليد الطلبات الأسبوعية لسه قيد التحديد من إدارة المتجر."
   }
 }
