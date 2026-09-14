@@ -3,6 +3,7 @@ import { Cairo } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { getSiteOrigin } from "@/lib/seo/site-url";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import "../globals.css";
@@ -18,12 +19,30 @@ export function generateStaticParams() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("common");
+  const locale = await getLocale();
+  const origin = await getSiteOrigin();
+  const siteName = t("siteName");
+  const tagline = t("tagline");
+
   return {
+    metadataBase: new URL(origin),
     title: {
-      default: t("siteName"),
-      template: `%s | ${t("siteName")}`,
+      default: siteName,
+      template: `%s | ${siteName}`,
     },
-    description: t("tagline"),
+    description: tagline,
+    openGraph: {
+      siteName,
+      title: siteName,
+      description: tagline,
+      locale: locale === "ar" ? "ar_EG" : "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: siteName,
+      description: tagline,
+    },
   };
 }
 
@@ -47,7 +66,7 @@ export default async function LocaleLayout({
       dir={dir}
       className={`${cairo.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col font-sans">
+      <body className="bg-surface-gradient flex min-h-full flex-col font-sans text-foreground">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SiteHeader />
           <main className="flex-1">{children}</main>

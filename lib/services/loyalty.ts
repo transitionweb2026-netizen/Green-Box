@@ -59,6 +59,66 @@ export interface AdminLoyaltyAccountRow extends LoyaltyAccount {
   profiles: { full_name: string | null; email: string | null } | null;
 }
 
+export interface AdminLoyaltyAccountDetail extends LoyaltyAccount {
+  profiles: { full_name: string | null; email: string | null } | null;
+}
+
+/**
+ * Returns a zero-balance placeholder (not null) when the customer has no
+ * loyalty_accounts row yet -- e.g. no points-earning order so far -- so an
+ * admin can still open this customer's page and make a first manual
+ * adjustment; admin_adjust_loyalty_points() (migration 0020) creates the
+ * real row on first use. Returns null only when the profile itself doesn't
+ * exist, which the caller treats as 404.
+ */
+export async function adminGetLoyaltyAccount(profileId: string): Promise<AdminLoyaltyAccountDetail | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("loyalty_accounts")
+    .select("*, profiles(full_name, email)")
+    .eq("profile_id", profileId)
+    .maybeSingle();
+  if (error) throw error;
+  if (data) return data as unknown as AdminLoyaltyAccountDetail;
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, full_name, email")
+    .eq("id", profileId)
+    .maybeSingle();
+  if (profileError) throw profileError;
+  if (!profile) return null;
+
+  return {
+    id: "",
+    profile_id: profile.id,
+    points_balance: 0,
+    lifetime_points_earned: 0,
+    lifetime_points_redeemed: 0,
+    updated_at: "",
+    profiles: { full_name: profile.full_name, email: profile.email },
+  };
+}
+
+/**
+ * Wraps admin_adjust_loyalty_points() (migration 0020) -- the ADJUSTED
+ * transaction type already existed in the schema but had no caller. The
+ * function itself enforces admin-only access, a non-empty reason, and
+ * rejects any adjustment that would push the balance negative; it also
+ * creates the loyalty_accounts row on first use so this works even for a
+ * customer with no prior points activity.
+ */
+export async function adminAdjustLoyaltyPoints(profileId: string, points: number, reason: string): Promise<LoyaltyAccount> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("admin_adjust_loyalty_points", {
+    p_profile_id: profileId,
+    p_points: points,
+    p_reason: reason,
+  });
+  if (error) throw error;
+  return data as unknown as LoyaltyAccount;
+}
+
 export async function adminListLoyaltyAccounts(page = 1, pageSize = 25) {
   const supabase = await createClient();
   const from = (page - 1) * pageSize;

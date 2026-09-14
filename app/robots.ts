@@ -4,7 +4,11 @@ export default function robots(): MetadataRoute.Robots {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://greenbox.example";
   return {
     rules: [
-      { userAgent: "*", allow: "/", disallow: ["/admin", "/api", "/*/account", "/*/checkout", "/*/cart"] },
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/admin", "/api", "/*/account", "/*/checkout", "/*/cart", "/*/search", "/*/auth"],
+      },
     ],
     sitemap: `${base}/sitemap.xml`,
   };

@@ -1,12 +1,23 @@
 /**
- * Hand-authored to match supabase/migrations/0001-0012 exactly, since the
- * project isn't connected to a live database yet to run `supabase gen
- * types` (see TODO.md / ARCHITECTURE.md). Regenerate from the live schema
- * once Phase 2 migrations are applied for real -- this file should be
- * treated as provisional until then, though it's kept in lockstep with
- * the migrations by hand in the meantime.
+ * Cross-checked field-by-field against the real `generate_typescript_types`
+ * output from the live project (Phase 2 migrations 0001-0016 applied,
+ * 2026-09-12) -- every table/column/relationship matches. Kept
+ * hand-authored rather than replaced wholesale with the raw generator
+ * output for two deliberate reasons the generator can't express:
+ *   1. `Insert`/`Update` are `never` on orders/order_items/
+ *      order_status_history/payments/loyalty_accounts/
+ *      loyalty_transactions -- these are only ever written via the
+ *      trusted RPC functions (DATABASE.md, "Trusted Mutation Functions"),
+ *      and this is a compile-time guard against accidentally writing a
+ *      direct .insert()/.update() call against them.
+ *   2. Status/type/role columns use string-literal unions (OrderStatus,
+ *      PaymentStatus, etc.) instead of the generic `string` the generator
+ *      produces, since it doesn't parse CHECK constraints.
+ * Regenerate and re-diff after any future schema change (`mcp__supabase__
+ * generate_typescript_types` or `supabase gen types`), reapplying both
+ * customizations above.
  *
- * Every table includes `Relationships: []` even though it's unused here:
+ * Every table includes `Relationships: []` even where empty:
  * @supabase/postgrest-js's `GenericTable` type requires that field to
  * structurally match `GenericSchema`, and omitting it silently breaks
  * type inference for insert/update/rpc calls project-wide (everything
@@ -40,6 +51,11 @@ export type ProductType = "standard" | "box";
 export type ProfileRole = "customer" | "admin";
 
 export interface Database {
+  // Lets createClient<Database>(...) auto-detect the PostgREST wire
+  // version instead of needing a second explicit type parameter.
+  __InternalSupabase: {
+    PostgrestVersion: "14.5";
+  };
   public: {
     Tables: {
       profiles: {
@@ -364,6 +380,7 @@ export interface Database {
           end_time: string;
           display_order: number;
           is_active: boolean;
+          max_orders: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -375,6 +392,7 @@ export interface Database {
           end_time: string;
           display_order?: number;
           is_active?: boolean;
+          max_orders?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -386,6 +404,7 @@ export interface Database {
           end_time?: string;
           display_order?: number;
           is_active?: boolean;
+          max_orders?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -639,6 +658,7 @@ export interface Database {
           delivery_zone_id: string | null;
           delivery_time_slot_id: string | null;
           delivery_slot_snapshot: Json;
+          delivery_date: string;
           payment_method_id: string | null;
           payment_status: PaymentStatus;
           subscription_id: string | null;
@@ -862,8 +882,12 @@ export interface Database {
         Returns: string;
       };
       search_products: {
-        Args: { p_query: string; p_category_id?: string | null; p_limit?: number };
+        Args: { p_query: string; p_category_id?: string | null; p_limit?: number; p_offset?: number };
         Returns: Database["public"]["Tables"]["products"]["Row"][];
+      };
+      count_search_products: {
+        Args: { p_query: string; p_category_id?: string | null };
+        Returns: number;
       };
       search_suggestions: {
         Args: { p_query: string; p_limit?: number };
@@ -877,6 +901,7 @@ export interface Database {
           p_payment_method_id: string;
           p_customer_notes?: string | null;
           p_redeem_points?: number | null;
+          p_delivery_date: string;
         };
         Returns: Database["public"]["Tables"]["orders"]["Row"];
       };
@@ -895,6 +920,34 @@ export interface Database {
           p_notes?: string | null;
         };
         Returns: Database["public"]["Tables"]["payments"]["Row"];
+      };
+      admin_generate_subscription_order: {
+        Args: { p_subscription_id: string };
+        Returns: { order_id: string | null; outcome: string; reason: string | null }[];
+      };
+      admin_set_subscription_status: {
+        Args: { p_subscription_id: string; p_status: SubscriptionStatus };
+        Returns: Database["public"]["Tables"]["subscriptions"]["Row"];
+      };
+      admin_adjust_loyalty_points: {
+        Args: { p_profile_id: string; p_points: number; p_reason: string };
+        Returns: Database["public"]["Tables"]["loyalty_accounts"]["Row"];
+      };
+      admin_set_profile_role: {
+        Args: { p_profile_id: string; p_new_role: ProfileRole };
+        Returns: Database["public"]["Tables"]["profiles"]["Row"];
+      };
+      admin_set_box_contents: {
+        Args: { p_box_product_id: string; p_items: { productId: string; quantity: number }[] };
+        Returns: void;
+      };
+      admin_set_primary_product_image: {
+        Args: { p_product_id: string; p_image_id: string };
+        Returns: void;
+      };
+      cancel_own_order: {
+        Args: { p_order_id: string };
+        Returns: Database["public"]["Tables"]["orders"]["Row"];
       };
     };
     Enums: Record<string, never>;

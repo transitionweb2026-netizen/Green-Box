@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { CheckCircle2, UserPlus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { FormMessage } from "@/components/ui/form-message";
 import { register } from "@/app/[locale]/auth/actions";
 import { initialRegisterState } from "@/app/[locale]/auth/auth-state";
 
-export function RegisterForm() {
+export function RegisterForm({ next }: { next?: string }) {
   const t = useTranslations("auth.register");
   const locale = useLocale();
   const [state, formAction, isPending] = useActionState(
@@ -19,7 +20,14 @@ export function RegisterForm() {
   );
 
   if (state.status === "success") {
-    return <FormMessage variant="success">{t("successCheckEmail")}</FormMessage>;
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-2xl bg-success-bg px-5 py-8 text-center">
+        <CheckCircle2 className="h-10 w-10 text-success" />
+        <FormMessage variant="success" className="mt-0">
+          {t("successCheckEmail")}
+        </FormMessage>
+      </div>
+    );
   }
 
   return (
@@ -72,13 +80,17 @@ export function RegisterForm() {
         <FormMessage>{t("errorGeneric")}</FormMessage>
       )}
 
-      <Button type="submit" disabled={isPending} className="mt-2">
+      <Button type="submit" disabled={isPending} loading={isPending} className="mt-2 w-full">
+        {!isPending && <UserPlus className="h-4 w-4" />}
         {isPending ? t("submitting") : t("submit")}
       </Button>
 
       <p className="text-center text-sm text-muted">
         {t("haveAccount")}{" "}
-        <Link href="/auth/login" className="font-medium text-brand-700 hover:underline">
+        <Link
+          href={next ? { pathname: "/auth/login", query: { next } } : "/auth/login"}
+          className="font-medium text-brand-700 hover:underline"
+        >
           {t("loginLink")}
         </Link>
       </p>

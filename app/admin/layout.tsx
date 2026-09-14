@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
     <html lang="ar" dir="rtl" className={`${cairo.variable} h-full antialiased`}>
-      <body className="min-h-full bg-zinc-50 font-sans text-foreground">{children}</body>
+      <body className="bg-surface-gradient min-h-full font-sans text-foreground">{children}</body>
     </html>
   );
 }

@@ -30,6 +30,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         <Input id="email" value={profile.email ?? ""} disabled />
       </div>
       {state.status === "success" && <FormMessage variant="success">{t("saved")}</FormMessage>}
+      {state.status === "error" && <FormMessage>{t("errorGeneric")}</FormMessage>}
       <Button type="submit" disabled={isPending}>
         {isPending ? t("saving") : t("save")}
       </Button>

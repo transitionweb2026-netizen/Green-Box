@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Card } from "@/components/ui/card";
+import { AuthShell } from "@/components/storefront/auth-shell";
 import { RegisterForm } from "@/components/storefront/register-form";
 
 export async function generateMetadata() {
@@ -7,18 +7,13 @@ export async function generateMetadata() {
   return { title: t("title") };
 }
 
-export default async function RegisterPage() {
+export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const t = await getTranslations("auth.register");
+  const { next } = await searchParams;
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-center text-2xl font-bold text-foreground">
-        {t("title")}
-      </h1>
-      <p className="mt-2 text-center text-muted">{t("subtitle")}</p>
-      <Card className="mt-8">
-        <RegisterForm />
-      </Card>
-    </div>
+    <AuthShell title={t("title")} subtitle={t("subtitle")}>
+      <RegisterForm next={next} />
+    </AuthShell>
   );
 }

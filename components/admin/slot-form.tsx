@@ -1,9 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
+import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
 import { FormMessage } from "@/components/ui/form-message";
 import type { SlotActionState } from "@/app/admin/(dashboard)/delivery-slots/actions";
 import type { DeliveryTimeSlot } from "@/lib/services/delivery";
@@ -18,39 +20,53 @@ export function SlotForm({
   const [state, formAction, isPending] = useActionState(action, { status: "idle" } as SlotActionState);
 
   return (
-    <form action={formAction} className="max-w-md space-y-4">
-      <div>
-        <Label htmlFor="label_ar">الاسم بالعربي</Label>
-        <Input id="label_ar" name="label_ar" defaultValue={slot?.label_ar} required placeholder="مثال: 9 ص - 12 ظ" />
-      </div>
-      <div>
-        <Label htmlFor="label_en">الاسم بالإنجليزي</Label>
-        <Input id="label_en" name="label_en" defaultValue={slot?.label_en ?? ""} />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
+    <Card tone="glass" className="max-w-md">
+      <form action={formAction} className="space-y-4">
         <div>
-          <Label htmlFor="start_time">وقت البداية</Label>
-          <Input id="start_time" name="start_time" type="time" defaultValue={slot?.start_time?.slice(0, 5)} required />
+          <Label htmlFor="label_ar">الاسم بالعربي</Label>
+          <Input id="label_ar" name="label_ar" defaultValue={slot?.label_ar} required placeholder="مثال: 9 ص - 12 ظ" />
         </div>
         <div>
-          <Label htmlFor="end_time">وقت النهاية</Label>
-          <Input id="end_time" name="end_time" type="time" defaultValue={slot?.end_time?.slice(0, 5)} required />
+          <Label htmlFor="label_en">الاسم بالإنجليزي</Label>
+          <Input id="label_en" name="label_en" defaultValue={slot?.label_en ?? ""} />
         </div>
-      </div>
-      <div>
-        <Label htmlFor="display_order">ترتيب العرض</Label>
-        <Input id="display_order" name="display_order" type="number" defaultValue={slot?.display_order ?? 0} />
-      </div>
-      <label className="flex items-center gap-2 text-sm text-foreground">
-        <input type="checkbox" name="is_active" defaultChecked={slot?.is_active ?? true} className="h-4 w-4" />
-        نشط
-      </label>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="start_time">وقت البداية</Label>
+            <Input id="start_time" name="start_time" type="time" defaultValue={slot?.start_time?.slice(0, 5)} required />
+          </div>
+          <div>
+            <Label htmlFor="end_time">وقت النهاية</Label>
+            <Input id="end_time" name="end_time" type="time" defaultValue={slot?.end_time?.slice(0, 5)} required />
+          </div>
+        </div>
+        <div>
+          <Label htmlFor="display_order">ترتيب العرض</Label>
+          <Input id="display_order" name="display_order" type="number" defaultValue={slot?.display_order ?? 0} />
+        </div>
+        <div>
+          <Label htmlFor="max_orders">الحد الأقصى للطلبات في هذا الميعاد (اختياري)</Label>
+          <Input
+            id="max_orders"
+            name="max_orders"
+            type="number"
+            min={1}
+            defaultValue={slot?.max_orders ?? ""}
+            placeholder="اتركه فارغًا لعدد غير محدود"
+          />
+        </div>
+        <label className="flex w-fit items-center gap-2 rounded-xl border border-border-strong bg-white/60 px-3.5 py-2 text-sm font-medium text-foreground">
+          <input type="checkbox" name="is_active" defaultChecked={slot?.is_active ?? true} className="h-4 w-4 accent-[var(--brand-600)]" />
+          نشط
+        </label>
 
-      {state.status === "error" && <FormMessage>{state.message}</FormMessage>}
+        {state.status === "error" && <FormMessage>{state.message}</FormMessage>}
 
-      <Button type="submit" disabled={isPending}>
-        {isPending ? "جارٍ الحفظ..." : "حفظ"}
-      </Button>
-    </form>
+        <Button type="submit" disabled={isPending} loading={isPending}>
+          {!isPending && <Save className="h-4 w-4" />}
+          {isPending ? "جارٍ الحفظ..." : "حفظ"}
+        </Button>
+      </form>
+    </Card>
   );
 }

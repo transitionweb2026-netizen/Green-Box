@@ -18,8 +18,24 @@ export const registerSchema = z
     message: "PASSWORD_MISMATCH",
   });
 
+export const forgotPasswordSchema = z.object({
+  email: z.email(),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    password: z.string().min(8).max(72),
+    confirmPassword: z.string().min(1),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "PASSWORD_MISMATCH",
+  });
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
 /** Flattens zod issues into a { fieldName: message } map for form display. */
 export function fieldErrors(error: z.ZodError): Record<string, string> {

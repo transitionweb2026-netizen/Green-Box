@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import type { Tables } from "@/types/database";
+import type { Tables, ProfileRole } from "@/types/database";
 
 export type Profile = Tables<"profiles">;
 
@@ -51,4 +51,41 @@ export async function adminGetCustomerDetail(profileId: string): Promise<Custome
     loyaltyAccount: loyaltyRes.data,
     subscriptions: subscriptionsRes.data ?? [],
   };
+}
+
+// --- Staff / role management ----------------------------------------------
+// Only two roles exist in this project (customer, admin) -- see
+// types/database.ts ProfileRole -- so this stays a plain list + promote/
+// demote action rather than a general role-management system. The actual
+// mutation always goes through admin_set_profile_role() (migration 0020),
+// which enforces admin-only access and blocks removing the last admin;
+// self-escalation from customer to admin is separately blocked by the
+// profiles_prevent_role_self_change trigger (migration 0002).
+
+export async function adminListStaff(): Promise<Profile[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("role", "admin")
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function adminFindProfileByEmail(email: string): Promise<Profile | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("profiles").select("*").ilike("email", email.trim()).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function adminSetProfileRole(profileId: string, role: ProfileRole): Promise<Profile> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("admin_set_profile_role", {
+    p_profile_id: profileId,
+    p_new_role: role,
+  });
+  if (error) throw error;
+  return data as unknown as Profile;
 }

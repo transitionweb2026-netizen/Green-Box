@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { OrderStatus, Tables } from "@/types/database";
+import { addToCart, getOrCreateActiveCart } from "./cart";
 
 export type Order = Tables<"orders">;
 export type OrderItem = Tables<"order_items">;
@@ -12,6 +13,7 @@ export interface CreateOrderInput {
   addressId: string;
   deliveryTimeSlotId: string;
   paymentMethodId: string;
+  deliveryDate: string;
   customerNotes?: string | null;
   redeemPoints?: number;
 }
@@ -21,6 +23,9 @@ export interface CreateOrderInput {
  * trusted database function, which recomputes every price server-side.
  * See DATABASE.md, "Trusted Mutation Functions". Never trust a
  * client-supplied price/subtotal/total anywhere in this codebase.
+ * `deliveryDate` (plus per-slot `max_orders`) is validated and capacity-
+ * checked inside create_order() itself -- see migration
+ * 0019_create_order_date_and_capacity.sql -- not just here.
  */
 export async function createOrderFromCart(input: CreateOrderInput): Promise<Order> {
   const supabase = await createClient();
@@ -31,7 +36,23 @@ export async function createOrderFromCart(input: CreateOrderInput): Promise<Orde
     p_payment_method_id: input.paymentMethodId,
     p_customer_notes: input.customerNotes ?? null,
     p_redeem_points: input.redeemPoints ?? 0,
+    p_delivery_date: input.deliveryDate,
   });
+  if (error) throw error;
+  return data as unknown as Order;
+}
+
+/**
+ * Calls cancel_own_order() (migration 0025) -- the only path by which a
+ * customer can cancel their own order. Enforces ownership, allowed
+ * statuses, the admin-configurable cutoff, and the loyalty-points reversal
+ * server-side; never trust a client-side "can this be cancelled" check
+ * alone (the UI's own check is just to avoid showing a button that would
+ * fail, not the real boundary).
+ */
+export async function cancelMyOrder(orderId: string): Promise<Order> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("cancel_own_order", { p_order_id: orderId });
   if (error) throw error;
   return data as unknown as Order;
 }
@@ -75,6 +96,58 @@ export async function getOrderByNumber(orderNumber: string): Promise<OrderDetail
     .maybeSingle();
   if (error) throw error;
   return data as OrderDetail | null;
+}
+
+export interface ReorderResult {
+  addedCount: number;
+  unavailableItems: string[];
+}
+
+/**
+ * Adds an old order's items to the customer's active cart at CURRENT
+ * prices -- cart_items never stores a price (see lib/services/cart.ts),
+ * it's always looked up live at cart-summary/checkout time, so this needs
+ * no special price handling. Products that were deleted since (product_id
+ * null on the order_items row -- see order_items_product_id_fkey, ON
+ * DELETE SET NULL) or are currently unavailable are skipped, not added;
+ * their names are returned so the caller can tell the customer which
+ * items didn't carry over. Never creates an order itself -- populates the
+ * cart only, same as any other "add to cart" action.
+ */
+export async function reorderFromOrder(orderId: string): Promise<ReorderResult> {
+  const supabase = await createClient();
+  const { data: order, error } = await supabase
+    .from("orders")
+    .select("id, order_items(product_id, product_name_ar, quantity)")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!order) throw new Error("Order not found");
+
+  const productIds = order.order_items.map((item) => item.product_id).filter((id): id is string => id !== null);
+
+  const { data: products, error: productsError } = await supabase
+    .from("products")
+    .select("id, is_available")
+    .in("id", productIds.length > 0 ? productIds : ["00000000-0000-0000-0000-000000000000"]);
+  if (productsError) throw productsError;
+  const availableIds = new Set((products ?? []).filter((p) => p.is_available).map((p) => p.id));
+
+  const cart = await getOrCreateActiveCart();
+
+  let addedCount = 0;
+  const unavailableItems: string[] = [];
+
+  for (const item of order.order_items) {
+    if (!item.product_id || !availableIds.has(item.product_id)) {
+      unavailableItems.push(item.product_name_ar);
+      continue;
+    }
+    await addToCart(cart.id, item.product_id, item.quantity);
+    addedCount += 1;
+  }
+
+  return { addedCount, unavailableItems };
 }
 
 // --- Admin -------------------------------------------------------------

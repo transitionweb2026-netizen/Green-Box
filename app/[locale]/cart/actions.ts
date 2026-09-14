@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
-import { addToCart, getOrCreateActiveCart, removeCartItem, updateCartItemQuantity } from "@/lib/services/cart";
+import {
+  addToCart,
+  getOrCreateActiveCart,
+  removeCartItem,
+  updateCartItemNotes,
+  updateCartItemQuantity,
+} from "@/lib/services/cart";
 
 export type CartActionState = { status: "idle" | "error" | "success"; message?: string };
 
@@ -11,10 +17,12 @@ export async function addToCartAction(
   locale: string,
   productId: string,
   quantity: number,
+  currentPath?: string,
 ): Promise<CartActionState> {
   const user = await getCurrentUser();
   if (!user) {
-    redirect(`/${locale}/auth/login?next=${encodeURIComponent(`/${locale}`)}`);
+    const next = currentPath ?? `/${locale}`;
+    redirect(`/${locale}/auth/login?next=${encodeURIComponent(next)}`);
   }
 
   try {
@@ -34,5 +42,10 @@ export async function updateCartItemAction(locale: string, cartItemId: string, q
 
 export async function removeCartItemAction(locale: string, cartItemId: string) {
   await removeCartItem(cartItemId);
+  revalidatePath(`/${locale}/cart`);
+}
+
+export async function updateCartItemNotesAction(locale: string, cartItemId: string, notes: string) {
+  await updateCartItemNotes(cartItemId, notes.trim() || null);
   revalidatePath(`/${locale}/cart`);
 }

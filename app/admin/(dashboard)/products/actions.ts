@@ -1,12 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
   adminAddProductImage,
   adminCreateProduct,
   adminDeleteProductImage,
+  adminSetPrimaryProductImage,
   adminArchiveProduct,
   adminSetBoxContents,
   adminUpdateProduct,
@@ -40,7 +41,7 @@ const productSchema = z.object({
   meta_description_en: z.string().trim().max(500).optional(),
 });
 
-export type ProductActionState = { status: "idle" | "error"; message?: string; productId?: string };
+export type ProductActionState = { status: "idle" | "error" | "success"; message?: string; productId?: string };
 
 function parseForm(formData: FormData) {
   return productSchema.safeParse({
@@ -102,6 +103,7 @@ export async function createProductAction(
   }
 
   revalidatePath("/admin/products");
+  revalidateTag("products", "max");
   redirect(`/admin/products/${productId}/edit`);
 }
 
@@ -141,12 +143,14 @@ export async function updateProductAction(
 
   revalidatePath("/admin/products");
   revalidatePath(`/admin/products/${productId}/edit`);
-  return { status: "idle" };
+  revalidateTag("products", "max");
+  return { status: "success" };
 }
 
 export async function archiveProductAction(productId: string) {
   await adminArchiveProduct(productId);
   revalidatePath("/admin/products");
+  revalidateTag("products", "max");
 }
 
 export async function uploadProductImageAction(productId: string, formData: FormData) {
@@ -156,15 +160,25 @@ export async function uploadProductImageAction(productId: string, formData: Form
   const url = await uploadMediaFile("products", file);
   await adminAddProductImage(productId, url);
   revalidatePath(`/admin/products/${productId}/edit`);
+  revalidateTag("products", "max");
 }
 
 export async function deleteProductImageAction(productId: string, imageId: string, url: string) {
   await adminDeleteProductImage(imageId);
   await deleteMediaFile(url).catch(() => {});
   revalidatePath(`/admin/products/${productId}/edit`);
+  revalidateTag("products", "max");
+}
+
+export async function setPrimaryProductImageAction(productId: string, imageId: string) {
+  await adminSetPrimaryProductImage(productId, imageId);
+  revalidatePath(`/admin/products/${productId}/edit`);
+  revalidatePath("/admin/products");
+  revalidateTag("products", "max");
 }
 
 export async function setBoxContentsAction(productId: string, items: { productId: string; quantity: number }[]) {
   await adminSetBoxContents(productId, items);
   revalidatePath(`/admin/products/${productId}/edit`);
+  revalidateTag("products", "max");
 }

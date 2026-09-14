@@ -1,17 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
+import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormMessage } from "@/components/ui/form-message";
 import { updateStoreSettingsAction, type SettingsActionState } from "@/app/admin/(dashboard)/content/actions";
-
-interface StoreInfo {
-  store_name?: string;
-  contact_phone?: string;
-  contact_email?: string;
-}
+import type { StoreInfo } from "@/lib/services/content";
 
 export function StoreSettingsForm({ storeInfo }: { storeInfo: StoreInfo | null }) {
   const [state, formAction, isPending] = useActionState(updateStoreSettingsAction, { status: "idle" } as SettingsActionState);
@@ -30,8 +26,14 @@ export function StoreSettingsForm({ storeInfo }: { storeInfo: StoreInfo | null }
         <Label htmlFor="contact_email">البريد الإلكتروني للتواصل</Label>
         <Input id="contact_email" name="contact_email" type="email" defaultValue={storeInfo?.contact_email ?? ""} />
       </div>
+      <div>
+        <Label htmlFor="whatsapp_phone">رقم الواتساب</Label>
+        <Input id="whatsapp_phone" name="whatsapp_phone" defaultValue={storeInfo?.whatsapp_phone ?? ""} placeholder="مثال: 010XXXXXXXX" />
+      </div>
       {state.status === "success" && <FormMessage variant="success">تم الحفظ بنجاح.</FormMessage>}
-      <Button type="submit" size="sm" disabled={isPending}>
+      {state.status === "error" && <FormMessage>حصل خطأ أثناء الحفظ. حاول تاني.</FormMessage>}
+      <Button type="submit" size="sm" disabled={isPending} loading={isPending}>
+        {!isPending && <Save className="h-3.5 w-3.5" />}
         {isPending ? "جارٍ الحفظ..." : "حفظ"}
       </Button>
     </form>

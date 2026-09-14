@@ -1,15 +1,19 @@
+import { PackageOpen, MapPinPlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getCartSummary, getOrCreateActiveCart } from "@/lib/services/cart";
 import { listMyAddresses } from "@/lib/services/addresses";
 import { listActiveTimeSlots } from "@/lib/services/delivery";
 import { listActivePaymentMethods } from "@/lib/services/payments";
-import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SubscriptionCreateForm } from "@/components/storefront/subscription-create-form";
 
 export default async function NewSubscriptionPage() {
   const t = await getTranslations("subscriptions");
+  const tCart = await getTranslations("cart");
+  const tCheckout = await getTranslations("checkout");
+  const tAddresses = await getTranslations("addresses");
 
   const cart = await getOrCreateActiveCart();
   const { items } = await getCartSummary(cart.id);
@@ -23,14 +27,16 @@ export default async function NewSubscriptionPage() {
     return (
       <div>
         <h1 className="text-xl font-bold text-foreground">{t("create")}</h1>
-        <Card className="mt-6 text-center text-muted">
-          {t("empty")}
-          <div className="mt-4">
+        <EmptyState
+          className="mt-6"
+          icon={<PackageOpen className="h-7 w-7" />}
+          title={t("empty")}
+          action={
             <Link href="/" className={buttonVariants({ variant: "outline" })}>
-              {t("create")}
+              {tCart("continueShopping")}
             </Link>
-          </div>
-        </Card>
+          }
+        />
       </div>
     );
   }
@@ -39,11 +45,16 @@ export default async function NewSubscriptionPage() {
     return (
       <div>
         <h1 className="text-xl font-bold text-foreground">{t("create")}</h1>
-        <Card className="mt-6 text-center text-muted">
-          <Link href="/account/addresses/new" className={buttonVariants()}>
-            {t("create")}
-          </Link>
-        </Card>
+        <EmptyState
+          className="mt-6"
+          icon={<MapPinPlus className="h-7 w-7" />}
+          title={tCheckout("noAddresses")}
+          action={
+            <Link href="/account/addresses/new" className={buttonVariants()}>
+              {tAddresses("add")}
+            </Link>
+          }
+        />
       </div>
     );
   }

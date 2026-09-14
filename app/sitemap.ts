@@ -20,6 +20,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   for (const locale of routing.locales) {
     entries.push({ url: `${base}/${locale}`, changeFrequency: "daily", priority: 1 });
+    entries.push({ url: `${base}/${locale}/box`, changeFrequency: "weekly", priority: 0.7 });
+    entries.push({ url: `${base}/${locale}/c`, changeFrequency: "weekly", priority: 0.7 });
     for (const category of categories ?? []) {
       entries.push({
         url: `${base}/${locale}/c/${category.slug}`,

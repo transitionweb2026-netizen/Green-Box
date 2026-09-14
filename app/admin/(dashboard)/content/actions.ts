@@ -71,9 +71,101 @@ export async function updateStoreSettingsAction(
   const storeName = String(formData.get("store_name") ?? "").trim();
   const contactPhone = String(formData.get("contact_phone") ?? "").trim();
   const contactEmail = String(formData.get("contact_email") ?? "").trim();
+  const whatsappPhone = String(formData.get("whatsapp_phone") ?? "").trim();
 
   try {
-    await adminUpsertSetting("store_info", { store_name: storeName, contact_phone: contactPhone, contact_email: contactEmail });
+    await adminUpsertSetting("store_info", {
+      store_name: storeName,
+      contact_phone: contactPhone,
+      contact_email: contactEmail,
+      whatsapp_phone: whatsappPhone,
+    });
+  } catch {
+    return { status: "error" };
+  }
+
+  revalidatePath("/admin/content");
+  return { status: "success" };
+}
+
+const homepageContentFields = [
+  "greenBoxTitle_ar",
+  "greenBoxTitle_en",
+  "greenBoxDescription_ar",
+  "greenBoxDescription_en",
+  "loyaltyTitle_ar",
+  "loyaltyTitle_en",
+  "loyaltyDescription_ar",
+  "loyaltyDescription_en",
+  "subscriptionTitle_ar",
+  "subscriptionTitle_en",
+  "subscriptionDescription_ar",
+  "subscriptionDescription_en",
+  "finalCtaTitle_ar",
+  "finalCtaTitle_en",
+  "finalCtaDescription_ar",
+  "finalCtaDescription_en",
+] as const;
+
+export async function updateHomepageContentAction(
+  _prevState: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const value: Record<string, string> = {};
+  for (const field of homepageContentFields) {
+    value[field] = String(formData.get(field) ?? "").trim();
+  }
+
+  try {
+    await adminUpsertSetting("homepage_content", value, "Homepage promo section copy -- leave a field empty to use the built-in default text.");
+  } catch {
+    return { status: "error" };
+  }
+
+  revalidatePath("/admin/content");
+  revalidatePath("/[locale]", "page");
+  return { status: "success" };
+}
+
+export async function updateOrderPolicySettingsAction(
+  _prevState: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const cancellationEnabled = formData.get("customer_cancellation_enabled") === "on";
+  const cutoffHours = Number(formData.get("cancellation_cutoff_hours") ?? 2);
+  if (!Number.isInteger(cutoffHours) || cutoffHours < 0) {
+    return { status: "error" };
+  }
+
+  try {
+    await adminUpsertSetting(
+      "order_policy_settings",
+      { customer_cancellation_enabled: cancellationEnabled, cancellation_cutoff_hours: cutoffHours },
+      "Whether customers can cancel their own order, and how many hours before the delivery slot the cutoff is.",
+    );
+  } catch {
+    return { status: "error" };
+  }
+
+  revalidatePath("/admin/content");
+  return { status: "success" };
+}
+
+export async function updateReservationSettingsAction(
+  _prevState: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const leadDays = Number(formData.get("lead_days") ?? 1);
+  if (!Number.isInteger(leadDays) || leadDays < 0) {
+    return { status: "error" };
+  }
+
+  try {
+    await adminUpsertSetting(
+      "reservation_settings",
+      { lead_days: leadDays },
+      'Minimum days of advance notice required for products marked "requires reservation".',
+    );
   } catch {
     return { status: "error" };
   }

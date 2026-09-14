@@ -19,3 +19,17 @@ export type RegisterState = {
 };
 
 export const initialRegisterState: RegisterState = { status: "idle" };
+
+export type ForgotPasswordState = {
+  status: "idle" | "error" | "success";
+  errorCode?: "VALIDATION" | "GENERIC";
+};
+
+export const initialForgotPasswordState: ForgotPasswordState = { status: "idle" };
+
+export type ResetPasswordState = {
+  status: "idle" | "error" | "success";
+  errorCode?: "VALIDATION" | "PASSWORD_MISMATCH" | "GENERIC";
+};
+
+export const initialResetPasswordState: ResetPasswordState = { status: "idle" };

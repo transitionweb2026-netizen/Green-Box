@@ -1,9 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
+import { CalendarDays, Check, MapPin, Wallet } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { FormMessage } from "@/components/ui/form-message";
 import { pickLocalized } from "@/lib/i18n/localized";
 import { createSubscriptionFromCartAction, type CreateSubscriptionState } from "@/app/[locale]/account/subscriptions/new/actions";
@@ -12,8 +16,7 @@ import type { DeliveryTimeSlot } from "@/lib/services/delivery";
 import type { PaymentMethod } from "@/lib/services/payments";
 import type { CartItemWithProduct } from "@/lib/services/cart";
 
-const WEEKDAYS_AR = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
-const WEEKDAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const WEEKDAY_KEYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
 
 export function SubscriptionCreateForm({
   cartItems,
@@ -36,79 +39,79 @@ export function SubscriptionCreateForm({
   );
 
   return (
-    <form action={formAction} className="max-w-lg space-y-5">
-      <div>
-        <h3 className="mb-2 font-semibold text-foreground">{t("itemsTitle")}</h3>
-        <ul className="space-y-1 rounded-lg border border-border p-3 text-sm text-muted">
-          {cartItems.map((item) => (
-            <li key={item.id}>
-              {pickLocalized(item.products.name_ar, item.products.name_en, locale)} × {item.quantity}
-            </li>
-          ))}
-        </ul>
-      </div>
+    <Card tone="glass" className="max-w-lg">
+      <form action={formAction} className="space-y-5">
+        <div>
+          <h3 className="mb-2 font-bold text-foreground">{t("itemsTitle")}</h3>
+          <ul className="space-y-1.5">
+            {cartItems.map((item) => (
+              <li key={item.id} className="flex items-center justify-between rounded-lg bg-white/50 px-3 py-1.5 text-sm text-foreground">
+                <span>{pickLocalized(item.products.name_ar, item.products.name_en, locale)}</span>
+                <Badge tone="brand">×{item.quantity}</Badge>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-      <div>
-        <Label htmlFor="addressId">{tCheckout("addressTitle")}</Label>
-        <select id="addressId" name="addressId" required className="h-11 w-full rounded-lg border border-border bg-background px-3">
-          {addresses.map((address) => (
-            <option key={address.id} value={address.id}>
-              {address.label || address.detailed_address}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div>
+          <Label htmlFor="addressId" className="flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5" /> {tCheckout("addressTitle")}
+          </Label>
+          <Select id="addressId" name="addressId" required>
+            {addresses.map((address) => (
+              <option key={address.id} value={address.id}>
+                {address.label || address.detailed_address}
+              </option>
+            ))}
+          </Select>
+        </div>
 
-      <div>
-        <Label htmlFor="deliveryTimeSlotId">{tCheckout("slotTitle")}</Label>
-        <select
-          id="deliveryTimeSlotId"
-          name="deliveryTimeSlotId"
-          required
-          className="h-11 w-full rounded-lg border border-border bg-background px-3"
-        >
-          {slots.map((slot) => (
-            <option key={slot.id} value={slot.id}>
-              {pickLocalized(slot.label_ar, slot.label_en, locale)} ({slot.start_time}-{slot.end_time})
-            </option>
-          ))}
-        </select>
-      </div>
+        <div>
+          <Label htmlFor="deliveryTimeSlotId" className="flex items-center gap-1.5">
+            <CalendarDays className="h-3.5 w-3.5" /> {tCheckout("slotTitle")}
+          </Label>
+          <Select id="deliveryTimeSlotId" name="deliveryTimeSlotId" required>
+            {slots.map((slot) => (
+              <option key={slot.id} value={slot.id}>
+                {pickLocalized(slot.label_ar, slot.label_en, locale)} ({slot.start_time}-{slot.end_time})
+              </option>
+            ))}
+          </Select>
+        </div>
 
-      <div>
-        <Label htmlFor="dayOfWeek">{locale === "ar" ? "يوم التوصيل الأسبوعي" : "Weekly delivery day"}</Label>
-        <select id="dayOfWeek" name="dayOfWeek" required className="h-11 w-full rounded-lg border border-border bg-background px-3">
-          {(locale === "ar" ? WEEKDAYS_AR : WEEKDAYS_EN).map((day, index) => (
-            <option key={day} value={index}>
-              {day}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div>
+          <Label htmlFor="dayOfWeek">{t("deliveryDay")}</Label>
+          <Select id="dayOfWeek" name="dayOfWeek" required>
+            {WEEKDAY_KEYS.map((key, index) => (
+              <option key={key} value={index}>
+                {t(`weekdays.${key}`)}
+              </option>
+            ))}
+          </Select>
+        </div>
 
-      <div>
-        <Label htmlFor="paymentMethodId">{tCheckout("paymentTitle")}</Label>
-        <select
-          id="paymentMethodId"
-          name="paymentMethodId"
-          required
-          className="h-11 w-full rounded-lg border border-border bg-background px-3"
-        >
-          {paymentMethods.map((method) => (
-            <option key={method.id} value={method.id}>
-              {pickLocalized(method.name_ar, method.name_en, locale)}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div>
+          <Label htmlFor="paymentMethodId" className="flex items-center gap-1.5">
+            <Wallet className="h-3.5 w-3.5" /> {tCheckout("paymentTitle")}
+          </Label>
+          <Select id="paymentMethodId" name="paymentMethodId" required>
+            {paymentMethods.map((method) => (
+              <option key={method.id} value={method.id}>
+                {pickLocalized(method.name_ar, method.name_en, locale)}
+              </option>
+            ))}
+          </Select>
+        </div>
 
-      <p className="text-sm text-muted">{t("notice")}</p>
+        <p className="rounded-xl bg-info-bg px-3.5 py-2.5 text-sm text-info">{t("notice")}</p>
 
-      {state.status === "error" && <FormMessage>{tCheckout("orderFailed")}</FormMessage>}
+        {state.status === "error" && <FormMessage>{t(`errors.${state.message ?? "GENERIC"}`)}</FormMessage>}
 
-      <Button type="submit" disabled={isPending}>
-        {isPending ? tAddr("saving") : t("create")}
-      </Button>
-    </form>
+        <Button type="submit" disabled={isPending} loading={isPending} className="w-full">
+          {!isPending && <Check className="h-4 w-4" />}
+          {isPending ? tAddr("saving") : t("create")}
+        </Button>
+      </form>
+    </Card>
   );
 }

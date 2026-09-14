@@ -40,7 +40,7 @@ export async function listCartItems(cartId: string): Promise<CartItemWithProduct
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("cart_items")
-    .select("*, products(*, product_images(*))")
+    .select("*, products(*, product_images(*), categories(slug))")
     .eq("cart_id", cartId)
     .order("created_at", { ascending: true });
   if (error) throw error;

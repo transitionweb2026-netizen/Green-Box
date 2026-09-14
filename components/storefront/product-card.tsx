@@ -1,7 +1,10 @@
-import Image from "next/image";
+import { AppImage as Image } from "@/components/ui/app-image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { pickLocalized, formatPrice } from "@/lib/i18n/localized";
+import { pickLocalized } from "@/lib/i18n/localized";
+import { PriceDisplay } from "@/components/ui/price-display";
+import { Badge } from "@/components/ui/badge";
+import { categoryPlaceholderKey, placeholderImage } from "@/lib/media/placeholders";
 import type { ProductWithImages } from "@/lib/services/catalog";
 import { AddToCartButton } from "./add-to-cart-button";
 
@@ -12,41 +15,64 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
   const unit = pickLocalized(product.unit_label_ar ?? "", product.unit_label_en, locale);
   const primaryImage =
     product.product_images.find((img) => img.is_primary) ?? product.product_images[0];
+  const isBox = product.product_type === "box";
+  const fallbackKey = isBox ? "greenBox" : categoryPlaceholderKey(product.categories?.slug);
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-background">
+    <div className="glass glass-hover group flex flex-col overflow-hidden !p-0">
       <Link href={`/p/${product.slug}`} className="block">
-        <div className="relative aspect-square w-full bg-brand-50">
-          {primaryImage ? (
-            <Image
-              src={primaryImage.url}
-              alt={pickLocalized(primaryImage.alt_ar ?? name, primaryImage.alt_en, locale)}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              className="object-cover transition-transform group-hover:scale-105"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-muted">{t("noImage")}</div>
+        <div className="relative aspect-square w-full overflow-hidden bg-brand-50">
+          <Image
+            src={primaryImage?.url ?? placeholderImage(fallbackKey, { variant: hashVariant(product.id) })}
+            alt={pickLocalized(primaryImage?.alt_ar ?? name, primaryImage?.alt_en, locale)}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+          {isBox && (
+            <Badge tone="deep" className="absolute start-2 top-2 shadow-sm">
+              {t("boxContents")}
+            </Badge>
+          )}
+          {product.is_featured && !isBox && (
+            <Badge tone="gold" className="absolute start-2 top-2 shadow-sm">
+              ★
+            </Badge>
+          )}
+          {product.requires_reservation && (
+            <Badge tone="info" className="absolute end-2 top-2 shadow-sm">
+              {t("reservationRequired")}
+            </Badge>
           )}
           {!product.is_available && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-              <span className="rounded-full bg-danger px-3 py-1 text-sm font-medium text-white">
-                {t("outOfStock")}
-              </span>
+            <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]">
+              <Badge tone="danger">{t("outOfStock")}</Badge>
             </div>
           )}
         </div>
       </Link>
-      <div className="flex flex-1 flex-col gap-2 p-3">
+      <div className="flex flex-1 flex-col gap-1.5 p-3.5">
         <Link href={`/p/${product.slug}`}>
-          <h3 className="line-clamp-2 text-sm font-medium text-foreground hover:text-brand-700">{name}</h3>
+          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold text-foreground transition-colors group-hover:text-brand-700">
+            {name}
+          </h3>
         </Link>
-        {unit && <p className="text-xs text-muted">{unit}</p>}
+        {unit && <p className="text-xs text-muted-2">{unit}</p>}
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-          <span className="font-semibold text-brand-700">{formatPrice(product.price, locale)}</span>
+          <PriceDisplay value={product.price} locale={locale} size="md" />
           <AddToCartButton productId={product.id} disabled={!product.is_available} compact />
         </div>
       </div>
     </div>
   );
+}
+
+/** Deterministic 0-4 variant index from a product id, so different
+ * products missing a real photo don't all show the exact same
+ * placeholder frame. */
+function hashVariant(id: string): number {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) % 5;
+  return hash;
 }

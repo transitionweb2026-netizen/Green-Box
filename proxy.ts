@@ -7,12 +7,11 @@ import { routing } from "./i18n/routing";
  * Next.js 16, see node_modules/next/dist/docs file-conventions/proxy.md)
  * never touches those trees.
  *
- * Session-refresh / role-gating logic for /admin is deliberately not added
- * yet -- it depends on the `profiles` table and `is_admin()` helper, which
- * do not exist until Phase 2 (see ROADMAP.md Phase 3: "Admin shell/layout +
- * requireAdmin() route protection"). Adding it now against placeholder
- * Supabase credentials would either fail open or fail closed for the wrong
- * reason. Tracked in TODO.md.
+ * /admin route protection (requireAdmin() + is_admin() RLS policies) has
+ * existed since Phase 2 and lives in app/admin/(dashboard)/layout.tsx and
+ * the database layer, not here -- this proxy still excludes /admin from
+ * its matcher on purpose, since /admin is single-locale and doesn't need
+ * next-intl's locale routing at all.
  */
 export default createMiddleware(routing);
 

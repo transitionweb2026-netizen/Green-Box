@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { getCurrentProfile } from "@/lib/auth/session";
+import { Card } from "@/components/ui/card";
 import { ProfileForm } from "@/components/storefront/profile-form";
 
 export default async function ProfilePage() {
@@ -10,9 +11,9 @@ export default async function ProfilePage() {
   return (
     <div>
       <h1 className="text-xl font-bold text-foreground">{t("profileTitle")}</h1>
-      <div className="mt-6">
+      <Card className="mt-6 max-w-md">
         <ProfileForm profile={profile} />
-      </div>
+      </Card>
     </div>
   );
 }

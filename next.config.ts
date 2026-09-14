@@ -21,6 +21,14 @@ const nextConfig: NextConfig = {
         hostname: "yvmfzvsahjfjxymnjxzk.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
+      {
+        // Temporary professional placeholder imagery until real product/
+        // banner photography is uploaded through the CMS media library --
+        // see lib/media/placeholders.ts, the single place these are
+        // referenced from.
+        protocol: "https",
+        hostname: "loremflickr.com",
+      },
     ],
   },
   turbopack: {

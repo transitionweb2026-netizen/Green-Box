@@ -3,31 +3,82 @@
     "siteName": "Green Box",
     "tagline": "Fresh vegetables and fruit, delivered to your door",
     "loading": "Loading...",
+    "close": "Close",
     "language": "Language",
     "switchToEnglish": "English",
-    "switchToArabic": "العربية"
+    "switchToArabic": "العربية",
+    "authHighlight": {
+      "loyalty": "Earn loyalty points on every order",
+      "delivery": "Reliable, scheduled delivery",
+      "quality": "Freshness checked before it ships"
+    }
   },
   "nav": {
     "home": "Home",
     "categories": "Categories",
+    "greenBox": "Green Box",
     "search": "Search",
     "searchPlaceholder": "Search for a product...",
     "cart": "Cart",
     "account": "Account",
     "login": "Log in",
-    "register": "Sign up"
+    "register": "Sign up",
+    "menu": "Menu"
   },
   "home": {
+    "heroEyebrow": "Fresh, every day",
     "heroTitle": "Fresh vegetables and fruit, delivered to your door",
     "heroSubtitle": "From the farm to your kitchen, with quality you can trust.",
     "heroCta": "Browse products",
-    "categoriesTitle": "Categories",
-    "categoriesComingSoon": "Categories and products will appear here once the database is connected in Phase 2.",
-    "featuredTitle": "Featured Products",
-    "foundationNotice": "This site is still in its foundation phase (Phase 1) — real product data and pricing will be added later from the admin dashboard."
+    "heroSecondaryCta": "Discover Green Box",
+    "trustFreshTitle": "Sourced fresh, daily",
+    "trustFreshDescription": "Vegetables and fruit picked and delivered within the same day.",
+    "trustDeliveryTitle": "Scheduled delivery",
+    "trustDeliveryDescription": "Pick the time slot and area that suits you at checkout.",
+    "trustPaymentTitle": "Secure payments",
+    "trustPaymentDescription": "Pay easily with Vodafone Cash or InstaPay.",
+    "trustLoyaltyTitle": "Loyalty rewards",
+    "trustLoyaltyDescription": "Earn points on every order and redeem them for discounts.",
+    "categoriesTitle": "Shop by category",
+    "categoriesSubtitle": "Everything you need, organized for a faster shop.",
+    "categoriesComingSoon": "Categories will appear here as soon as they're added from the admin dashboard.",
+    "featuredEyebrow": "Featured",
+    "featuredTitle": "Featured this week",
+    "featuredSubtitle": "A hand-picked selection of our freshest and most popular products.",
+    "whyEyebrow": "Why Green Box",
+    "whyTitle": "Quality you can taste, service you can trust",
+    "whyFreshnessTitle": "Real freshness",
+    "whyFreshnessDescription": "Every item is inspected for quality before it leaves our hands.",
+    "whyHygieneTitle": "Careful handling",
+    "whyHygieneDescription": "Packed and handled with strict hygiene standards from start to finish.",
+    "whySpeedTitle": "Reliable delivery",
+    "whySpeedDescription": "Clear delivery windows so you always know when to expect your order.",
+    "whySupportTitle": "Real support",
+    "whySupportDescription": "A team that's easy to reach if anything about your order needs attention.",
+    "greenBoxEyebrow": "The Green Box",
+    "greenBoxTitle": "A curated box of fresh essentials, ready in one click",
+    "greenBoxDescription": "Skip the item-by-item shopping. Each Green Box is a hand-picked bundle of fresh produce and essentials at one simple price.",
+    "greenBoxCta": "Explore Green Box",
+    "loyaltyEyebrow": "Green Box Rewards",
+    "loyaltyTitle": "Every order brings you closer to a reward",
+    "loyaltyDescription": "Earn points automatically on every delivered order, then redeem them for real discounts at checkout.",
+    "loyaltyCta": "View my points",
+    "subscriptionEyebrow": "Never run out",
+    "subscriptionTitle": "Set it once, get fresh groceries on repeat",
+    "subscriptionDescription": "Build a weekly basket of your essentials and let Green Box handle the rest.",
+    "subscriptionCta": "Set up a subscription",
+    "finalCtaTitle": "Ready for fresher groceries?",
+    "finalCtaDescription": "Create an account in under a minute and place your first order today.",
+    "finalCtaPrimary": "Create an account",
+    "finalCtaSecondary": "Browse products",
+    "foundationNotice": "New products and categories are added regularly — check back soon."
   },
   "footer": {
-    "rights": "All rights reserved"
+    "rights": "All rights reserved",
+    "shop": "Shop",
+    "account": "Account",
+    "contact": "Contact us",
+    "contactSoon": "Contact details coming soon"
   },
   "auth": {
     "login": {
@@ -39,6 +90,7 @@
       "submitting": "Logging in...",
       "noAccount": "Don't have an account?",
       "registerLink": "Create an account",
+      "forgotPassword": "Forgot password?",
       "errorInvalidCredentials": "Incorrect email or password.",
       "errorGeneric": "Something went wrong while logging in. Please try again."
     },
@@ -57,6 +109,30 @@
       "errorPasswordMismatch": "Passwords do not match.",
       "errorGeneric": "Something went wrong while creating your account. Please try again.",
       "successCheckEmail": "Account created! Check your email to confirm your account."
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email and we'll send you a link to reset your password.",
+      "emailLabel": "Email",
+      "submit": "Send reset link",
+      "submitting": "Sending...",
+      "backToLogin": "Back to login",
+      "successCheckEmail": "If an account exists for that email, we've sent a password reset link. Check your inbox.",
+      "errorGeneric": "Something went wrong. Please try again."
+    },
+    "resetPassword": {
+      "title": "Choose a new password",
+      "subtitle": "Enter a new password for your account.",
+      "passwordLabel": "New password",
+      "confirmPasswordLabel": "Confirm new password",
+      "submit": "Update password",
+      "submitting": "Updating...",
+      "errorPasswordMismatch": "Passwords do not match.",
+      "errorGeneric": "Something went wrong while updating your password. Please try again.",
+      "successUpdated": "Your password has been updated. You can now log in with your new password.",
+      "goToLogin": "Go to login",
+      "linkInvalid": "This password reset link is invalid or has expired.",
+      "requestNewLink": "Request a new link"
     }
   },
   "errors": {
@@ -81,13 +157,30 @@
     "description": "Description",
     "backToCategory": "Back to category",
     "boxContents": "Box contents",
+    "reservationRequired": "Requires advance reservation",
     "notFoundTitle": "Product not found",
-    "notFoundDescription": "This product doesn't exist or was removed."
+    "notFoundDescription": "This product doesn't exist or was removed.",
+    "trustDelivery": "Scheduled delivery",
+    "trustQuality": "Quality checked",
+    "trustPacking": "Careful packing"
+  },
+  "greenBoxPage": {
+    "eyebrow": "The Green Box",
+    "title": "A curated box of fresh essentials, ready in one click",
+    "subtitle": "Skip the item-by-item shopping. Each Green Box is a hand-picked bundle of fresh produce and essentials at one simple price.",
+    "benefitCurated": "Hand-picked by our team every time",
+    "benefitValue": "One simple price for a full bundle",
+    "benefitTime": "Save time on your weekly shop",
+    "gridTitle": "Available boxes",
+    "gridSubtitle": "Pick the box that fits your kitchen this week.",
+    "emptyTitle": "No boxes available right now",
+    "emptyDescription": "New Green Box bundles are added regularly — check back soon."
   },
   "categoryPage": {
     "empty": "No products in this category yet.",
     "notFoundTitle": "Category not found",
-    "browseAll": "Browse all categories"
+    "browseAll": "Browse all categories",
+    "productsCount": "{count} products"
   },
   "search": {
     "placeholder": "Search for a product...",
@@ -103,13 +196,18 @@
     "checkout": "Checkout",
     "remove": "Remove",
     "notesPlaceholder": "Notes for this item (optional)",
-    "continueShopping": "Continue shopping"
+    "continueShopping": "Continue shopping",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "itemUnavailable": "No longer available",
+    "unavailableNotice": "Some items in your cart are no longer available. Remove them to check out."
   },
   "checkout": {
     "title": "Checkout",
     "addressTitle": "Delivery Address",
     "addAddress": "Add a new address",
     "noAddresses": "You have no saved addresses. Add one to continue.",
+    "dateTitle": "Delivery Date",
     "slotTitle": "Delivery Time",
     "paymentTitle": "Payment Method",
     "notesTitle": "Order Notes",
@@ -126,7 +224,28 @@
     "placing": "Placing order...",
     "orderFailed": "Sorry, something went wrong creating your order. Please try again.",
     "cartEmpty": "Your cart is empty, there's nothing to check out.",
-    "selectRequired": "Please select an address, delivery time, and payment method."
+    "selectRequired": "Please select an address, delivery time, and payment method.",
+    "deliveryFeeNotice": "Shown after you place the order",
+    "paymentInstructionsNotice": "Follow the instructions above after placing your order — we'll verify your payment shortly after.",
+    "nextStepsNotice": "You'll see your order confirmation and tracking right after this.",
+    "errors": {
+      "GENERIC": "Sorry, something went wrong creating your order. Please try again.",
+      "AUTH_REQUIRED": "Please log in again to place your order.",
+      "SELECT_REQUIRED": "Please select an address, delivery time, and payment method.",
+      "INVALID_DATE": "Please choose a valid delivery date (today or later).",
+      "CART_EMPTY": "Your cart is empty, there's nothing to check out.",
+      "ADDRESS_INVALID": "This address could not be found. Please choose or add another one.",
+      "ZONE_UNAVAILABLE": "We don't currently deliver to this address's area. Please choose a different address.",
+      "SLOT_UNAVAILABLE": "This delivery time is no longer available. Please choose another.",
+      "SLOT_FULL": "This delivery time is fully booked for the selected date. Please pick another time or date.",
+      "PAYMENT_UNAVAILABLE": "This payment method is no longer available. Please choose another.",
+      "PRODUCT_UNAVAILABLE": "\"{product}\" is no longer available and was removed from your order. Please review your cart and try again.",
+      "RESERVATION_LEAD_TIME": "\"{product}\" requires advance reservation. Please choose a later delivery date.",
+      "MIN_ORDER_NOT_MET": "Your order total is below the minimum order amount for this delivery area.",
+      "LOYALTY_DISABLED": "The loyalty program is not currently active, so points can't be redeemed right now.",
+      "LOYALTY_INSUFFICIENT": "You don't have enough loyalty points for that redemption amount.",
+      "LOYALTY_MIN_NOT_MET": "That redemption amount is below the minimum allowed."
+    }
   },
   "orders": {
     "title": "My Orders",
@@ -147,6 +266,24 @@
     "confirmationTitle": "Your order is in!",
     "confirmationSubtitle": "Thanks for ordering from Green Box. We'll keep you posted on its status.",
     "backToOrders": "View all my orders",
+    "reorder": "Reorder",
+    "reordering": "Adding to cart...",
+    "reorderSuccess": "{count} item(s) added to your cart.",
+    "reorderNone": "None of these items are currently available.",
+    "reorderUnavailable": "Not available anymore: {items}",
+    "reorderViewCart": "View cart",
+    "cancelOrder": "Cancel order",
+    "cancelling": "Cancelling...",
+    "confirmCancel": "Are you sure you want to cancel this order? This can't be undone.",
+    "cancelSuccess": "Your order has been cancelled.",
+    "cancelErrors": {
+      "GENERIC": "Sorry, we couldn't cancel this order. Please try again or contact us.",
+      "AUTH_REQUIRED": "Please log in again to cancel this order.",
+      "ORDER_NOT_FOUND": "This order could not be found.",
+      "CANCEL_TOO_LATE_STAGE": "This order can no longer be cancelled -- it's already being prepared.",
+      "CANCEL_DISABLED": "Self-service cancellation isn't currently available. Please contact us to cancel this order.",
+      "CANCEL_PAST_CUTOFF": "It's too close to the delivery time to cancel this order. Please contact us."
+    },
     "status": {
       "PENDING": "Pending",
       "CONFIRMED": "Confirmed",
@@ -179,7 +316,8 @@
     "emailLabel": "Email",
     "save": "Save changes",
     "saving": "Saving...",
-    "saved": "Saved successfully."
+    "saved": "Saved successfully.",
+    "errorGeneric": "Sorry, we couldn't save your changes. Please try again."
   },
   "addresses": {
     "title": "My Addresses",
@@ -200,7 +338,9 @@
     "save": "Save address",
     "saving": "Saving...",
     "confirmDelete": "Are you sure you want to delete this address?",
-    "noAreasNotice": "No delivery areas are available yet. Contact us for delivery details."
+    "noAreasNotice": "No delivery areas are available yet. Contact us for delivery details.",
+    "errorValidation": "Please check the highlighted fields and fill them in correctly.",
+    "errorGeneric": "Sorry, we couldn't save this address. Please try again."
   },
   "loyalty": {
     "title": "Loyalty Points",
@@ -230,6 +370,22 @@
     "resume": "Resume",
     "cancel": "Cancel subscription",
     "itemsTitle": "Products",
-    "notice": "Renewal and automatic weekly order rules are still being finalized by the store team."
+    "deliveryDay": "Weekly delivery day",
+    "nextDelivery": "Next delivery",
+    "weekdays": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    },
+    "notice": "Your order is generated automatically every week on your chosen day. Payment is not charged automatically -- you'll pay for each delivery the same way as a regular order.",
+    "errors": {
+      "GENERIC": "Sorry, something went wrong creating your subscription. Please try again.",
+      "SELECT_REQUIRED": "Please select an address, delivery time, and delivery day.",
+      "CART_EMPTY": "Add at least one product to your cart before creating a subscription."
+    }
   }
 }

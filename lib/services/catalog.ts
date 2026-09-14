@@ -1,38 +1,61 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { Tables, TablesInsert, TablesUpdate } from "@/types/database";
 
 export type Category = Tables<"categories">;
 export type Product = Tables<"products">;
 export type ProductImage = Tables<"product_images">;
-export type ProductWithImages = Product & { product_images: ProductImage[] };
+export type ProductWithImages = Product & {
+  product_images: ProductImage[];
+  categories?: { slug: string } | null;
+};
 
-export async function listActiveCategories(): Promise<Category[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("is_active", true)
-    .order("display_order", { ascending: true });
-  if (error) throw error;
-  return data ?? [];
-}
+/**
+ * Cached with the cookie-free public client (see lib/supabase/public.ts):
+ * this data is gated by is_active/is_available, never auth.uid(), so every
+ * anonymous visitor gets the identical result -- a real, safe win for the
+ * catalog's most-hit reads. 60s revalidate bounds how stale an admin edit
+ * can appear on the storefront without needing per-mutation cache-tag
+ * invalidation; nothing checkout-critical is ever read through this path
+ * (create_order always re-reads live, uncached data).
+ */
+export const listActiveCategories = unstable_cache(
+  async (): Promise<Category[]> => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .eq("is_active", true)
+      .order("display_order", { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+  },
+  ["catalog-active-categories"],
+  { revalidate: 60, tags: ["categories"] },
+);
 
-export async function getCategoryBySlug(slug: string): Promise<Category | null> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_active", true)
-    .maybeSingle();
-  if (error) throw error;
-  return data;
-}
+export const getCategoryBySlug = unstable_cache(
+  async (slug: string): Promise<Category | null> => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .eq("slug", slug)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+  ["catalog-category-by-slug"],
+  { revalidate: 60, tags: ["categories"] },
+);
 
 export interface ListProductsOptions {
   categoryId?: string;
   featured?: boolean;
+  productType?: Product["product_type"];
   page?: number;
   pageSize?: number;
 }
@@ -44,41 +67,48 @@ export interface ProductPage {
   pageSize: number;
 }
 
-/** Paginated catalog browsing (category listing, featured products, etc). */
-export async function listProducts(options: ListProductsOptions = {}): Promise<ProductPage> {
-  const { categoryId, featured, page = 1, pageSize = 20 } = options;
-  const supabase = await createClient();
+/** Paginated catalog browsing (category listing, featured products, etc). Cached -- see listActiveCategories. */
+export const listProducts = unstable_cache(
+  async (options: ListProductsOptions = {}): Promise<ProductPage> => {
+    const { categoryId, featured, productType, page = 1, pageSize = 20 } = options;
+    const supabase = createPublicClient();
 
-  let query = supabase
-    .from("products")
-    .select("*, product_images(*)", { count: "exact" })
-    .eq("is_available", true);
+    let query = supabase
+      .from("products")
+      .select("*, product_images(*), categories(slug)", { count: "exact" })
+      .eq("is_available", true);
 
-  if (categoryId) query = query.eq("category_id", categoryId);
-  if (featured) query = query.eq("is_featured", true);
+    if (categoryId) query = query.eq("category_id", categoryId);
+    if (featured) query = query.eq("is_featured", true);
+    if (productType) query = query.eq("product_type", productType);
 
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  query = query.order("display_order", { ascending: true }).range(from, to);
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.order("display_order", { ascending: true }).range(from, to);
 
-  const { data, error, count } = await query;
-  if (error) throw error;
-  return { products: (data as ProductWithImages[]) ?? [], total: count ?? 0, page, pageSize };
-}
+    const { data, error, count } = await query;
+    if (error) throw error;
+    return { products: (data as ProductWithImages[]) ?? [], total: count ?? 0, page, pageSize };
+  },
+  ["catalog-list-products"],
+  { revalidate: 60, tags: ["products"] },
+);
 
-export async function getProductBySlug(
-  slug: string,
-): Promise<(ProductWithImages & { categories: Category | null }) | null> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*, product_images(*), categories(*)")
-    .eq("slug", slug)
-    .eq("is_available", true)
-    .maybeSingle();
-  if (error) throw error;
-  return data as (ProductWithImages & { categories: Category | null }) | null;
-}
+export const getProductBySlug = unstable_cache(
+  async (slug: string): Promise<(ProductWithImages & { categories: Category | null }) | null> => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*, product_images(*), categories(*)")
+      .eq("slug", slug)
+      .eq("is_available", true)
+      .maybeSingle();
+    if (error) throw error;
+    return data as (ProductWithImages & { categories: Category | null }) | null;
+  },
+  ["catalog-product-by-slug"],
+  { revalidate: 60, tags: ["products"] },
+);
 
 /**
  * Smart search -- see supabase/migrations/0011_search_function.sql. The
@@ -87,13 +117,19 @@ export async function getProductBySlug(
  * RPC's original rank order (a second `.in()` query does not preserve
  * ordering on its own).
  */
-export async function searchProducts(query: string, categoryId?: string, limit = 20): Promise<ProductWithImages[]> {
+export async function searchProducts(
+  query: string,
+  categoryId?: string,
+  limit = 20,
+  offset = 0,
+): Promise<ProductWithImages[]> {
   if (!query.trim()) return [];
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("search_products", {
     p_query: query,
     p_category_id: categoryId ?? null,
     p_limit: limit,
+    p_offset: offset,
   });
   if (error) throw error;
   const results = data ?? [];
@@ -115,7 +151,29 @@ export async function searchProducts(query: string, categoryId?: string, limit =
     imagesByProduct.set(image.product_id, list);
   }
 
-  return results.map((product) => ({ ...product, product_images: imagesByProduct.get(product.id) ?? [] }));
+  const { data: categories, error: categoriesError } = await supabase
+    .from("categories")
+    .select("id, slug")
+    .in("id", [...new Set(results.map((p) => p.category_id))]);
+  if (categoriesError) throw categoriesError;
+  const slugByCategory = new Map((categories ?? []).map((c) => [c.id, c.slug]));
+
+  return results.map((product) => ({
+    ...product,
+    product_images: imagesByProduct.get(product.id) ?? [],
+    categories: slugByCategory.has(product.category_id) ? { slug: slugByCategory.get(product.category_id)! } : null,
+  }));
+}
+
+export async function countSearchProducts(query: string, categoryId?: string): Promise<number> {
+  if (!query.trim()) return 0;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("count_search_products", {
+    p_query: query,
+    p_category_id: categoryId ?? null,
+  });
+  if (error) throw error;
+  return data ?? 0;
 }
 
 export interface SearchSuggestion {
@@ -278,21 +336,37 @@ export async function adminDeleteProductImage(imageId: string): Promise<void> {
   if (error) throw error;
 }
 
+/**
+ * Storefront image pickers (product-card.tsx, product-gallery.tsx) already
+ * do `find(is_primary) ?? images[0]` -- this was previously unreachable
+ * since adminAddProductImage() never set is_primary=true, so every product
+ * silently fell back to "first uploaded" with no way to change it. Runs as
+ * a single Postgres function call (migration 0023) so a failure between
+ * the clear and the set can't leave a product with no primary image.
+ */
+export async function adminSetPrimaryProductImage(productId: string, imageId: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_set_primary_product_image", {
+    p_product_id: productId,
+    p_image_id: imageId,
+  });
+  if (error) throw error;
+}
+
+/**
+ * Runs as a single Postgres function call (migration 0023) so a failed
+ * insert after the delete can no longer leave a box with zero contents --
+ * the previous delete-then-insert was two separate client statements with
+ * no transaction boundary between them.
+ */
 export async function adminSetBoxContents(
   boxProductId: string,
   items: { productId: string; quantity: number }[],
 ): Promise<void> {
   const supabase = await createClient();
-  const del = await supabase.from("box_items").delete().eq("box_product_id", boxProductId);
-  if (del.error) throw del.error;
-  if (items.length === 0) return;
-  const { error } = await supabase.from("box_items").insert(
-    items.map((item, index) => ({
-      box_product_id: boxProductId,
-      item_product_id: item.productId,
-      quantity: item.quantity,
-      display_order: index,
-    })),
-  );
+  const { error } = await supabase.rpc("admin_set_box_contents", {
+    p_box_product_id: boxProductId,
+    p_items: items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+  });
   if (error) throw error;
 }

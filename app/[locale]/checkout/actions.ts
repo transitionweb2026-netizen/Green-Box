@@ -3,8 +3,9 @@
 import { redirect } from "next/navigation";
 import { createOrderFromCart } from "@/lib/services/orders";
 import { getOrCreateActiveCart } from "@/lib/services/cart";
+import { classifyOrderError } from "@/lib/errors/order-errors";
 
-export type CheckoutActionState = { status: "idle" | "error"; message?: string };
+export type CheckoutActionState = { status: "idle" | "error"; message?: string; productName?: string };
 
 /**
  * Thin wrapper around create_order() -- see DATABASE.md, Trusted Mutation
@@ -19,10 +20,18 @@ export async function placeOrderAction(
   const addressId = String(formData.get("addressId") ?? "");
   const deliveryTimeSlotId = String(formData.get("deliveryTimeSlotId") ?? "");
   const paymentMethodId = String(formData.get("paymentMethodId") ?? "");
+  const deliveryDate = String(formData.get("deliveryDate") ?? "");
   const customerNotes = String(formData.get("customerNotes") ?? "").trim() || null;
   const redeemPoints = Number(formData.get("redeemPoints") ?? 0) || 0;
 
-  if (!addressId || !deliveryTimeSlotId || !paymentMethodId) {
+  if (!addressId || !deliveryTimeSlotId || !paymentMethodId || !deliveryDate) {
+    return { status: "error", message: "SELECT_REQUIRED" };
+  }
+
+  // Defense-in-depth only -- create_order() itself is the real boundary
+  // (rejects a past date server-side regardless of what the client sends).
+  const todayCairo = new Date().toISOString().slice(0, 10);
+  if (deliveryDate < todayCairo) {
     return { status: "error", message: "SELECT_REQUIRED" };
   }
 
@@ -35,11 +44,13 @@ export async function placeOrderAction(
       addressId,
       deliveryTimeSlotId,
       paymentMethodId,
+      deliveryDate,
       customerNotes,
       redeemPoints,
     });
   } catch (err) {
-    return { status: "error", message: err instanceof Error ? err.message : "GENERIC" };
+    const { code, productName } = classifyOrderError(err instanceof Error ? err.message : undefined);
+    return { status: "error", message: code, productName };
   }
 
   redirect(`/${locale}/account/orders/${order.order_number}/confirmation`);

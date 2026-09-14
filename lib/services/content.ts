@@ -5,6 +5,45 @@ import type { Json, Tables, TablesInsert, TablesUpdate } from "@/types/database"
 export type Banner = Tables<"banners">;
 export type Setting = Tables<"settings">;
 
+/** Shape of the `settings` row keyed "store_info" -- kept as one shared
+ * type since the storefront header/footer and the admin content page all
+ * need to agree on its fields. */
+export interface StoreInfo {
+  store_name?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  whatsapp_phone?: string;
+}
+
+/**
+ * Homepage marketing copy that's genuinely likely to change (promo
+ * sections, final CTA) -- kept in the same generic `settings` table
+ * (key "homepage_content") rather than a new table, matching store_info's
+ * pattern. Every field is optional: the homepage falls back to its
+ * existing translated default text when a field is unset, so an admin who
+ * never opens this form sees no regression. The hero's title/subtitle
+ * image/link are already editable via the existing banners table and are
+ * deliberately not duplicated here.
+ */
+export interface HomepageContent {
+  greenBoxTitle_ar?: string;
+  greenBoxTitle_en?: string;
+  greenBoxDescription_ar?: string;
+  greenBoxDescription_en?: string;
+  loyaltyTitle_ar?: string;
+  loyaltyTitle_en?: string;
+  loyaltyDescription_ar?: string;
+  loyaltyDescription_en?: string;
+  subscriptionTitle_ar?: string;
+  subscriptionTitle_en?: string;
+  subscriptionDescription_ar?: string;
+  subscriptionDescription_en?: string;
+  finalCtaTitle_ar?: string;
+  finalCtaTitle_en?: string;
+  finalCtaDescription_ar?: string;
+  finalCtaDescription_en?: string;
+}
+
 export async function listActiveBanners(): Promise<Banner[]> {
   const supabase = await createClient();
   const nowIso = new Date().toISOString();

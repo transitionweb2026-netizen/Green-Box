@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { adminCreateCategory, adminDeleteCategory, adminUpdateCategory } from "@/lib/services/catalog";
@@ -19,6 +19,10 @@ const categorySchema = z.object({
   image_url: z.string().trim().url().optional().or(z.literal("")),
   display_order: z.coerce.number().int().default(0),
   is_active: z.boolean().default(true),
+  meta_title_ar: z.string().trim().max(200).optional(),
+  meta_title_en: z.string().trim().max(200).optional(),
+  meta_description_ar: z.string().trim().max(500).optional(),
+  meta_description_en: z.string().trim().max(500).optional(),
 });
 
 export type CategoryActionState = { status: "idle" | "error"; message?: string };
@@ -33,6 +37,10 @@ function parseForm(formData: FormData) {
     image_url: String(formData.get("image_url") ?? "").trim(),
     display_order: formData.get("display_order") ?? 0,
     is_active: formData.get("is_active") === "on",
+    meta_title_ar: String(formData.get("meta_title_ar") ?? "").trim() || undefined,
+    meta_title_en: String(formData.get("meta_title_en") ?? "").trim() || undefined,
+    meta_description_ar: String(formData.get("meta_description_ar") ?? "").trim() || undefined,
+    meta_description_en: String(formData.get("meta_description_en") ?? "").trim() || undefined,
   });
 }
 
@@ -53,12 +61,17 @@ export async function createCategoryAction(
       image_url: parsed.data.image_url || null,
       display_order: parsed.data.display_order,
       is_active: parsed.data.is_active,
+      meta_title_ar: parsed.data.meta_title_ar ?? null,
+      meta_title_en: parsed.data.meta_title_en ?? null,
+      meta_description_ar: parsed.data.meta_description_ar ?? null,
+      meta_description_en: parsed.data.meta_description_en ?? null,
     });
   } catch (err) {
     return { status: "error", message: err instanceof Error ? err.message : "حصل خطأ" };
   }
 
   revalidatePath("/admin/categories");
+  revalidateTag("categories", "max");
   redirect("/admin/categories");
 }
 
@@ -80,16 +93,22 @@ export async function updateCategoryAction(
       image_url: parsed.data.image_url || null,
       display_order: parsed.data.display_order,
       is_active: parsed.data.is_active,
+      meta_title_ar: parsed.data.meta_title_ar ?? null,
+      meta_title_en: parsed.data.meta_title_en ?? null,
+      meta_description_ar: parsed.data.meta_description_ar ?? null,
+      meta_description_en: parsed.data.meta_description_en ?? null,
     });
   } catch (err) {
     return { status: "error", message: err instanceof Error ? err.message : "حصل خطأ" };
   }
 
   revalidatePath("/admin/categories");
+  revalidateTag("categories", "max");
   redirect("/admin/categories");
 }
 
 export async function deactivateCategoryAction(categoryId: string) {
   await adminDeleteCategory(categoryId);
   revalidatePath("/admin/categories");
+  revalidateTag("categories", "max");
 }

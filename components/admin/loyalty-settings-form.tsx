@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,8 +17,8 @@ export function LoyaltySettingsForm({ settings }: { settings: LoyaltySettings })
 
   return (
     <form action={formAction} className="max-w-lg space-y-4">
-      <label className="flex items-center gap-2 text-sm text-foreground">
-        <input type="checkbox" name="is_enabled" defaultChecked={settings.is_enabled} className="h-4 w-4" />
+      <label className="flex w-fit items-center gap-2 rounded-xl border border-border-strong bg-white/60 px-3.5 py-2 text-sm font-medium text-foreground">
+        <input type="checkbox" name="is_enabled" defaultChecked={settings.is_enabled} className="h-4 w-4 accent-[var(--brand-600)]" />
         تفعيل برنامج نقاط الولاء
       </label>
 
@@ -70,14 +71,15 @@ export function LoyaltySettingsForm({ settings }: { settings: LoyaltySettings })
         <Input id="min_redeemable_points" name="min_redeemable_points" type="number" min="0" defaultValue={settings.min_redeemable_points ?? ""} />
       </div>
 
-      <p className="text-sm text-muted">
+      <p className="rounded-xl bg-info-bg px-3.5 py-2.5 text-sm text-info">
         مثال: {settings.spend_threshold} جنيه = {settings.points_per_threshold} نقطة، و{settings.redemption_points_unit} نقطة = {settings.points_redemption_value} جنيه.
       </p>
 
       {state.status === "success" && <FormMessage variant="success">تم الحفظ بنجاح.</FormMessage>}
       {state.status === "error" && <FormMessage>{state.message}</FormMessage>}
 
-      <Button type="submit" disabled={isPending}>
+      <Button type="submit" disabled={isPending} loading={isPending}>
+        {!isPending && <Save className="h-4 w-4" />}
         {isPending ? "جارٍ الحفظ..." : "حفظ الإعدادات"}
       </Button>
     </form>
