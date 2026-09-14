@@ -38,7 +38,13 @@ export async function createOrderFromCart(input: CreateOrderInput): Promise<Orde
     p_redeem_points: input.redeemPoints ?? 0,
     p_delivery_date: input.deliveryDate,
   });
-  if (error) throw error;
+  // supabase-js only wraps this in a proper `Error` (via `.throwOnError()`)
+  // when explicitly asked; a plain `{ data, error }` result carries `error`
+  // as a bare JSON object, so re-throwing it verbatim produced an object
+  // that failed every downstream `err instanceof Error` check in
+  // classifyOrderError() -- every create_order() failure, regardless of
+  // cause, silently fell through to the GENERIC checkout error message.
+  if (error) throw new Error(error.message);
   return data as unknown as Order;
 }
 
@@ -53,7 +59,9 @@ export async function createOrderFromCart(input: CreateOrderInput): Promise<Orde
 export async function cancelMyOrder(orderId: string): Promise<Order> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("cancel_own_order", { p_order_id: orderId });
-  if (error) throw error;
+  // Same reason as createOrderFromCart() above -- must be a real Error for
+  // classifyCancelOrderError()'s `err instanceof Error` check to see it.
+  if (error) throw new Error(error.message);
   return data as unknown as Order;
 }
 
