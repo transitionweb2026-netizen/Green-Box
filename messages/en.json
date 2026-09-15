@@ -215,6 +215,9 @@
     "loyaltyTitle": "Use Loyalty Points",
     "loyaltyAvailable": "Your current balance",
     "loyaltyRedeem": "Redeem points",
+    "loyaltyHave": "You have {points} points",
+    "loyaltyDiscountAvailable": "You can save {amount} on this order",
+    "loyaltyRemainingNotice": "You'll still have {remaining} points available for a future order.",
     "reviewTitle": "Review Order",
     "subtotal": "Subtotal",
     "deliveryFee": "Delivery fee",
@@ -244,7 +247,8 @@
       "MIN_ORDER_NOT_MET": "Your order total is below the minimum order amount for this delivery area.",
       "LOYALTY_DISABLED": "The loyalty program is not currently active, so points can't be redeemed right now.",
       "LOYALTY_INSUFFICIENT": "You don't have enough loyalty points for that redemption amount.",
-      "LOYALTY_MIN_NOT_MET": "That redemption amount is below the minimum allowed."
+      "LOYALTY_MIN_NOT_MET": "That redemption amount is below the minimum allowed.",
+      "LOYALTY_INVALID_UNIT": "Points must be redeemed in the configured block size."
     }
   },
   "orders": {

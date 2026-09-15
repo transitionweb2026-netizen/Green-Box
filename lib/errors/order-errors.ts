@@ -28,10 +28,13 @@ const EXACT_MATCHES: Record<string, string> = {
   "Loyalty program is not currently enabled": "LOYALTY_DISABLED",
   "Insufficient loyalty points balance": "LOYALTY_INSUFFICIENT",
   "Redemption amount is below the minimum allowed": "LOYALTY_MIN_NOT_MET",
+  "Loyalty redemption is not configured correctly": "LOYALTY_INVALID_UNIT",
+  "Redemption amount cannot be negative": "LOYALTY_INVALID_UNIT",
 };
 
 const PRODUCT_UNAVAILABLE_RE = /^Product (.+) is no longer available$/;
 const RESERVATION_LEAD_TIME_RE = /^Product (.+) requires at least \d+ day\(s\) advance reservation$/;
+const LOYALTY_INVALID_UNIT_RE = /^Redemption must be in blocks of \d+ points$/;
 
 /** cancel_own_order() (migration 0025) exception messages. */
 const CANCEL_ORDER_EXACT_MATCHES: Record<string, string> = {
@@ -53,5 +56,6 @@ export function classifyOrderError(message: string | undefined): ClassifiedOrder
   if (productMatch) return { code: "PRODUCT_UNAVAILABLE", productName: productMatch[1] };
   const reservationMatch = message.match(RESERVATION_LEAD_TIME_RE);
   if (reservationMatch) return { code: "RESERVATION_LEAD_TIME", productName: reservationMatch[1] };
+  if (LOYALTY_INVALID_UNIT_RE.test(message)) return { code: "LOYALTY_INVALID_UNIT" };
   return { code: EXACT_MATCHES[message] ?? "GENERIC" };
 }

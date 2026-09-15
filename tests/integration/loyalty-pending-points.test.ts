@@ -22,6 +22,7 @@ describe("Two-stage loyalty points: PENDING -> AVAILABLE / CANCELLED (live Supab
   let eligibleQuantity: number;
   let spendThreshold: number;
   let pointsPerThreshold: number;
+  let redemptionUnit: number;
   let loyaltyWasEnabled: boolean;
 
   async function freshCart() {
@@ -119,6 +120,7 @@ describe("Two-stage loyalty points: PENDING -> AVAILABLE / CANCELLED (live Supab
     loyaltyWasEnabled = settings.data.is_enabled;
     spendThreshold = settings.data.spend_threshold;
     pointsPerThreshold = settings.data.points_per_threshold;
+    redemptionUnit = settings.data.redemption_points_unit;
     if (!loyaltyWasEnabled) {
       await admin.from("loyalty_settings").update({ is_enabled: true }).eq("id", 1);
     }
@@ -364,7 +366,10 @@ describe("Two-stage loyalty points: PENDING -> AVAILABLE / CANCELLED (live Supab
       // Attempting to redeem more than the available (non-pending) balance
       // must fail: create_order()'s redemption check reads points_balance
       // only, never pending_points_balance, no matter how many points are
-      // pending on this very order.
+      // pending on this very order. Must be a valid block multiple (see
+      // 0027_loyalty_redemption_hardening.sql) so this fails on
+      // "insufficient balance" specifically, not on the unit-size check.
+      const attemptPoints = (Math.floor(availableBaseline / redemptionUnit) + 1) * redemptionUnit;
       const cartId = await freshCart();
       await owner.client.from("cart_items").insert({ cart_id: cartId, product_id: productId, quantity: eligibleQuantity });
       const { error } = await owner.client.rpc("create_order", {
@@ -373,7 +378,7 @@ describe("Two-stage loyalty points: PENDING -> AVAILABLE / CANCELLED (live Supab
         p_delivery_time_slot_id: activeSlotId,
         p_payment_method_id: activePaymentMethodId,
         p_delivery_date: new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10),
-        p_redeem_points: availableBaseline + 1,
+        p_redeem_points: attemptPoints,
       });
       expect(error?.message).toMatch(/insufficient loyalty points balance/i);
     } finally {

@@ -215,6 +215,9 @@
     "loyaltyTitle": "استخدام نقاط الولاء",
     "loyaltyAvailable": "رصيدك الحالي",
     "loyaltyRedeem": "استخدم النقاط",
+    "loyaltyHave": "لديك {points} نقطة",
+    "loyaltyDiscountAvailable": "يمكنك خصم {amount} من هذا الطلب",
+    "loyaltyRemainingNotice": "هيفضل معاك {remaining} نقطة متاحة لاستخدامها في طلب تاني.",
     "reviewTitle": "مراجعة الطلب",
     "subtotal": "الإجمالي الفرعي",
     "deliveryFee": "رسوم التوصيل",
@@ -244,7 +247,8 @@
       "MIN_ORDER_NOT_MET": "إجمالي طلبك أقل من الحد الأدنى للطلب في منطقة التوصيل دي.",
       "LOYALTY_DISABLED": "برنامج نقاط الولاء مش مفعّل دلوقتي، فمش هتقدر تستخدم النقاط.",
       "LOYALTY_INSUFFICIENT": "رصيدك من نقاط الولاء مش كافي لعدد النقاط ده.",
-      "LOYALTY_MIN_NOT_MET": "عدد النقاط ده أقل من الحد الأدنى المسموح باستخدامه."
+      "LOYALTY_MIN_NOT_MET": "عدد النقاط ده أقل من الحد الأدنى المسموح باستخدامه.",
+      "LOYALTY_INVALID_UNIT": "عدد النقاط لازم يكون من مضاعفات الوحدة المسموح باستخدامها."
     }
   },
   "orders": {

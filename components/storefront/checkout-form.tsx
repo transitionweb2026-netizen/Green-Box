@@ -64,12 +64,23 @@ export function CheckoutForm({
     placeOrderAction.bind(null, locale),
     { status: "idle" } as CheckoutActionState,
   );
-  const [redeemPoints, setRedeemPoints] = useState(0);
+  const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
   const [selectedPaymentId, setSelectedPaymentId] = useState<string>(paymentMethods[0]?.id ?? "");
   const today = new Date().toISOString().slice(0, 10);
 
-  const maxRedeemable = loyaltyAccount?.points_balance ?? 0;
+  // Available balance only -- loyaltyAccount.points_balance never includes
+  // pending points (see lib/services/loyalty.ts), so pending points can
+  // never reach this UI as redeemable. Redemption is block-based: the
+  // configured redemption_points_unit (e.g. 100) is the only granularity
+  // create_order() will accept, so the max offered here is always floored
+  // to a whole number of blocks -- 250 available points with a 100-point
+  // unit offers exactly 200, never a partial 250.
+  const pointsBalance = loyaltyAccount?.points_balance ?? 0;
+  const redemptionUnit = loyaltySettings?.redemption_points_unit ?? 0;
+  const maxRedeemable = redemptionUnit > 0 ? Math.floor(pointsBalance / redemptionUnit) * redemptionUnit : 0;
+  const redeemPoints = useLoyaltyPoints ? maxRedeemable : 0;
   const redemptionValue = loyaltySettings ? calculateRedemptionValue(redeemPoints, loyaltySettings) : 0;
+  const maxRedemptionValue = loyaltySettings ? calculateRedemptionValue(maxRedeemable, loyaltySettings) : 0;
   const total = Math.max(0, subtotal - redemptionValue);
   const selectedPayment = paymentMethods.find((m) => m.id === selectedPaymentId);
 
@@ -144,21 +155,23 @@ export function CheckoutForm({
 
         {loyaltySettings?.is_enabled && maxRedeemable > 0 && (
           <CheckoutSection icon={Gift} title={t("loyaltyTitle")} step={5}>
-            <p className="text-sm text-muted">
-              {t("loyaltyAvailable")}: <span className="font-bold text-brand-700">{maxRedeemable}</span>
+            <p className="text-sm text-muted">{t("loyaltyHave", { points: pointsBalance })}</p>
+            <p className="mt-1 text-sm font-semibold text-brand-700">
+              {t("loyaltyDiscountAvailable", { amount: formatPrice(maxRedemptionValue, locale) })}
             </p>
-            <Input
-              type="number"
-              name="redeemPoints"
-              min={0}
-              max={maxRedeemable}
-              value={redeemPoints}
-              onChange={(e) => setRedeemPoints(Math.min(maxRedeemable, Math.max(0, Number(e.target.value))))}
-              className="mt-2 max-w-[160px]"
-            />
-            {redeemPoints > 0 && (
-              <p className="mt-2 text-sm font-semibold text-brand-700">-{formatPrice(redemptionValue, locale)}</p>
+            <label className="mt-3 flex w-fit cursor-pointer items-center gap-2 rounded-xl border border-border-strong bg-white/60 px-3.5 py-2.5 text-sm font-medium text-foreground">
+              <input
+                type="checkbox"
+                checked={useLoyaltyPoints}
+                onChange={(e) => setUseLoyaltyPoints(e.target.checked)}
+                className="h-4 w-4 accent-[var(--brand-600)]"
+              />
+              {t("loyaltyRedeem")}
+            </label>
+            {useLoyaltyPoints && pointsBalance > maxRedeemable && (
+              <p className="mt-2 text-xs text-muted">{t("loyaltyRemainingNotice", { remaining: pointsBalance - maxRedeemable })}</p>
             )}
+            <input type="hidden" name="redeemPoints" value={redeemPoints} />
           </CheckoutSection>
         )}
 
