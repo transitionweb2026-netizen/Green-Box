@@ -34,6 +34,7 @@ export default async function AdminLoyaltyPage() {
               <tr>
                 <th className="px-4 py-3 text-start font-semibold">العميل</th>
                 <th className="px-4 py-3 text-start font-semibold">الرصيد الحالي</th>
+                <th className="px-4 py-3 text-start font-semibold">قيد الانتظار</th>
                 <th className="px-4 py-3 text-start font-semibold">إجمالي المكتسب</th>
                 <th className="px-4 py-3 text-start font-semibold">إجمالي المستخدم</th>
               </tr>
@@ -47,6 +48,7 @@ export default async function AdminLoyaltyPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3 font-bold text-brand-700">{account.points_balance}</td>
+                  <td className="px-4 py-3 text-muted">{account.pending_points_balance}</td>
                   <td className="px-4 py-3 text-muted">{account.lifetime_points_earned}</td>
                   <td className="px-4 py-3 text-muted">{account.lifetime_points_redeemed}</td>
                 </tr>

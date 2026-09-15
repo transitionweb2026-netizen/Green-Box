@@ -44,6 +44,8 @@ export type PaymentAttemptStatus = "PENDING" | "AWAITING_VERIFICATION" | "VERIFI
 
 export type LoyaltyTransactionType = "EARNED" | "REDEEMED" | "ADJUSTED" | "REVERSED";
 
+export type LoyaltyTransactionStatus = "PENDING" | "AVAILABLE" | "CANCELLED";
+
 export type SubscriptionStatus = "ACTIVE" | "PAUSED" | "CANCELLED";
 
 export type ProductType = "standard" | "box";
@@ -779,6 +781,7 @@ export interface Database {
           id: string;
           profile_id: string;
           points_balance: number;
+          pending_points_balance: number;
           lifetime_points_earned: number;
           lifetime_points_redeemed: number;
           updated_at: string;
@@ -794,11 +797,14 @@ export interface Database {
           id: string;
           loyalty_account_id: string;
           type: LoyaltyTransactionType;
+          status: LoyaltyTransactionStatus;
           points: number;
           balance_after: number;
           order_id: string | null;
           reason: string | null;
           created_at: string;
+          available_at: string | null;
+          cancelled_at: string | null;
         };
         Insert: never;
         Update: never;

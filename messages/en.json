@@ -346,6 +346,8 @@
     "title": "Loyalty Points",
     "currentBalance": "Your current balance",
     "points": "points",
+    "pendingBalance": "Pending points",
+    "pendingNotice": "Pending points are confirmed and become usable once your order is delivered.",
     "howItWorks": "The more you shop, the more points you earn -- use them for discounts on future orders.",
     "historyTitle": "Points History",
     "empty": "No points activity yet.",
@@ -354,6 +356,10 @@
       "REDEEMED": "Points redeemed",
       "ADJUSTED": "Manual adjustment",
       "REVERSED": "Points reversed"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "CANCELLED": "Cancelled"
     },
     "disabled": "The loyalty program isn't currently enabled."
   },

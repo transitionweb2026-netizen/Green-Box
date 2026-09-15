@@ -93,6 +93,7 @@ export async function adminGetLoyaltyAccount(profileId: string): Promise<AdminLo
     id: "",
     profile_id: profile.id,
     points_balance: 0,
+    pending_points_balance: 0,
     lifetime_points_earned: 0,
     lifetime_points_redeemed: 0,
     updated_at: "",
@@ -117,6 +118,24 @@ export async function adminAdjustLoyaltyPoints(profileId: string, points: number
   });
   if (error) throw error;
   return data as unknown as LoyaltyAccount;
+}
+
+export interface AdminLoyaltyTransactionRow extends LoyaltyTransaction {
+  orders: { order_number: string } | null;
+}
+
+/** Same rows as listMyLoyaltyTransactions, with the source order's number
+ * embedded so an admin can trace a PENDING/CANCELLED/AVAILABLE transaction
+ * back to the order that produced it. */
+export async function adminListLoyaltyTransactions(loyaltyAccountId: string): Promise<AdminLoyaltyTransactionRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("loyalty_transactions")
+    .select("*, orders(order_number)")
+    .eq("loyalty_account_id", loyaltyAccountId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data as unknown as AdminLoyaltyTransactionRow[]) ?? [];
 }
 
 export async function adminListLoyaltyAccounts(page = 1, pageSize = 25) {

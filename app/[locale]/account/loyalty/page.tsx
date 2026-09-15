@@ -1,7 +1,8 @@
-import { Gift, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
+import { Clock, Gift, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getLoyaltySettings, getMyLoyaltyAccount, listMyLoyaltyTransactions } from "@/lib/services/loyalty";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 
 export default async function LoyaltyPage() {
@@ -33,7 +34,16 @@ export default async function LoyaltyPage() {
         <p className="relative text-sm text-white/70">{t("points")}</p>
       </div>
 
+      {(account?.pending_points_balance ?? 0) > 0 && (
+        <div className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-white/60 px-4 py-3 text-sm">
+          <Clock className="h-4 w-4 shrink-0 text-muted" />
+          <span className="text-muted">{t("pendingBalance")}:</span>
+          <span className="font-bold text-foreground">{account?.pending_points_balance} {t("points")}</span>
+        </div>
+      )}
+
       <p className="mt-4 text-sm text-muted">{t("howItWorks")}</p>
+      {(account?.pending_points_balance ?? 0) > 0 && <p className="mt-1 text-sm text-muted">{t("pendingNotice")}</p>}
 
       <h2 className="mt-8 font-bold text-foreground">{t("historyTitle")}</h2>
       {transactions.length === 0 ? (
@@ -51,7 +61,11 @@ export default async function LoyaltyPage() {
                   {tx.points >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{t(`type.${tx.type}`)}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-semibold text-foreground">{t(`type.${tx.type}`)}</p>
+                    {tx.status === "PENDING" && <Badge tone="warning">{t("status.PENDING")}</Badge>}
+                    {tx.status === "CANCELLED" && <Badge tone="danger">{t("status.CANCELLED")}</Badge>}
+                  </div>
                   <p className="text-xs text-muted">{new Date(tx.created_at).toLocaleDateString(locale)}</p>
                 </div>
               </div>

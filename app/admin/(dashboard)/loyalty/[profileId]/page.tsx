@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { TrendingDown, TrendingUp, Gift } from "lucide-react";
-import { adminGetLoyaltyAccount, listMyLoyaltyTransactions } from "@/lib/services/loyalty";
+import { adminGetLoyaltyAccount, adminListLoyaltyTransactions } from "@/lib/services/loyalty";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoyaltyAdjustmentForm } from "@/components/admin/loyalty-adjustment-form";
 
@@ -13,12 +14,17 @@ const TYPE_LABELS: Record<string, string> = {
   REVERSED: "نقاط مُرجعة",
 };
 
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: "قيد الانتظار",
+  CANCELLED: "أُلغيت",
+};
+
 export default async function AdminLoyaltyAccountPage({ params }: { params: Promise<{ profileId: string }> }) {
   const { profileId } = await params;
   const account = await adminGetLoyaltyAccount(profileId);
   if (!account) notFound();
 
-  const transactions = account.id ? await listMyLoyaltyTransactions(account.id) : [];
+  const transactions = account.id ? await adminListLoyaltyTransactions(account.id) : [];
 
   return (
     <div>
@@ -53,8 +59,20 @@ export default async function AdminLoyaltyAccountPage({ params }: { params: Prom
                         {tx.points >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                       </span>
                       <div>
-                        <p className="text-sm font-semibold text-foreground">{TYPE_LABELS[tx.type] ?? tx.type}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-semibold text-foreground">{TYPE_LABELS[tx.type] ?? tx.type}</p>
+                          {tx.status !== "AVAILABLE" && (
+                            <Badge tone={tx.status === "PENDING" ? "warning" : "danger"}>
+                              {STATUS_LABELS[tx.status] ?? tx.status}
+                            </Badge>
+                          )}
+                        </div>
                         {tx.reason && <p className="text-xs text-muted">{tx.reason}</p>}
+                        {tx.orders?.order_number && (
+                          <Link href={`/admin/orders/${tx.order_id}`} className="text-xs font-semibold text-brand-700 hover:underline">
+                            {tx.orders.order_number}
+                          </Link>
+                        )}
                         <p className="text-xs text-muted-2">{new Date(tx.created_at).toLocaleString("ar")}</p>
                       </div>
                     </div>
@@ -77,6 +95,13 @@ export default async function AdminLoyaltyAccountPage({ params }: { params: Prom
             <h2 className="mb-2 font-bold text-foreground">الرصيد الحالي</h2>
             <p className="text-4xl font-extrabold text-brand-700">{account.points_balance}</p>
           </Card>
+          {account.pending_points_balance > 0 && (
+            <Card>
+              <h2 className="mb-2 font-bold text-foreground">قيد الانتظار</h2>
+              <p className="text-2xl font-extrabold text-warning">{account.pending_points_balance}</p>
+              <p className="mt-1 text-xs text-muted">بتتأكد وتتحول لرصيد متاح لما الطلب المرتبط بيها يتسلّم.</p>
+            </Card>
+          )}
           <Card>
             <h2 className="mb-2 font-bold text-foreground">إحصائيات</h2>
             <div className="space-y-1.5 text-sm">
