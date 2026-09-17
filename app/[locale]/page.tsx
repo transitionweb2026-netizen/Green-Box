@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { listActiveCategories, listProducts } from "@/lib/services/catalog";
 import { listActiveBanners, getSetting, type HomepageContent } from "@/lib/services/content";
+import { listActiveReviews } from "@/lib/services/reviews";
 import { pickLocalized, pickLocalizedOrDefault } from "@/lib/i18n/localized";
 import { placeholderImage, categoryPlaceholderKey } from "@/lib/media/placeholders";
 import { getSiteOrigin } from "@/lib/seo/site-url";
@@ -31,11 +32,12 @@ export default async function HomePage() {
   const isAr = locale === "ar";
   const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
 
-  const [categories, featured, banners, content] = await Promise.all([
+  const [categories, featured, banners, content, testimonials] = await Promise.all([
     listActiveCategories(),
     listProducts({ featured: true, pageSize: 8 }),
     listActiveBanners(),
     getSetting<HomepageContent>("homepage_content"),
+    listActiveReviews(6),
   ]);
 
   const cms = (ar?: string, en?: string, fallback?: string) => pickLocalizedOrDefault(ar, en, locale, fallback ?? "");
@@ -70,10 +72,6 @@ export default async function HomePage() {
     { icon: Package, title: t("home.processPackTitle"), description: t("home.processPackDescription") },
     { icon: Truck, title: t("home.processDeliverTitle"), description: t("home.processDeliverDescription") },
   ];
-
-  // Real customer quotes, pending from the business -- see plan notes.
-  // Section renders nothing until this has entries.
-  const testimonials: { name: string; quote: string }[] = [];
 
   return (
     <div className="bg-background">
@@ -175,6 +173,12 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
+          <div className="mt-10 flex justify-center">
+            <Link href="/reviews" className={buttonVariants({ variant: "outline" })}>
+              <Star className="h-4 w-4" />
+              {t("home.testimonialsCta")}
+            </Link>
+          </div>
         </section>
 
         {/* Featured products */}
@@ -272,24 +276,35 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Customer stories -- only renders once real quotes exist */}
+        {/* Customer stories */}
         {testimonials.length > 0 && (
           <section className="mt-20 sm:mt-28">
-            <SectionHeader eyebrow={t("home.testimonialsEyebrow")} title={t("home.testimonialsTitle")} align="center" />
+            <SectionHeader
+              eyebrow={t("home.testimonialsEyebrow")}
+              title={t("home.testimonialsTitle")}
+              align="center"
+              action={
+                <Link href="/reviews" className={buttonVariants({ variant: "outline" })}>
+                  {t("home.testimonialsCta")}
+                </Link>
+              }
+            />
             <div className="mt-8 grid gap-5 sm:grid-cols-3">
               {testimonials.map((item) => (
-                <Card key={item.name} tone="flat">
+                <Card key={item.id} tone="flat">
                   <div className="flex items-center gap-1 text-gold-500" aria-hidden="true">
-                    {Array.from({ length: 5 }).map((_, i) => (
+                    {Array.from({ length: item.rating }).map((_, i) => (
                       <Star key={i} className="h-4 w-4 fill-current" />
                     ))}
                   </div>
-                  <p className="mt-3 text-sm leading-relaxed text-foreground">&ldquo;{item.quote}&rdquo;</p>
+                  <p className="mt-3 text-sm leading-relaxed text-foreground">
+                    &ldquo;{pickLocalized(item.quote_ar, item.quote_en, locale)}&rdquo;
+                  </p>
                   <div className="mt-4 flex items-center gap-2.5">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">
-                      {item.name.charAt(0)}
+                      {item.customer_name.charAt(0)}
                     </span>
-                    <span className="text-sm font-bold text-deep-800">{item.name}</span>
+                    <span className="text-sm font-bold text-deep-800">{item.customer_name}</span>
                   </div>
                 </Card>
               ))}

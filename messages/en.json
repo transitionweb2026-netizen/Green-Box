@@ -25,7 +25,8 @@
     "register": "Sign up",
     "menu": "Menu",
     "viewAll": "View all",
-    "noItems": "No products yet"
+    "noItems": "No products yet",
+    "reviews": "Customer Reviews"
   },
   "home": {
     "heroEyebrow": "Fresh, every day",
@@ -100,7 +101,8 @@
     "preparedDescription": "Prepared vegetables and fruit that save you time.",
     "preparedCta": "Shop prepared",
     "testimonialsEyebrow": "Stories from the Green Box community",
-    "testimonialsTitle": "What our customers say"
+    "testimonialsTitle": "What our customers say",
+    "testimonialsCta": "Our Customers' Reviews"
   },
   "footer": {
     "rights": "All rights reserved",
@@ -206,6 +208,14 @@
     "gridSubtitle": "Pick the box that fits your kitchen this week.",
     "emptyTitle": "No boxes available right now",
     "emptyDescription": "New Green Box bundles are added regularly — check back soon."
+  },
+  "reviewsPage": {
+    "eyebrow": "Customer stories",
+    "title": "Our Customers' Reviews",
+    "subtitle": "Real feedback from the people who shop with Green Box every week.",
+    "emptyTitle": "No reviews yet",
+    "emptyDescription": "Check back soon for stories from our customers.",
+    "metaDescription": "Read what Green Box customers have to say about their shopping and delivery experience."
   },
   "categoryPage": {
     "empty": "No products in this category yet.",
