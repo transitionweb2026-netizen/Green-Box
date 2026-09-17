@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -58,6 +59,27 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
             {name}
           </h3>
         </Link>
+        {product.rating != null && (
+          <div className="flex items-center gap-1.5">
+            <div className="relative flex text-deep-100" aria-hidden="true">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} className="h-3.5 w-3.5 fill-current" />
+              ))}
+              <div
+                className="absolute inset-0 flex overflow-hidden text-gold-500"
+                style={{ width: `${(Math.max(0, Math.min(5, product.rating)) / 5) * 100}%` }}
+              >
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-3.5 w-3.5 shrink-0 fill-current" />
+                ))}
+              </div>
+            </div>
+            <span className="text-xs font-medium text-muted-2">
+              {product.rating.toFixed(1)}
+              {product.rating_count > 0 && ` ${t("ratingCount", { count: product.rating_count })}`}
+            </span>
+          </div>
+        )}
         {unit && <p className="text-xs text-muted-2">{unit}</p>}
         <div className="mt-auto pt-2">
           <PriceDisplay value={product.price} locale={locale} size="md" />

@@ -122,9 +122,28 @@ export function ProductForm({
 
       <Card tone="glass">
         <h2 className="mb-4 font-bold text-foreground">الإعدادات</h2>
-        <div className="mb-4">
-          <Label htmlFor="display_order">ترتيب العرض</Label>
-          <Input id="display_order" name="display_order" type="number" defaultValue={product?.display_order ?? 0} className="max-w-[160px]" />
+        <div className="mb-4 grid gap-4 sm:grid-cols-3">
+          <div>
+            <Label htmlFor="display_order">ترتيب العرض</Label>
+            <Input id="display_order" name="display_order" type="number" defaultValue={product?.display_order ?? 0} />
+          </div>
+          <div>
+            <Label htmlFor="rating">التقييم (0-5)</Label>
+            <Input
+              id="rating"
+              name="rating"
+              type="number"
+              step="0.1"
+              min="0"
+              max="5"
+              placeholder="بدون تقييم"
+              defaultValue={product?.rating ?? ""}
+            />
+          </div>
+          <div>
+            <Label htmlFor="rating_count">عدد التقييمات</Label>
+            <Input id="rating_count" name="rating_count" type="number" min="0" defaultValue={product?.rating_count ?? 0} />
+          </div>
         </div>
         <div className="flex flex-wrap gap-3">
           <label className="flex items-center gap-2 rounded-xl border border-border-strong bg-white/60 px-3.5 py-2 text-sm font-medium text-foreground">

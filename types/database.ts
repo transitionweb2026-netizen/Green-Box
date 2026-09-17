@@ -171,6 +171,8 @@ export interface Database {
           meta_title_en: string | null;
           meta_description_ar: string | null;
           meta_description_en: string | null;
+          rating: number | null;
+          rating_count: number;
           search_text_normalized: string;
           search_vector: unknown;
           created_at: string;
@@ -197,6 +199,8 @@ export interface Database {
           meta_title_en?: string | null;
           meta_description_ar?: string | null;
           meta_description_en?: string | null;
+          rating?: number | null;
+          rating_count?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -221,6 +225,8 @@ export interface Database {
           meta_title_en?: string | null;
           meta_description_ar?: string | null;
           meta_description_en?: string | null;
+          rating?: number | null;
+          rating_count?: number;
           created_at?: string;
           updated_at?: string;
         };

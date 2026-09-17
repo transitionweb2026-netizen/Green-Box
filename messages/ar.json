@@ -190,7 +190,8 @@
     "notFoundDescription": "المنتج ده مش موجود أو اتشال.",
     "trustDelivery": "توصيل بمواعيد محددة",
     "trustQuality": "جودة متأكد منها",
-    "trustPacking": "تغليف بعناية"
+    "trustPacking": "تغليف بعناية",
+    "ratingCount": "({count})"
   },
   "greenBoxPage": {
     "eyebrow": "جرين بوكس",

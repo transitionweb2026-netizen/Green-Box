@@ -190,7 +190,8 @@
     "notFoundDescription": "This product doesn't exist or was removed.",
     "trustDelivery": "Scheduled delivery",
     "trustQuality": "Quality checked",
-    "trustPacking": "Careful packing"
+    "trustPacking": "Careful packing",
+    "ratingCount": "({count})"
   },
   "greenBoxPage": {
     "eyebrow": "The Green Box",
