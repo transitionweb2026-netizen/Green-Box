@@ -72,7 +72,7 @@ export function MobileNav({
             className="absolute inset-0 bg-deep-900/50 backdrop-blur-sm"
             onClick={close}
           />
-          <div className="glass-dark absolute inset-y-0 start-0 flex w-[86%] max-w-sm flex-col gap-6 rounded-none rounded-e-3xl p-6">
+          <div className="bg-deep-800 absolute inset-y-0 start-0 flex w-[86%] max-w-sm flex-col gap-6 rounded-none rounded-e-3xl p-6 shadow-2xl">
             <div className="flex items-center justify-between">
               <span className="text-lg font-bold text-white">{menuLabel}</span>
               <button

@@ -19,7 +19,7 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
   const fallbackKey = isBox ? "greenBox" : categoryPlaceholderKey(product.categories?.slug);
 
   return (
-    <div className="glass glass-hover group flex flex-col overflow-hidden !p-0">
+    <div className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white transition-shadow duration-300 hover:shadow-[var(--shadow-lifted)]">
       <Link href={`/p/${product.slug}`} className="block">
         <div className="relative aspect-square w-full overflow-hidden bg-brand-50">
           <Image
@@ -52,17 +52,17 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
           )}
         </div>
       </Link>
-      <div className="flex flex-1 flex-col gap-1.5 p-3.5">
+      <div className="flex flex-1 flex-col gap-1.5 p-4 sm:p-5">
         <Link href={`/p/${product.slug}`}>
           <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold text-foreground transition-colors group-hover:text-brand-700">
             {name}
           </h3>
         </Link>
         {unit && <p className="text-xs text-muted-2">{unit}</p>}
-        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+        <div className="mt-auto pt-2">
           <PriceDisplay value={product.price} locale={locale} size="md" />
-          <AddToCartButton productId={product.id} disabled={!product.is_available} compact />
         </div>
+        <AddToCartButton productId={product.id} disabled={!product.is_available} />
       </div>
     </div>
   );

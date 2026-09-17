@@ -3,23 +3,18 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getSetting, type StoreInfo } from "@/lib/services/content";
 import { listActivePaymentMethods } from "@/lib/services/payments";
+import { listActiveCategories } from "@/lib/services/catalog";
 import { pickLocalized } from "@/lib/i18n/localized";
+import { toWhatsAppDigits } from "@/lib/utils/whatsapp";
 import { Logo } from "./logo";
-
-/** wa.me needs an international number with no leading 0 -- admin enters
- * the familiar local Egyptian format (e.g. 010...), so a leading 0 is
- * swapped for the 20 country code specifically for this link. */
-function toWhatsAppDigits(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  return digits.startsWith("0") ? `20${digits.slice(1)}` : digits;
-}
 
 export async function SiteFooter() {
   const t = await getTranslations();
   const locale = await getLocale();
-  const [storeInfo, paymentMethods] = await Promise.all([
+  const [storeInfo, paymentMethods, categories] = await Promise.all([
     getSetting<StoreInfo>("store_info"),
     listActivePaymentMethods(),
+    listActiveCategories(),
   ]);
   const siteName = storeInfo?.store_name || t("common.siteName");
 
@@ -40,15 +35,15 @@ export async function SiteFooter() {
       <div className="blob h-72 w-72 bg-brand-500/20 -top-10 -start-10" aria-hidden="true" />
       <div className="blob h-72 w-72 bg-deep-400/20 bottom-0 end-0" aria-hidden="true" />
 
-      <div className="relative mx-auto max-w-7xl px-4 py-14">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
+      <div className="relative mx-auto max-w-7xl px-4 py-16">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="lg:col-span-1">
             <Logo siteName={siteName} tone="dark" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">{t("common.tagline")}</p>
           </div>
 
           <div>
-            <h3 className="text-sm font-bold tracking-wide text-white uppercase">{t("footer.shop")}</h3>
+            <h3 className="text-xs font-bold tracking-wider text-white/90 uppercase">{t("footer.shop")}</h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {shopLinks.map((link) => (
                 <li key={link.href}>
@@ -61,7 +56,20 @@ export async function SiteFooter() {
           </div>
 
           <div>
-            <h3 className="text-sm font-bold tracking-wide text-white uppercase">{t("footer.account")}</h3>
+            <h3 className="text-xs font-bold tracking-wider text-white/90 uppercase">{t("footer.categories")}</h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {categories.map((category) => (
+                <li key={category.id}>
+                  <Link href={`/c/${category.slug}`} className="transition-colors hover:text-brand-300">
+                    {pickLocalized(category.name_ar, category.name_en, locale)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-bold tracking-wider text-white/90 uppercase">{t("footer.account")}</h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {accountLinks.map((link) => (
                 <li key={link.href}>
@@ -74,7 +82,7 @@ export async function SiteFooter() {
           </div>
 
           <div>
-            <h3 className="text-sm font-bold tracking-wide text-white uppercase">{t("footer.contact")}</h3>
+            <h3 className="text-xs font-bold tracking-wider text-white/90 uppercase">{t("footer.contact")}</h3>
             <ul className="mt-4 space-y-3 text-sm">
               {storeInfo?.contact_phone && (
                 <li className="flex items-center gap-2">
@@ -116,7 +124,7 @@ export async function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/50 sm:flex-row">
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/50 sm:flex-row">
           <p>
             {siteName} — {t("footer.rights")} © {new Date().getFullYear()}
           </p>
