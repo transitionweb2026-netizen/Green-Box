@@ -1,11 +1,13 @@
 import { FileText } from "lucide-react";
-import { adminListBanners, getSetting, type HomepageContent, type StoreInfo } from "@/lib/services/content";
+import { adminListBanners, getSetting, type FaqContent, type HomepageContent, type StoreInfo, type TermsContent } from "@/lib/services/content";
 import { Card } from "@/components/ui/card";
 import { BannerManager } from "@/components/admin/banner-manager";
 import { StoreSettingsForm } from "@/components/admin/store-settings-form";
 import { ReservationSettingsForm } from "@/components/admin/reservation-settings-form";
 import { OrderPolicySettingsForm } from "@/components/admin/order-policy-settings-form";
 import { HomepageContentForm } from "@/components/admin/homepage-content-form";
+import { FaqContentForm } from "@/components/admin/faq-content-form";
+import { TermsContentForm } from "@/components/admin/terms-content-form";
 
 interface ReservationSettings {
   lead_days?: number;
@@ -17,12 +19,14 @@ interface OrderPolicySettings {
 }
 
 export default async function AdminContentPage() {
-  const [banners, storeInfo, reservationSettings, orderPolicySettings, homepageContent] = await Promise.all([
+  const [banners, storeInfo, reservationSettings, orderPolicySettings, homepageContent, faqContent, termsContent] = await Promise.all([
     adminListBanners(),
     getSetting<StoreInfo>("store_info"),
     getSetting<ReservationSettings>("reservation_settings"),
     getSetting<OrderPolicySettings>("order_policy_settings"),
     getSetting<HomepageContent>("homepage_content"),
+    getSetting<FaqContent>("faq_content"),
+    getSetting<TermsContent>("terms_content"),
   ]);
 
   return (
@@ -56,6 +60,14 @@ export default async function AdminContentPage() {
         <Card tone="glass" className="lg:col-span-2">
           <h2 className="mb-4 font-bold text-foreground">محتوى الصفحة الرئيسية</h2>
           <HomepageContentForm content={homepageContent} />
+        </Card>
+        <Card tone="glass" className="lg:col-span-2">
+          <h2 className="mb-4 font-bold text-foreground">الأسئلة الشائعة (فوق الفوتر في كل الصفحات)</h2>
+          <FaqContentForm content={faqContent} />
+        </Card>
+        <Card tone="glass" className="lg:col-span-2">
+          <h2 className="mb-4 font-bold text-foreground">الشروط والأحكام (فوق الفوتر في كل الصفحات)</h2>
+          <TermsContentForm content={termsContent} />
         </Card>
       </div>
     </div>

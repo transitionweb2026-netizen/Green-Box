@@ -5,6 +5,8 @@ import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { getSiteOrigin } from "@/lib/seo/site-url";
 import { SiteHeader } from "@/components/storefront/site-header";
+import { FaqSection } from "@/components/storefront/faq-section";
+import { TermsSection } from "@/components/storefront/terms-section";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import "../globals.css";
 
@@ -79,6 +81,8 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SiteHeader />
           <main className="flex-1">{children}</main>
+          <FaqSection />
+          <TermsSection />
           <SiteFooter />
         </NextIntlClientProvider>
       </body>

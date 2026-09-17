@@ -53,6 +53,41 @@ export interface HomepageContent {
   finalCtaDescription_en?: string;
 }
 
+/**
+ * The sitewide FAQ teaser shown just above the footer on every page (see
+ * components/storefront/faq-section.tsx) -- same optional-field/fallback
+ * pattern as HomepageContent. Fixed at 3 Q&A pairs to match the approved
+ * reference layout exactly, rather than an open-ended admin-managed list.
+ */
+export interface FaqContent {
+  question1_ar?: string;
+  question1_en?: string;
+  answer1_ar?: string;
+  answer1_en?: string;
+  question2_ar?: string;
+  question2_en?: string;
+  answer2_ar?: string;
+  answer2_en?: string;
+  question3_ar?: string;
+  question3_en?: string;
+  answer3_ar?: string;
+  answer3_en?: string;
+  ctaLabel_ar?: string;
+  ctaLabel_en?: string;
+}
+
+/**
+ * Sitewide Terms & Conditions blurb shown right under the FAQ teaser, just
+ * above the footer. Kept to a single body field per language -- the
+ * reference this was modeled on had a specific promo-code offer that
+ * doesn't apply here, so this ships with an honest placeholder ("coming
+ * soon") instead, editable via CMS once real terms are ready.
+ */
+export interface TermsContent {
+  body_ar?: string;
+  body_en?: string;
+}
+
 export async function listActiveBanners(): Promise<Banner[]> {
   const supabase = await createClient();
   const nowIso = new Date().toISOString();

@@ -160,6 +160,63 @@ export async function updateOrderPolicySettingsAction(
   return { status: "success" };
 }
 
+const faqContentFields = [
+  "question1_ar",
+  "question1_en",
+  "answer1_ar",
+  "answer1_en",
+  "question2_ar",
+  "question2_en",
+  "answer2_ar",
+  "answer2_en",
+  "question3_ar",
+  "question3_en",
+  "answer3_ar",
+  "answer3_en",
+  "ctaLabel_ar",
+  "ctaLabel_en",
+] as const;
+
+export async function updateFaqContentAction(
+  _prevState: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const value: Record<string, string> = {};
+  for (const field of faqContentFields) {
+    value[field] = String(formData.get(field) ?? "").trim();
+  }
+
+  try {
+    await adminUpsertSetting("faq_content", value, "Sitewide FAQ teaser shown above the footer -- leave a field empty to use the built-in default text.");
+  } catch {
+    return { status: "error" };
+  }
+
+  revalidatePath("/admin/content");
+  revalidatePath("/[locale]", "layout");
+  return { status: "success" };
+}
+
+export async function updateTermsContentAction(
+  _prevState: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const value = {
+    body_ar: String(formData.get("body_ar") ?? "").trim(),
+    body_en: String(formData.get("body_en") ?? "").trim(),
+  };
+
+  try {
+    await adminUpsertSetting("terms_content", value, "Sitewide Terms & Conditions blurb shown above the footer -- leave a field empty to use the built-in placeholder text.");
+  } catch {
+    return { status: "error" };
+  }
+
+  revalidatePath("/admin/content");
+  revalidatePath("/[locale]", "layout");
+  return { status: "success" };
+}
+
 export async function updateReservationSettingsAction(
   _prevState: SettingsActionState,
   formData: FormData,

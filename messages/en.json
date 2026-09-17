@@ -218,6 +218,20 @@
     "emptyDescription": "Check back soon for stories from our customers.",
     "metaDescription": "Read what Green Box customers have to say about their shopping and delivery experience."
   },
+  "faq": {
+    "title": "FAQs",
+    "question1": "What time does Green Box deliver?",
+    "answer1": "You choose a delivery time slot for your area at checkout, so you'll always know your delivery window in advance.",
+    "question2": "Where does Green Box deliver to?",
+    "answer2": "We currently deliver to a set of covered areas. Pick your address at checkout to see the delivery zones and time slots available near you.",
+    "question3": "Where is Green Box based?",
+    "answer3": "We're based in Egypt, working with local farms and producers to get fresh produce to you quickly.",
+    "cta": "Get started"
+  },
+  "terms": {
+    "title": "Terms & Conditions",
+    "body": "Our full terms and conditions for orders, offers, and promotions will be published here soon. In the meantime, contact us if you have any questions."
+  },
   "contactPage": {
     "heroTitle": "Contact Us",
     "heroSubtitle": "Need help? Get in touch using the contact information below.",
