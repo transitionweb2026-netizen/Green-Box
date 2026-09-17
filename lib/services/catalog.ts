@@ -36,6 +36,36 @@ export const listActiveCategories = unstable_cache(
   { revalidate: 60, tags: ["categories"] },
 );
 
+export interface CategoryMenuProduct {
+  id: string;
+  slug: string;
+  name_ar: string;
+  name_en: string | null;
+}
+
+/**
+ * Lean product list (no images/description/etc) for the category nav bar's
+ * hover mega-menu -- deliberately narrow columns to keep the header's
+ * payload small since this loads on every storefront page. Cached the same
+ * way as the rest of the catalog reads.
+ */
+export const listCategoryMenuProducts = unstable_cache(
+  async (categoryId: string, limit = 10): Promise<CategoryMenuProduct[]> => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, slug, name_ar, name_en")
+      .eq("category_id", categoryId)
+      .eq("is_available", true)
+      .order("display_order", { ascending: true })
+      .limit(limit);
+    if (error) throw error;
+    return data ?? [];
+  },
+  ["catalog-category-menu-products"],
+  { revalidate: 60, tags: ["products"] },
+);
+
 export const getCategoryBySlug = unstable_cache(
   async (slug: string): Promise<Category | null> => {
     const supabase = createPublicClient();

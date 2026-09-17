@@ -1,11 +1,11 @@
 import { LogIn, MessageCircle, User } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getCartItemCountForUser } from "@/lib/services/cart";
 import { getSetting } from "@/lib/services/content";
 import type { StoreInfo } from "@/lib/services/content";
-import { listActiveCategories } from "@/lib/services/catalog";
+import { listActiveCategories, listCategoryMenuProducts } from "@/lib/services/catalog";
 import { toWhatsAppDigits } from "@/lib/utils/whatsapp";
 import { Logo } from "./logo";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -22,13 +22,21 @@ import { CategoryNavBar } from "./category-nav-bar";
  */
 export async function SiteHeader() {
   const t = await getTranslations();
-  const [user, storeInfo, categories] = await Promise.all([
+  const [user, storeInfo, categories, locale] = await Promise.all([
     getCurrentUser(),
     getSetting<StoreInfo>("store_info"),
     listActiveCategories(),
+    getLocale(),
   ]);
   const cartCount = user ? await getCartItemCountForUser() : 0;
   const siteName = storeInfo?.store_name || t("common.siteName");
+
+  const categoryMenus = await Promise.all(
+    categories.map(async (category) => ({
+      category,
+      products: await listCategoryMenuProducts(category.id),
+    })),
+  );
 
   const drawerLinks = [
     { href: "/c", label: t("nav.categories") },
@@ -121,7 +129,14 @@ export async function SiteHeader() {
         </div>
       </div>
 
-      <CategoryNavBar categories={categories} greenBoxLabel={t("nav.greenBox")} homeLabel={t("nav.home")} />
+      <CategoryNavBar
+        categoryMenus={categoryMenus}
+        locale={locale}
+        greenBoxLabel={t("nav.greenBox")}
+        homeLabel={t("nav.home")}
+        viewAllLabel={t("nav.viewAll")}
+        noItemsLabel={t("nav.noItems")}
+      />
     </header>
   );
 }
