@@ -78,6 +78,31 @@ export interface OrderDetail extends Order {
   payments: Payment[];
 }
 
+/** Shape of orders.address_snapshot, frozen onto the order at checkout time
+ * (see create_order() in supabase/migrations) so it stays accurate even if
+ * the customer later edits or deletes the address itself. */
+export interface OrderAddressSnapshot {
+  label?: string;
+  recipient_name: string;
+  phone: string;
+  governorate: string;
+  city: string;
+  area: string;
+  zone_name_ar?: string;
+  zone_name_en?: string;
+  detailed_address: string;
+  landmark?: string;
+}
+
+/** Shape of orders.delivery_slot_snapshot -- same freezing rationale as
+ * OrderAddressSnapshot above. */
+export interface OrderSlotSnapshot {
+  label_ar: string;
+  label_en?: string;
+  start_time: string;
+  end_time: string;
+}
+
 export async function getOrderById(orderId: string): Promise<OrderDetail | null> {
   const supabase = await createClient();
   const { data, error } = await supabase

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { MapPin, Clock, Wallet, StickyNote } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
-import { getOrderByNumber } from "@/lib/services/orders";
+import { getOrderByNumber, type OrderAddressSnapshot, type OrderSlotSnapshot } from "@/lib/services/orders";
 import { formatPrice } from "@/lib/i18n/localized";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,26 +9,6 @@ import { PAYMENT_STATUS_TONE } from "@/lib/ui/status";
 import { OrderTrackingTimeline } from "@/components/storefront/order-tracking-timeline";
 import { ReorderButton } from "@/components/storefront/reorder-button";
 import { CancelOrderButton } from "@/components/storefront/cancel-order-button";
-
-interface AddressSnapshot {
-  label?: string;
-  recipient_name: string;
-  phone: string;
-  governorate: string;
-  city: string;
-  area: string;
-  zone_name_ar?: string;
-  zone_name_en?: string;
-  detailed_address: string;
-  landmark?: string;
-}
-
-interface SlotSnapshot {
-  label_ar: string;
-  label_en?: string;
-  start_time: string;
-  end_time: string;
-}
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ orderNumber: string }> }) {
   const { orderNumber } = await params;
@@ -39,8 +19,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ or
   const order = await getOrderByNumber(orderNumber);
   if (!order) notFound();
 
-  const address = order.address_snapshot as unknown as AddressSnapshot;
-  const slot = order.delivery_slot_snapshot as unknown as SlotSnapshot;
+  const address = order.address_snapshot as unknown as OrderAddressSnapshot;
+  const slot = order.delivery_slot_snapshot as unknown as OrderSlotSnapshot;
 
   return (
     <div>
