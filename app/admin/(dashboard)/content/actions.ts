@@ -72,6 +72,10 @@ export async function updateStoreSettingsAction(
   const contactPhone = String(formData.get("contact_phone") ?? "").trim();
   const contactEmail = String(formData.get("contact_email") ?? "").trim();
   const whatsappPhone = String(formData.get("whatsapp_phone") ?? "").trim();
+  const deliveryPhone = String(formData.get("delivery_phone") ?? "").trim();
+  const socialFacebook = String(formData.get("social_facebook") ?? "").trim();
+  const socialInstagram = String(formData.get("social_instagram") ?? "").trim();
+  const socialTiktok = String(formData.get("social_tiktok") ?? "").trim();
 
   try {
     await adminUpsertSetting("store_info", {
@@ -79,12 +83,17 @@ export async function updateStoreSettingsAction(
       contact_phone: contactPhone,
       contact_email: contactEmail,
       whatsapp_phone: whatsappPhone,
+      delivery_phone: deliveryPhone,
+      social_facebook: socialFacebook,
+      social_instagram: socialInstagram,
+      social_tiktok: socialTiktok,
     });
   } catch {
     return { status: "error" };
   }
 
   revalidatePath("/admin/content");
+  revalidatePath("/[locale]/contact", "page");
   return { status: "success" };
 }
 

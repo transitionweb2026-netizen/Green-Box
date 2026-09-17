@@ -23,6 +23,7 @@ export async function SiteFooter() {
     { href: "/box", label: t("nav.greenBox") },
     { href: "/search", label: t("nav.search") },
     { href: "/reviews", label: t("nav.reviews") },
+    { href: "/contact", label: t("nav.contactUs") },
   ];
   const accountLinks = [
     { href: "/account/orders", label: t("account.nav.orders") },

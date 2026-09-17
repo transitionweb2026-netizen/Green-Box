@@ -13,6 +13,15 @@ export interface StoreInfo {
   contact_phone?: string;
   contact_email?: string;
   whatsapp_phone?: string;
+  /** Separate line for delivery/office enquiries, shown on the Contact
+   * page -- distinct from contact_phone (general enquiries). */
+  delivery_phone?: string;
+  /** Social profile URLs for the Contact page's social icon row. Blank
+   * until the client supplies real links -- icons render either way, but
+   * only link out once a URL is set here. */
+  social_facebook?: string;
+  social_instagram?: string;
+  social_tiktok?: string;
 }
 
 /**

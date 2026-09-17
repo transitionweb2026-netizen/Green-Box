@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
+import { Cairo, Playfair_Display } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
@@ -11,6 +11,15 @@ import "../globals.css";
 const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["arabic", "latin"],
+});
+
+// Latin-only -- used solely for the Contact page's hero headline (see
+// globals.css --font-serif); every other heading on the site stays on
+// Cairo so bilingual pages don't mix type systems.
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["700", "800"],
 });
 
 export function generateStaticParams() {
@@ -64,7 +73,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${cairo.variable} h-full antialiased`}
+      className={`${cairo.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="bg-surface-gradient flex min-h-full flex-col font-sans text-foreground">
         <NextIntlClientProvider locale={locale} messages={messages}>

@@ -26,7 +26,8 @@
     "menu": "Menu",
     "viewAll": "View all",
     "noItems": "No products yet",
-    "reviews": "Customer Reviews"
+    "reviews": "Customer Reviews",
+    "contactUs": "Contact Us"
   },
   "home": {
     "heroEyebrow": "Fresh, every day",
@@ -216,6 +217,18 @@
     "emptyTitle": "No reviews yet",
     "emptyDescription": "Check back soon for stories from our customers.",
     "metaDescription": "Read what Green Box customers have to say about their shopping and delivery experience."
+  },
+  "contactPage": {
+    "heroTitle": "Contact Us",
+    "heroSubtitle": "Need help? Get in touch using the contact information below.",
+    "careTeamTitle": "Talk to our Customer Care team",
+    "careTeamSubtitle": "Here's how to reach us about your order or anything else Green Box related.",
+    "emailLabel": "Email",
+    "callLabel": "Call",
+    "deliveryLabel": "Delivery & Office",
+    "socialTitle": "Follow us",
+    "contactSoon": "Contact details coming soon.",
+    "metaDescription": "Get in touch with Green Box by email, phone, or social media."
   },
   "categoryPage": {
     "empty": "No products in this category yet.",
