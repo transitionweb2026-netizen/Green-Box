@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Home } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { pickLocalized } from "@/lib/i18n/localized";
 import type { Category, CategoryMenuProduct } from "@/lib/services/catalog";
@@ -26,6 +26,10 @@ export interface CategoryMenu {
  * today). A client component because the open category is real interactive
  * state; every string/number here is pre-fetched and pre-localized in
  * site-header.tsx so no server data fetching happens on hover.
+ *
+ * Category links sit in a flex-1 `justify-evenly` group between the Green
+ * Box link and the Home icon, so they spread across the bar's full width
+ * instead of clumping at the start with a large empty gap before Home.
  */
 export function CategoryNavBar({
   categoryMenus,
@@ -76,22 +80,25 @@ export function CategoryNavBar({
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) scheduleClose();
       }}
     >
-      <div className="mx-auto flex max-w-7xl items-center gap-1 overflow-x-auto px-4 py-1">
-        <Link href="/box" className={`${linkClass} text-brand-300 hover:text-brand-200`}>
+      <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-4 py-1">
+        <Link href="/box" className={`${linkClass} shrink-0 text-brand-300 hover:text-brand-200`}>
           {greenBoxLabel}
         </Link>
-        {categoryMenus.map(({ category }) => (
-          <div key={category.id} onMouseEnter={() => open(category.id)}>
-            <Link href={`/c/${category.slug}`} className={linkClass} onFocus={() => open(category.id)}>
-              {pickLocalized(category.name_ar, category.name_en, locale)}
-            </Link>
-          </div>
-        ))}
+        <div className="flex flex-1 items-center justify-evenly gap-1">
+          {categoryMenus.map(({ category }) => (
+            <div key={category.id} onMouseEnter={() => open(category.id)}>
+              <Link href={`/c/${category.slug}`} className={linkClass} onFocus={() => open(category.id)}>
+                {pickLocalized(category.name_ar, category.name_en, locale)}
+              </Link>
+            </div>
+          ))}
+        </div>
         <Link
           href="/"
-          className="ms-auto shrink-0 rounded-lg bg-gold-400 px-3.5 py-2 text-sm font-bold whitespace-nowrap text-deep-900 transition-colors hover:bg-gold-500"
+          aria-label={homeLabel}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold-400 text-deep-900 transition-colors hover:bg-gold-500"
         >
-          {homeLabel}
+          <Home className="h-4 w-4" />
         </Link>
       </div>
 

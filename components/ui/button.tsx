@@ -5,18 +5,24 @@ export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "dar
 export type ButtonSize = "sm" | "md" | "lg";
 
 const variantClasses: Record<ButtonVariant, string> = {
+  // Gold pill, matching the FAQ section's "Get started" button -- the
+  // site's one primary CTA style, used wherever the main action lives
+  // (Add to cart, Checkout, hero CTAs). Rounding lives per-variant (not in
+  // the shared base below) since cn() is a plain class-join, not
+  // tailwind-merge -- a shared "rounded-xl" plus a later "rounded-full"
+  // would leave both classes in the string with an unpredictable winner.
   primary:
-    "bg-brand-gradient text-white shadow-[0_1px_0_rgba(255,255,255,0.25)_inset,0_10px_24px_-8px_rgba(84,120,41,0.55)] hover:brightness-[1.06] hover:-translate-y-0.5 active:translate-y-0 active:brightness-95 focus-visible:outline-brand-600",
+    "rounded-full bg-gold-400 text-deep-900 shadow-[0_2px_0_rgba(0,0,0,0.08)] hover:bg-gold-500 hover:-translate-y-0.5 active:translate-y-0 active:bg-gold-500 focus-visible:outline-gold-500",
   secondary:
-    "bg-deep-700 text-white shadow-[0_1px_0_rgba(255,255,255,0.12)_inset,0_10px_24px_-8px_rgba(14,27,20,0.55)] hover:bg-deep-600 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-deep-600",
+    "rounded-xl bg-deep-700 text-white shadow-[0_1px_0_rgba(255,255,255,0.12)_inset,0_10px_24px_-8px_rgba(14,27,20,0.55)] hover:bg-deep-600 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-deep-600",
   outline:
-    "border border-border-strong bg-white/70 text-foreground backdrop-blur-sm hover:border-brand-400 hover:bg-brand-50 focus-visible:outline-brand-600",
+    "rounded-xl border border-border-strong bg-white/70 text-foreground backdrop-blur-sm hover:border-brand-400 hover:bg-brand-50 focus-visible:outline-brand-600",
   ghost:
-    "text-foreground hover:bg-brand-50 focus-visible:outline-brand-600",
+    "rounded-xl text-foreground hover:bg-brand-50 focus-visible:outline-brand-600",
   dark:
-    "glass-dark text-white hover:brightness-110 focus-visible:outline-brand-400",
+    "rounded-xl glass-dark text-white hover:brightness-110 focus-visible:outline-brand-400",
   danger:
-    "bg-danger text-white hover:brightness-105 focus-visible:outline-danger",
+    "rounded-xl bg-danger text-white hover:brightness-105 focus-visible:outline-danger",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -41,7 +47,7 @@ export function buttonVariants({
   className?: string;
 } = {}) {
   return cn(
-    "relative inline-flex items-center justify-center gap-2 rounded-xl font-semibold tracking-tight transition-all duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 disabled:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+    "relative inline-flex items-center justify-center gap-2 font-semibold tracking-tight transition-all duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 disabled:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
     variantClasses[variant],
     sizeClasses[size],
     className,

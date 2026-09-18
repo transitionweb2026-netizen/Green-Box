@@ -155,7 +155,6 @@ export default async function HomePage() {
             eyebrow={t("home.processEyebrow")}
             title={t("home.processTitle")}
             description={t("home.processSubtitle")}
-            align="center"
           />
           <div className="mt-10 flex flex-wrap items-start justify-center gap-x-2 gap-y-8">
             {processSteps.map((step, i) => (
@@ -239,7 +238,7 @@ export default async function HomePage() {
 
         {/* Fresh vs Prepared -- large split composition, visually distinct from the grids above */}
         <section className="mt-20 sm:mt-28">
-          <SectionHeader eyebrow={t("home.freshVsPreparedEyebrow")} title={t("home.freshVsPreparedTitle")} align="center" />
+          <SectionHeader eyebrow={t("home.freshVsPreparedEyebrow")} title={t("home.freshVsPreparedTitle")} />
           <div className="mt-8 grid gap-4 sm:grid-cols-2 sm:gap-5">
             <div className="group relative flex min-h-[22rem] flex-col justify-end overflow-hidden rounded-2xl">
               <Image
@@ -282,7 +281,6 @@ export default async function HomePage() {
             <SectionHeader
               eyebrow={t("home.testimonialsEyebrow")}
               title={t("home.testimonialsTitle")}
-              align="center"
               action={
                 <Link href="/reviews" className={buttonVariants({ variant: "outline" })}>
                   {t("home.testimonialsCta")}

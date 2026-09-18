@@ -19,7 +19,7 @@ export default async function ReviewsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-14 sm:py-20">
-      <SectionHeader eyebrow={t("eyebrow")} title={t("title")} description={t("subtitle")} align="center" />
+      <SectionHeader eyebrow={t("eyebrow")} title={t("title")} description={t("subtitle")} />
 
       <div className="mt-10">
         {reviews.length === 0 ? (

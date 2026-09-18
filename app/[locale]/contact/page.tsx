@@ -82,7 +82,7 @@ export default async function ContactPage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-14 sm:py-20">
-        <SectionHeader title={t("careTeamTitle")} description={t("careTeamSubtitle")} align="center" />
+        <SectionHeader title={t("careTeamTitle")} description={t("careTeamSubtitle")} />
 
         <div className="mt-12 grid gap-10 sm:grid-cols-3">
           <ContactMethodCard
