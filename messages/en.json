@@ -111,7 +111,17 @@
     "categories": "Categories",
     "account": "Account",
     "contact": "Contact us",
-    "contactSoon": "Contact details coming soon"
+    "contactSoon": "Contact details coming soon",
+    "newsletter": {
+      "title": "Fresh news, straight to you",
+      "subtitle": "Offers, new products, and Green Box updates — no spam.",
+      "placeholder": "Enter your email",
+      "submit": "Sign up",
+      "submitting": "Signing up...",
+      "success": "You're subscribed — thank you!",
+      "invalidEmail": "Please enter a valid email address.",
+      "genericError": "Something went wrong. Please try again."
+    }
   },
   "auth": {
     "login": {

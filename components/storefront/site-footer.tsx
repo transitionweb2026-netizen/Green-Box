@@ -7,6 +7,8 @@ import { listActiveCategories } from "@/lib/services/catalog";
 import { pickLocalized } from "@/lib/i18n/localized";
 import { toWhatsAppDigits } from "@/lib/utils/whatsapp";
 import { Logo } from "./logo";
+import { FacebookBadge, InstagramBadge, TiktokBadge, WhatsappBadge } from "./social-badges";
+import { NewsletterForm } from "./newsletter-form";
 
 export async function SiteFooter() {
   const t = await getTranslations();
@@ -38,7 +40,7 @@ export async function SiteFooter() {
       <div className="blob h-72 w-72 bg-deep-400/20 bottom-0 end-0" aria-hidden="true" />
 
       <div className="relative mx-auto max-w-7xl px-4 py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-6">
           <div className="lg:col-span-1">
             <Logo siteName={siteName} tone="dark" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">{t("common.tagline")}</p>
@@ -85,7 +87,16 @@ export async function SiteFooter() {
 
           <div>
             <h3 className="text-xs font-bold tracking-wider text-white/90 uppercase">{t("footer.contact")}</h3>
-            <ul className="mt-4 space-y-3 text-sm">
+            <div className="mt-4 flex items-center gap-2.5">
+              <FacebookBadge href={storeInfo?.social_facebook} label="Facebook" />
+              <InstagramBadge href={storeInfo?.social_instagram} label="Instagram" />
+              <TiktokBadge href={storeInfo?.social_tiktok} label="TikTok" />
+              <WhatsappBadge
+                href={storeInfo?.whatsapp_phone ? `https://wa.me/${toWhatsAppDigits(storeInfo.whatsapp_phone)}` : undefined}
+                label="WhatsApp"
+              />
+            </div>
+            <ul className="mt-5 space-y-3 text-sm">
               {storeInfo?.contact_phone && (
                 <li className="flex items-center gap-2">
                   <Phone className="h-4 w-4 shrink-0 text-brand-300" />
@@ -123,6 +134,14 @@ export async function SiteFooter() {
                 </li>
               )}
             </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-bold text-brand-300">{t("footer.newsletter.title")}</h3>
+            <p className="mt-2 text-xs text-white/60">{t("footer.newsletter.subtitle")}</p>
+            <div className="mt-4">
+              <NewsletterForm />
+            </div>
           </div>
         </div>
 
