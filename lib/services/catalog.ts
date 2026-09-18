@@ -240,7 +240,13 @@ export async function getBoxContents(boxProductId: string): Promise<BoxContentIt
   return (data as unknown as BoxContentItem[]) ?? [];
 }
 
-export async function listRelatedProducts(categoryId: string, excludeProductId: string, limit = 4): Promise<ProductWithImages[]> {
+/**
+ * Same-category products first; if that category is too thin to fill
+ * `limit` (e.g. a single-product category), tops up with other available
+ * products so the storefront's "Recommended Products" section never
+ * renders empty just because this particular category has nothing else.
+ */
+export async function listRecommendedProducts(categoryId: string, excludeProductId: string, limit = 4): Promise<ProductWithImages[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("products")
@@ -251,7 +257,22 @@ export async function listRelatedProducts(categoryId: string, excludeProductId: 
     .order("display_order", { ascending: true })
     .limit(limit);
   if (error) throw error;
-  return (data as ProductWithImages[]) ?? [];
+  const sameCategory = (data as ProductWithImages[]) ?? [];
+
+  if (sameCategory.length >= limit) return sameCategory;
+
+  const excludeIds = [excludeProductId, ...sameCategory.map((p) => p.id)];
+  const { data: fillerData, error: fillerError } = await supabase
+    .from("products")
+    .select("*, product_images(*)")
+    .eq("is_available", true)
+    .not("id", "in", `(${excludeIds.join(",")})`)
+    .order("is_featured", { ascending: false })
+    .order("display_order", { ascending: true })
+    .limit(limit - sameCategory.length);
+  if (fillerError) throw fillerError;
+
+  return [...sameCategory, ...((fillerData as ProductWithImages[]) ?? [])];
 }
 
 // --- Admin: categories ---------------------------------------------

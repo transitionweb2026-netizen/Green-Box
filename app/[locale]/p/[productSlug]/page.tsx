@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ChevronLeft, ChevronRight, PackageCheck, ShieldCheck, Truck } from "lucide-react";
+import { ChevronLeft, ChevronRight, PackageCheck, ShieldCheck, Star, Truck } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getBoxContents, getProductBySlug, listRelatedProducts } from "@/lib/services/catalog";
+import { getBoxContents, getProductBySlug, listRecommendedProducts } from "@/lib/services/catalog";
 import { pickLocalized } from "@/lib/i18n/localized";
 import { getSiteOrigin } from "@/lib/seo/site-url";
 import { categoryPlaceholderKey } from "@/lib/media/placeholders";
@@ -58,7 +58,7 @@ export default async function ProductPage({ params }: PageProps) {
   if (!product) notFound();
 
   const [related, boxContents] = await Promise.all([
-    listRelatedProducts(product.category_id, product.id),
+    listRecommendedProducts(product.category_id, product.id),
     product.product_type === "box" ? getBoxContents(product.id) : Promise.resolve([]),
   ]);
 
@@ -128,7 +128,7 @@ export default async function ProductPage({ params }: PageProps) {
         <span className="text-foreground">{name}</span>
       </nav>
 
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-8 md:grid-cols-2 md:items-center">
         <ProductGallery
           images={product.product_images}
           alt={name}
@@ -139,6 +139,27 @@ export default async function ProductPage({ params }: PageProps) {
         <div>
           <h1 className="text-2xl font-extrabold text-foreground sm:text-3xl">{name}</h1>
           {unit && <p className="mt-1.5 text-sm text-muted">{unit}</p>}
+          {product.rating != null && (
+            <div className="mt-2.5 flex items-center gap-1.5">
+              <div className="relative flex text-deep-100" aria-hidden="true">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-current" />
+                ))}
+                <div
+                  className="absolute inset-0 flex overflow-hidden text-gold-500"
+                  style={{ width: `${(Math.max(0, Math.min(5, product.rating)) / 5) * 100}%` }}
+                >
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4 shrink-0 fill-current" />
+                  ))}
+                </div>
+              </div>
+              <span className="text-sm font-medium text-muted-2">
+                {product.rating.toFixed(1)}
+                {product.rating_count > 0 && ` (${product.rating_count})`}
+              </span>
+            </div>
+          )}
           <div className="mt-4">
             <PriceDisplay value={product.price} locale={locale} size="lg" />
           </div>
