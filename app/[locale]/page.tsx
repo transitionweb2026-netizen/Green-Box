@@ -85,10 +85,13 @@ export default async function HomePage() {
           siteName={t("common.siteName")}
           heroEyebrow={t("home.heroEyebrow")}
           heroTitle={t("home.heroTitle")}
-          heroSubtitle={t("home.heroSubtitle")}
           heroCta={t("home.heroCta")}
-          heroSecondaryCta={t("home.heroSecondaryCta")}
-          trustLabels={[t("home.trustFreshTitle"), t("home.trustDeliveryTitle"), t("home.trustPaymentTitle")]}
+          trustLabels={[
+            t("home.trustFreshTitle"),
+            t("home.trustDeliveryTitle"),
+            t("home.trustPaymentTitle"),
+            t("home.trustLoyaltyTitle"),
+          ]}
         />
       </section>
 
