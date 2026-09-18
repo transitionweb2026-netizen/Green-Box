@@ -67,12 +67,11 @@ export function HeroCarousel({
   const direction = isAr ? "rtl" : "ltr";
 
   // Diagonal seam on the image's trailing edge (the edge facing the text
-  // pane): recedes by 2.5rem from top to bottom on the LTR/image-left
-  // shape, mirrored for RTL/image-right so the lean reads the same way in
-  // both directions rather than looking reversed.
-  const imageClipPath = isAr
-    ? "polygon(0 0, 100% 0, 100% 100%, 2.5rem 100%)"
-    : "polygon(0 0, 100% 0, calc(100% - 2.5rem) 100%, 0 100%)";
+  // pane) -- only applied at lg: (see globals.css .hero-image-clip--*),
+  // since the seam only exists once the panes sit side by side; on the
+  // stacked mobile layout there's no adjacent pane for a diagonal cut to
+  // relate to, so applying it there would just look like a stray notch.
+  const imageClipClass = isAr ? "hero-image-clip--rtl" : "hero-image-clip--ltr";
 
   const slides: HeroSlide[] = useMemo(() => {
     if (banners.length === 0) {
@@ -135,9 +134,10 @@ export function HeroCarousel({
       {/* Image pane -- widened past 50% and diagonally clipped on its
           trailing edge, so it genuinely overlaps the text pane's nominal
           half instead of meeting it on a hard vertical line. */}
-      <div className="relative h-44 overflow-hidden sm:h-56 lg:h-auto" style={{ clipPath: imageClipPath }}>
+      <div className={`relative h-44 overflow-hidden sm:h-56 lg:h-auto ${imageClipClass}`}>
         {/* Embla's ref must land on an element whose only child is the
-            slide track. */}
+            slide track -- the sticker below is a sibling of this, one
+            level up, so it can't interfere with embla's own layout math. */}
         <div className="h-full" ref={emblaImageRef}>
           <div className="flex h-full">
             {slides.map((slide, i) => (
@@ -147,21 +147,21 @@ export function HeroCarousel({
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Rotated "sticker" tag -- centered ON the seam between the two
-          panes (not confined inside the image pane's own overflow-hidden
-          box), so half of it sits over the photo and half over the green
-          panel, exactly straddling the boundary. A fixed English brand
-          flourish, not translated (kept identical in both locales, matching
-          what was asked for verbatim), set in a bold rounded display face
-          distinct from the rest of the site's type system. */}
-      <div className="absolute top-44 start-1/2 z-20 -translate-x-1/2 -translate-y-1/2 -rotate-[9deg] rounded-lg bg-gold-400 px-4 py-2 shadow-[0_4px_10px_rgba(0,0,0,0.3)] sm:top-56 sm:px-5 sm:py-2.5 lg:top-1/2 lg:start-[52%]">
-        <p className="font-sticker text-xl leading-[1.05] font-extrabold whitespace-nowrap text-deep-900 sm:text-3xl">
-          Unprocess
-          <br />
-          your food
-        </p>
+        {/* Rotated "sticker" tag -- stays on the image, hugging its
+            trailing edge (the one facing the diagonal seam) without
+            crossing over onto the text pane. Colored to match the deep
+            green category nav bar rather than gold. A fixed English brand
+            flourish, not translated (kept identical in both locales,
+            matching what was asked for verbatim), set in a bold rounded
+            display face distinct from the rest of the site's type system. */}
+        <div className="absolute top-[35%] end-10 z-10 -translate-y-1/2 -rotate-[9deg] rounded-lg bg-deep-700 px-4 py-2 shadow-[0_4px_10px_rgba(0,0,0,0.3)] sm:end-12 sm:px-5 sm:py-2.5">
+          <p className="font-sticker text-xl leading-[1.05] font-extrabold whitespace-nowrap text-white sm:text-3xl">
+            Unprocess
+            <br />
+            your food
+          </p>
+        </div>
       </div>
 
       {/* Text pane -- light brand-green panel */}

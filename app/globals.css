@@ -306,6 +306,20 @@ body {
   pointer-events: none;
 }
 
+/* Hero image's diagonal seam (components/storefront/hero-carousel.tsx) --
+   only meaningful once the two panes sit side by side (lg:), so it's a
+   real CSS media query rather than an inline style that would otherwise
+   apply unconditionally and cut an unrelated notch out of the stacked
+   mobile image. */
+@media (min-width: 1024px) {
+  .hero-image-clip--ltr {
+    clip-path: polygon(0 0, 100% 0, calc(100% - 2.5rem) 100%, 0 100%);
+  }
+  .hero-image-clip--rtl {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 2.5rem 100%);
+  }
+}
+
 /* Focus ring, consistent across every interactive element */
 :focus-visible {
   outline: 2px solid var(--brand-500);
