@@ -196,6 +196,8 @@
     "adding": "Adding...",
     "added": "Added",
     "quantity": "Quantity",
+    "grams": "g",
+    "calculatedTotal": "Calculated total",
     "related": "Recommended Products",
     "description": "Description",
     "backToCategory": "Back to category",

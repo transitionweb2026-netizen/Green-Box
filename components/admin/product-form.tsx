@@ -22,6 +22,7 @@ export function ProductForm({
 }) {
   const [state, formAction, isPending] = useActionState(action, { status: "idle" } as ProductActionState);
   const [productType, setProductType] = useState(product?.product_type ?? "standard");
+  const [soldByWeight, setSoldByWeight] = useState(product?.sold_by_weight ?? false);
 
   return (
     <form action={formAction} className="max-w-2xl space-y-5">
@@ -90,9 +91,34 @@ export function ProductForm({
           </div>
 
           <div>
-            <Label htmlFor="price">السعر (جنيه)</Label>
-            <Input id="price" name="price" type="number" step="0.01" min="0" defaultValue={product?.price ?? ""} required />
+            <Label htmlFor="price">{soldByWeight ? "السعر لكل جرام (جنيه)" : "السعر (جنيه)"}</Label>
+            <Input
+              id="price"
+              name="price"
+              type="number"
+              step={soldByWeight ? "0.001" : "0.01"}
+              min="0"
+              defaultValue={product?.price ?? ""}
+              required
+            />
           </div>
+
+          <label className="flex w-fit items-center gap-2 rounded-xl border border-border-strong bg-white/60 px-3.5 py-2 text-sm font-medium text-foreground">
+            <input
+              type="checkbox"
+              name="sold_by_weight"
+              checked={soldByWeight}
+              onChange={(e) => setSoldByWeight(e.target.checked)}
+              className="h-4 w-4 accent-[var(--brand-600)]"
+            />
+            يُباع بالوزن (تسعير لكل جرام)
+          </label>
+          {soldByWeight && (
+            <p className="text-xs text-muted">
+              العميل هيقدر يحدد الكمية بالجرام، والإجمالي هيتحسب تلقائيًا = عدد الجرامات × السعر لكل جرام. مثال: لو السعر
+              0.5 جنيه/جرام و العميل طلب 300 جرام، الإجمالي = 150 جنيه.
+            </p>
+          )}
         </div>
       </Card>
 

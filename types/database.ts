@@ -173,6 +173,7 @@ export interface Database {
           meta_description_en: string | null;
           rating: number | null;
           rating_count: number;
+          sold_by_weight: boolean;
           search_text_normalized: string;
           search_vector: unknown;
           created_at: string;
@@ -201,6 +202,7 @@ export interface Database {
           meta_description_en?: string | null;
           rating?: number | null;
           rating_count?: number;
+          sold_by_weight?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -227,6 +229,7 @@ export interface Database {
           meta_description_en?: string | null;
           rating?: number | null;
           rating_count?: number;
+          sold_by_weight?: boolean;
           created_at?: string;
           updated_at?: string;
         };

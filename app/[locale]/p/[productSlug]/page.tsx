@@ -172,7 +172,13 @@ export default async function ProductPage({ params }: PageProps) {
           )}
 
           <div className="mt-6">
-            <ProductPurchaseForm productId={product.id} unit={unit || undefined} disabled={!product.is_available} />
+            <ProductPurchaseForm
+              productId={product.id}
+              price={product.price}
+              unit={unit || undefined}
+              soldByWeight={product.sold_by_weight}
+              disabled={!product.is_available}
+            />
           </div>
 
           <div className="mt-6 grid grid-cols-3 gap-2 text-center text-xs text-muted">
