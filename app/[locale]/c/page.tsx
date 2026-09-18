@@ -28,12 +28,12 @@ export default async function CategoriesIndexPage() {
         {categories.length === 0 ? (
           <EmptyState icon={<LayoutGrid className="h-7 w-7" />} title={tHome("categoriesComingSoon")} />
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+          <div className="flex flex-wrap justify-center gap-4">
             {categories.map((category, i) => (
               <Link
                 key={category.id}
                 href={`/c/${category.slug}`}
-                className="glass glass-hover group flex flex-col items-center gap-4 !rounded-2xl px-4 py-8 text-center"
+                className="glass glass-hover group flex w-[calc(50%-0.5rem)] flex-col items-center gap-4 !rounded-2xl px-4 py-8 text-center sm:w-[calc(33.333%-0.667rem)] md:w-[calc(25%-0.75rem)]"
               >
                 <div className="relative h-24 w-24 overflow-hidden rounded-full ring-4 ring-white transition-transform group-hover:scale-105">
                   <Image

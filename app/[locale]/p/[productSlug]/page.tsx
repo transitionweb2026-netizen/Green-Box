@@ -198,9 +198,11 @@ export default async function ProductPage({ params }: PageProps) {
       {related.length > 0 && (
         <section className="mt-16 sm:mt-20">
           <SectionHeader title={t("related")} />
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+          <div className="mt-6 flex flex-wrap justify-center gap-4">
             {related.map((item) => (
-              <ProductCard key={item.id} product={item} />
+              <div key={item.id} className="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.667rem)] md:w-[calc(25%-0.75rem)]">
+                <ProductCard product={item} />
+              </div>
             ))}
           </div>
         </section>

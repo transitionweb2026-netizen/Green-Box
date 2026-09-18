@@ -64,9 +64,11 @@ export default async function GreenBoxPage() {
               description={t("emptyDescription")}
             />
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            <div className="flex flex-wrap justify-center gap-4">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <div key={product.id} className="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.667rem)] md:w-[calc(25%-0.75rem)]">
+                  <ProductCard product={product} />
+                </div>
               ))}
             </div>
           )}
