@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
+import { LeafBadge } from "./leaf-badge";
 
 export function SectionHeader({
   title,
@@ -27,9 +28,7 @@ export function SectionHeader({
   return (
     <div className={cn("flex flex-col items-center gap-3 text-center", className)}>
       <Heading>
-        <span className="-rotate-2 inline-block rounded-md bg-gold-400 px-5 py-1.5 font-serif text-xl font-extrabold tracking-tight text-deep-900 shadow-[0_2px_0_rgba(0,0,0,0.08)] sm:text-2xl">
-          {title}
-        </span>
+        <LeafBadge>{title}</LeafBadge>
       </Heading>
       {description && (
         <p className={cn("max-w-xl text-sm sm:text-base", tone === "dark" ? "text-white/70" : "text-muted")}>

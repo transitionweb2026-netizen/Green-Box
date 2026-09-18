@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getSetting, type FaqContent } from "@/lib/services/content";
 import { pickLocalizedOrDefault } from "@/lib/i18n/localized";
+import { LeafBadge } from "@/components/ui/leaf-badge";
 
 /**
  * Sitewide FAQ teaser shown right above the footer on every page (see
@@ -25,9 +26,7 @@ export async function FaqSection() {
   return (
     <section className="bg-background border-t border-border py-14 sm:py-16">
       <div className="mx-auto max-w-6xl px-4 text-center">
-        <span className="-rotate-2 inline-block rounded-md bg-gold-400 px-5 py-1.5 font-serif text-2xl font-extrabold text-deep-900 shadow-[0_2px_0_rgba(0,0,0,0.08)]">
-          {t("title")}
-        </span>
+        <LeafBadge>{t("title")}</LeafBadge>
 
         <div className="mt-10 grid gap-8 text-start sm:grid-cols-3 sm:gap-6 sm:text-center">
           {items.map((item) => (
