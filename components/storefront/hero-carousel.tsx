@@ -126,7 +126,7 @@ export function HeroCarousel({
 
   return (
     <div
-      className="grid w-full grid-cols-1 overflow-hidden bg-brand-200 lg:min-h-[16rem] lg:grid-cols-[54%_46%]"
+      className="relative grid w-full grid-cols-1 overflow-hidden bg-brand-200 lg:min-h-[16rem] lg:grid-cols-[54%_46%]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocus={() => setIsPaused(true)}
@@ -137,8 +137,7 @@ export function HeroCarousel({
           half instead of meeting it on a hard vertical line. */}
       <div className="relative h-44 overflow-hidden sm:h-56 lg:h-auto" style={{ clipPath: imageClipPath }}>
         {/* Embla's ref must land on an element whose only child is the
-            slide track -- the sticker below is a sibling of this, one
-            level up, so it can't interfere with embla's own layout math. */}
+            slide track. */}
         <div className="h-full" ref={emblaImageRef}>
           <div className="flex h-full">
             {slides.map((slide, i) => (
@@ -148,18 +147,21 @@ export function HeroCarousel({
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Rotated "sticker" tag -- a fixed English brand flourish (not
-            translated: kept identical in both locales, matching what was
-            asked for verbatim), set in a bold rounded display face
-            distinct from the rest of the site's type system. */}
-        <div className="absolute bottom-4 start-4 z-10 -rotate-6 rounded-lg bg-gold-400 px-3.5 py-1.5 shadow-[0_4px_10px_rgba(0,0,0,0.3)] sm:bottom-6 sm:start-6 sm:px-4 sm:py-2">
-          <p className="font-sticker text-lg leading-[1.05] font-extrabold text-deep-900 sm:text-2xl">
-            Unprocess
-            <br />
-            your food
-          </p>
-        </div>
+      {/* Rotated "sticker" tag -- centered ON the seam between the two
+          panes (not confined inside the image pane's own overflow-hidden
+          box), so half of it sits over the photo and half over the green
+          panel, exactly straddling the boundary. A fixed English brand
+          flourish, not translated (kept identical in both locales, matching
+          what was asked for verbatim), set in a bold rounded display face
+          distinct from the rest of the site's type system. */}
+      <div className="absolute top-44 start-1/2 z-20 -translate-x-1/2 -translate-y-1/2 -rotate-[9deg] rounded-lg bg-gold-400 px-4 py-2 shadow-[0_4px_10px_rgba(0,0,0,0.3)] sm:top-56 sm:px-5 sm:py-2.5 lg:top-1/2 lg:start-[52%]">
+        <p className="font-sticker text-xl leading-[1.05] font-extrabold whitespace-nowrap text-deep-900 sm:text-3xl">
+          Unprocess
+          <br />
+          your food
+        </p>
       </div>
 
       {/* Text pane -- light brand-green panel */}
