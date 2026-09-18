@@ -18,13 +18,21 @@ interface HeroSlide {
 }
 
 /**
- * Two-column split hero matching the reference exactly: an image pane and
- * a solid brand-gold text pane, side by side at roughly equal width, full
- * section height. The image pane is placed FIRST in DOM order and the text
- * pane SECOND -- in LTR that reads as image-left/text-right (matching the
- * reference precisely); in RTL the same DOM order naturally mirrors to
+ * Two-column split hero: an image pane and a light-green text pane, side
+ * by side at roughly equal width. The image pane is placed FIRST in DOM
+ * order and the text pane SECOND -- in LTR that reads as image-left/
+ * text-right; in RTL the same DOM order naturally mirrors to
  * image-right/text-left, which is the correct reading-order equivalent for
  * Arabic rather than a hardcoded physical side.
+ *
+ * The seam between the two panes is a diagonal cut (via `clip-path` on the
+ * image, mirrored per direction below) rather than a hard vertical line,
+ * and the image's own column is widened slightly past 50% so its
+ * uncut edge genuinely encroaches into the text pane's nominal half --
+ * the two panes blend across that band instead of butting into each other.
+ * The light-green backdrop lives on the outer container itself, so
+ * wherever the diagonal clip cuts the image away, that same green shows
+ * through underneath rather than needing a separate layered background.
  *
  * Two embla-carousel instances share one selected index: the image pane is
  * the interactive one (drag, autoplay, dots all drive it), the text pane
@@ -57,6 +65,14 @@ export function HeroCarousel({
   const t = useTranslations("home");
   const isAr = locale !== "en";
   const direction = isAr ? "rtl" : "ltr";
+
+  // Diagonal seam on the image's trailing edge (the edge facing the text
+  // pane): recedes by 2.5rem from top to bottom on the LTR/image-left
+  // shape, mirrored for RTL/image-right so the lean reads the same way in
+  // both directions rather than looking reversed.
+  const imageClipPath = isAr
+    ? "polygon(0 0, 100% 0, 100% 100%, 2.5rem 100%)"
+    : "polygon(0 0, 100% 0, calc(100% - 2.5rem) 100%, 0 100%)";
 
   const slides: HeroSlide[] = useMemo(() => {
     if (banners.length === 0) {
@@ -110,25 +126,31 @@ export function HeroCarousel({
 
   return (
     <div
-      className="grid w-full grid-cols-1 overflow-hidden lg:min-h-[26rem] lg:grid-cols-2"
+      className="grid w-full grid-cols-1 overflow-hidden bg-brand-200 lg:min-h-[20rem] lg:grid-cols-[54%_46%]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocus={() => setIsPaused(true)}
       onBlur={() => setIsPaused(false)}
     >
-      {/* Image pane */}
-      <div className="relative h-64 overflow-hidden sm:h-80 lg:h-auto" ref={emblaImageRef}>
+      {/* Image pane -- widened past 50% and diagonally clipped on its
+          trailing edge, so it genuinely overlaps the text pane's nominal
+          half instead of meeting it on a hard vertical line. */}
+      <div
+        className="relative h-52 overflow-hidden sm:h-64 lg:h-auto"
+        style={{ clipPath: imageClipPath }}
+        ref={emblaImageRef}
+      >
         <div className="flex h-full">
           {slides.map((slide, i) => (
             <div key={i} className="relative h-full min-w-0 flex-[0_0_100%]">
-              <Image src={slide.image} alt={slide.title} fill priority={i === 0} sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
+              <Image src={slide.image} alt={slide.title} fill priority={i === 0} sizes="(max-width: 1024px) 100vw, 54vw" className="object-cover" />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Text pane -- solid brand-gold panel */}
-      <div className="relative flex items-center bg-gold-400 px-6 py-10 sm:px-10 lg:px-14 lg:py-14" ref={emblaTextRef}>
+      {/* Text pane -- light brand-green panel */}
+      <div className="relative flex items-center px-6 py-8 sm:px-10 lg:px-12 lg:py-10" ref={emblaTextRef}>
         <div className="flex w-full">
           {slides.map((slide, i) => (
             <div key={i} className="min-w-0 flex-[0_0_100%]">
