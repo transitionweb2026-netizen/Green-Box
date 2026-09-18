@@ -8,8 +8,16 @@ import { AppImage as Image } from "@/components/ui/app-image";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { pickLocalized } from "@/lib/i18n/localized";
-import { placeholderImage } from "@/lib/media/placeholders";
 import type { Banner } from "@/lib/services/content";
+
+// Fixed local asset (public/images/hero.jpg) -- deliberately NOT the live
+// loremflickr placeholder used elsewhere on the site: that service can
+// return a different underlying photo for the same lock value depending on
+// requested dimensions/caching, which is exactly why the hero image kept
+// changing. This one ships with the app and can never change on its own;
+// swap the file (or add a real banner in /admin/content, which takes
+// priority) once real Green Box photography is ready.
+const FIXED_HERO_IMAGE = "/images/hero.jpg";
 
 interface HeroSlide {
   title: string;
@@ -75,11 +83,11 @@ export function HeroCarousel({
 
   const slides: HeroSlide[] = useMemo(() => {
     if (banners.length === 0) {
-      return [{ title: heroTitle, image: placeholderImage("hero", { width: 1200, height: 1200 }), href: "/c" }];
+      return [{ title: heroTitle, image: FIXED_HERO_IMAGE, href: "/c" }];
     }
     return banners.map((banner) => ({
       title: pickLocalized(banner.title_ar ?? "", banner.title_en, locale) || heroTitle,
-      image: banner.image_url || placeholderImage("hero", { width: 1200, height: 1200 }),
+      image: banner.image_url || FIXED_HERO_IMAGE,
       href: banner.link_url ?? "/c",
     }));
   }, [banners, locale, heroTitle]);
