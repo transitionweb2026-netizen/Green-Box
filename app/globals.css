@@ -320,6 +320,18 @@ body {
   }
 }
 
+/* Hero's rotated "sticker" tag -- an irregular, slightly torn-paper
+   outline (not a plain rounded rectangle) so it reads as a cut sticker
+   rather than a flat box, matching the reference's more dynamic shape. */
+.sticker-tag {
+  clip-path: polygon(
+    4% 8%, 27% 0%, 62% 4%, 95% 9%,
+    100% 40%, 93% 63%, 100% 90%,
+    64% 100%, 34% 95%, 5% 100%,
+    0% 65%, 7% 32%
+  );
+}
+
 /* Focus ring, consistent across every interactive element */
 :focus-visible {
   outline: 2px solid var(--brand-500);

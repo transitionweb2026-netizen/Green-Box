@@ -150,13 +150,16 @@ export function HeroCarousel({
 
         {/* Rotated "sticker" tag -- stays on the image, hugging its
             trailing edge (the one facing the diagonal seam) without
-            crossing over onto the text pane. Colored to match the deep
-            green category nav bar rather than gold. A fixed English brand
-            flourish, not translated (kept identical in both locales,
-            matching what was asked for verbatim), set in a bold rounded
-            display face distinct from the rest of the site's type system. */}
-        <div className="absolute top-[35%] end-10 z-10 -translate-y-1/2 -rotate-[9deg] rounded-lg bg-deep-700 px-4 py-2 shadow-[0_4px_10px_rgba(0,0,0,0.3)] sm:end-12 sm:px-5 sm:py-2.5">
-          <p className="font-sticker text-xl leading-[1.05] font-extrabold whitespace-nowrap text-white sm:text-3xl">
+            crossing over onto the text pane. An irregular torn-paper
+            outline (.sticker-tag) plus a subtle gradient give it real
+            depth instead of reading as a flat rounded box. Colored to
+            match the deep green category nav bar rather than gold. A
+            fixed English brand flourish, not translated (kept identical
+            in both locales, matching what was asked for verbatim), set in
+            a bold rounded display face distinct from the rest of the
+            site's type system. */}
+        <div className="sticker-tag absolute top-[35%] end-10 z-10 -translate-y-1/2 -rotate-[9deg] bg-gradient-to-br from-deep-600 via-deep-700 to-deep-900 px-5 py-3 shadow-[0_10px_22px_-4px_rgba(0,0,0,0.45)] sm:end-12 sm:px-6 sm:py-3.5">
+          <p className="font-sticker text-xl leading-[1.05] font-extrabold whitespace-nowrap text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)] sm:text-3xl">
             Unprocess
             <br />
             your food
