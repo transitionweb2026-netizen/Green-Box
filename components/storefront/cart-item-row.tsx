@@ -21,8 +21,14 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
   const image = item.products.product_images.find((img) => img.is_primary) ?? item.products.product_images[0];
   const isUnavailable = !item.products.is_available;
 
+  const unit = pickLocalized(item.products.unit_label_ar ?? "", item.products.unit_label_en, locale);
+
+  // Same 0.1-step, floating-point-safe rounding as ProductPurchaseForm, so
+  // a fractional quantity set at add-to-cart time (e.g. 1.2 kg) keeps
+  // adjusting in matching increments here rather than jumping by whole
+  // units.
   function updateQuantity(quantity: number) {
-    startTransition(() => updateCartItemAction(locale, item.id, quantity));
+    startTransition(() => updateCartItemAction(locale, item.id, Number(quantity.toFixed(1))));
   }
 
   function remove() {
@@ -76,17 +82,20 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
         <button
           type="button"
           className="flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-brand-50 disabled:opacity-40"
-          onClick={() => updateQuantity(item.quantity - 1)}
-          disabled={isPending || isUnavailable}
+          onClick={() => updateQuantity(Math.max(0.1, item.quantity - 0.1))}
+          disabled={isPending || isUnavailable || item.quantity <= 0.1}
           aria-label={t("decreaseQuantity")}
         >
           <Minus className="h-3.5 w-3.5" />
         </button>
-        <span className="w-8 text-center text-sm font-semibold">{item.quantity}</span>
+        <span className="flex w-12 items-baseline justify-center gap-1 text-center text-sm font-semibold">
+          {item.quantity.toFixed(1)}
+          {unit && <span className="text-[0.65rem] font-medium text-muted-2">{unit}</span>}
+        </span>
         <button
           type="button"
           className="flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:bg-brand-50 disabled:opacity-40"
-          onClick={() => updateQuantity(item.quantity + 1)}
+          onClick={() => updateQuantity(item.quantity + 0.1)}
           disabled={isPending || isUnavailable}
           aria-label={t("increaseQuantity")}
         >
