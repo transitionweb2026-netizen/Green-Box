@@ -6,6 +6,7 @@ import { getCartItemCountForUser } from "@/lib/services/cart";
 import { getSetting } from "@/lib/services/content";
 import type { StoreInfo } from "@/lib/services/content";
 import { listActiveCategories, listCategoryMenuProducts } from "@/lib/services/catalog";
+import { pickStrictLocalized } from "@/lib/i18n/localized";
 import { toWhatsAppDigits } from "@/lib/utils/whatsapp";
 import { Logo } from "./logo";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -29,7 +30,7 @@ export async function SiteHeader() {
     getLocale(),
   ]);
   const cartCount = user ? await getCartItemCountForUser() : 0;
-  const siteName = storeInfo?.store_name || t("common.siteName");
+  const siteName = pickStrictLocalized(storeInfo?.store_name_ar, storeInfo?.store_name_en, locale, t("common.siteName"));
 
   const categoryMenus = await Promise.all(
     categories.map(async (category) => ({

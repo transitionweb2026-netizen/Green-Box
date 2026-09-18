@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { getSetting, type StoreInfo } from "@/lib/services/content";
 import { listActivePaymentMethods } from "@/lib/services/payments";
 import { listActiveCategories } from "@/lib/services/catalog";
-import { pickLocalized } from "@/lib/i18n/localized";
+import { pickLocalized, pickStrictLocalized } from "@/lib/i18n/localized";
 import { toWhatsAppDigits } from "@/lib/utils/whatsapp";
 import { Logo } from "./logo";
 import { FacebookBadge, InstagramBadge, TiktokBadge, WhatsappBadge } from "./social-badges";
@@ -18,7 +18,7 @@ export async function SiteFooter() {
     listActivePaymentMethods(),
     listActiveCategories(),
   ]);
-  const siteName = storeInfo?.store_name || t("common.siteName");
+  const siteName = pickStrictLocalized(storeInfo?.store_name_ar, storeInfo?.store_name_en, locale, t("common.siteName"));
 
   const shopLinks = [
     { href: "/c", label: t("nav.categories") },

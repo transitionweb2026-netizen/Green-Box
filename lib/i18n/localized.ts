@@ -27,6 +27,26 @@ export function pickLocalizedOrDefault(
   return fallback;
 }
 
+/**
+ * Opposite fallback rule from pickLocalizedOrDefault: never crosses
+ * languages. Only the current locale's own field is used, falling back to
+ * `fallback` (normally a next-intl translation, already locale-correct)
+ * when THAT field is empty -- so an Arabic-only admin override can never
+ * leak onto the English site. Use this for identity strings like a brand
+ * name that must switch with locale, as opposed to CMS body copy (where
+ * pickLocalizedOrDefault's Arabic-first fallback is the intended
+ * behavior, since Arabic content is always expected to exist there).
+ */
+export function pickStrictLocalized(
+  ar: string | null | undefined,
+  en: string | null | undefined,
+  locale: string,
+  fallback: string,
+): string {
+  const value = locale === "en" ? en : ar;
+  return value && value.trim() ? value : fallback;
+}
+
 export function formatPrice(amount: number, locale: string): string {
   return new Intl.NumberFormat(locale === "ar" ? "ar-EG-u-nu-latn" : "en-EG", {
     style: "currency",

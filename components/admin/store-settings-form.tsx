@@ -14,9 +14,15 @@ export function StoreSettingsForm({ storeInfo }: { storeInfo: StoreInfo | null }
 
   return (
     <form action={formAction} className="max-w-md space-y-4">
-      <div>
-        <Label htmlFor="store_name">اسم المتجر</Label>
-        <Input id="store_name" name="store_name" defaultValue={storeInfo?.store_name ?? "جرين بوكس"} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="store_name_ar">اسم المتجر (عربي)</Label>
+          <Input id="store_name_ar" name="store_name_ar" defaultValue={storeInfo?.store_name_ar ?? ""} placeholder="جرين بوكس" />
+        </div>
+        <div>
+          <Label htmlFor="store_name_en">اسم المتجر (إنجليزي)</Label>
+          <Input id="store_name_en" name="store_name_en" defaultValue={storeInfo?.store_name_en ?? ""} placeholder="Green Box" />
+        </div>
       </div>
       <div>
         <Label htmlFor="contact_phone">رقم التواصل</Label>

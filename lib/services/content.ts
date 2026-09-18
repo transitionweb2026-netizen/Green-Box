@@ -9,7 +9,12 @@ export type Setting = Tables<"settings">;
  * type since the storefront header/footer and the admin content page all
  * need to agree on its fields. */
 export interface StoreInfo {
-  store_name?: string;
+  /** Bilingual so the header/footer wordmark switches with locale like
+   * everything else on the site -- previously a single `store_name`
+   * field, which meant an admin-entered Arabic name stuck around even on
+   * the English site. Falls back to the translated default when unset. */
+  store_name_ar?: string;
+  store_name_en?: string;
   contact_phone?: string;
   contact_email?: string;
   whatsapp_phone?: string;

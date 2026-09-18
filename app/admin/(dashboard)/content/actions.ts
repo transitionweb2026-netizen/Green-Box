@@ -68,7 +68,8 @@ export async function updateStoreSettingsAction(
   _prevState: SettingsActionState,
   formData: FormData,
 ): Promise<SettingsActionState> {
-  const storeName = String(formData.get("store_name") ?? "").trim();
+  const storeNameAr = String(formData.get("store_name_ar") ?? "").trim();
+  const storeNameEn = String(formData.get("store_name_en") ?? "").trim();
   const contactPhone = String(formData.get("contact_phone") ?? "").trim();
   const contactEmail = String(formData.get("contact_email") ?? "").trim();
   const whatsappPhone = String(formData.get("whatsapp_phone") ?? "").trim();
@@ -79,7 +80,8 @@ export async function updateStoreSettingsAction(
 
   try {
     await adminUpsertSetting("store_info", {
-      store_name: storeName,
+      store_name_ar: storeNameAr,
+      store_name_en: storeNameEn,
       contact_phone: contactPhone,
       contact_email: contactEmail,
       whatsapp_phone: whatsappPhone,

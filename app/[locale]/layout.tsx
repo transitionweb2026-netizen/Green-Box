@@ -4,7 +4,10 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { getSiteOrigin } from "@/lib/seo/site-url";
+import { getSetting, type StoreInfo } from "@/lib/services/content";
+import { pickStrictLocalized } from "@/lib/i18n/localized";
 import { SiteHeader } from "@/components/storefront/site-header";
+import { PageHeroBanner } from "@/components/storefront/page-hero-banner";
 import { FaqSection } from "@/components/storefront/faq-section";
 import { TermsSection } from "@/components/storefront/terms-section";
 import { SiteFooter } from "@/components/storefront/site-footer";
@@ -79,6 +82,8 @@ export default async function LocaleLayout({
   const locale = await getLocale();
   const messages = await getMessages();
   const dir = locale === "ar" ? "rtl" : "ltr";
+  const [t, storeInfo] = await Promise.all([getTranslations("common"), getSetting<StoreInfo>("store_info")]);
+  const siteName = pickStrictLocalized(storeInfo?.store_name_ar, storeInfo?.store_name_en, locale, t("siteName"));
 
   return (
     <html
@@ -89,6 +94,7 @@ export default async function LocaleLayout({
       <body className="bg-surface-gradient flex min-h-full flex-col font-sans text-foreground">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SiteHeader />
+          <PageHeroBanner locale={locale} siteName={siteName} />
           <main className="flex-1">{children}</main>
           <FaqSection />
           <TermsSection />
