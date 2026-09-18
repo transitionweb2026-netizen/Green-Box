@@ -126,6 +126,8 @@
      headline to match its reference design -- Arabic text falls back to
      font-sans since no Arabic serif in that style exists. */
   --font-serif: var(--font-playfair), var(--font-cairo), serif;
+  /* Latin-only display face for the hero's rotated sticker tag only. */
+  --font-sticker: var(--font-baloo), var(--font-cairo), sans-serif;
 
   --animate-fade-up: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-shimmer: shimmer 1.8s ease-in-out infinite;

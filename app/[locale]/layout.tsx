@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cairo, Playfair_Display } from "next/font/google";
+import { Baloo_2, Cairo, Playfair_Display } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
@@ -20,6 +20,15 @@ const cairo = Cairo({
 // Cairo so bilingual pages don't mix type systems.
 const playfair = Playfair_Display({
   variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["700", "800"],
+});
+
+// Latin-only -- used solely for the hero's rotated "sticker" tag (a bold,
+// rounded display face matching that badge's reference design), never for
+// running text.
+const baloo = Baloo_2({
+  variable: "--font-baloo",
   subsets: ["latin"],
   weight: ["700", "800"],
 });
@@ -75,7 +84,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${cairo.variable} ${playfair.variable} h-full antialiased`}
+      className={`${cairo.variable} ${playfair.variable} ${baloo.variable} h-full antialiased`}
     >
       <body className="bg-surface-gradient flex min-h-full flex-col font-sans text-foreground">
         <NextIntlClientProvider locale={locale} messages={messages}>

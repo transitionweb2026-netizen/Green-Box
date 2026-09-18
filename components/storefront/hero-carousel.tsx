@@ -126,7 +126,7 @@ export function HeroCarousel({
 
   return (
     <div
-      className="grid w-full grid-cols-1 overflow-hidden bg-brand-200 lg:min-h-[20rem] lg:grid-cols-[54%_46%]"
+      className="grid w-full grid-cols-1 overflow-hidden bg-brand-200 lg:min-h-[16rem] lg:grid-cols-[54%_46%]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocus={() => setIsPaused(true)}
@@ -135,32 +135,45 @@ export function HeroCarousel({
       {/* Image pane -- widened past 50% and diagonally clipped on its
           trailing edge, so it genuinely overlaps the text pane's nominal
           half instead of meeting it on a hard vertical line. */}
-      <div
-        className="relative h-52 overflow-hidden sm:h-64 lg:h-auto"
-        style={{ clipPath: imageClipPath }}
-        ref={emblaImageRef}
-      >
-        <div className="flex h-full">
-          {slides.map((slide, i) => (
-            <div key={i} className="relative h-full min-w-0 flex-[0_0_100%]">
-              <Image src={slide.image} alt={slide.title} fill priority={i === 0} sizes="(max-width: 1024px) 100vw, 54vw" className="object-cover" />
-            </div>
-          ))}
+      <div className="relative h-44 overflow-hidden sm:h-56 lg:h-auto" style={{ clipPath: imageClipPath }}>
+        {/* Embla's ref must land on an element whose only child is the
+            slide track -- the sticker below is a sibling of this, one
+            level up, so it can't interfere with embla's own layout math. */}
+        <div className="h-full" ref={emblaImageRef}>
+          <div className="flex h-full">
+            {slides.map((slide, i) => (
+              <div key={i} className="relative h-full min-w-0 flex-[0_0_100%]">
+                <Image src={slide.image} alt={slide.title} fill priority={i === 0} sizes="(max-width: 1024px) 100vw, 54vw" className="object-cover" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Rotated "sticker" tag -- a fixed English brand flourish (not
+            translated: kept identical in both locales, matching what was
+            asked for verbatim), set in a bold rounded display face
+            distinct from the rest of the site's type system. */}
+        <div className="absolute bottom-4 start-4 z-10 -rotate-6 rounded-lg bg-gold-400 px-3.5 py-1.5 shadow-[0_4px_10px_rgba(0,0,0,0.3)] sm:bottom-6 sm:start-6 sm:px-4 sm:py-2">
+          <p className="font-sticker text-lg leading-[1.05] font-extrabold text-deep-900 sm:text-2xl">
+            Unprocess
+            <br />
+            your food
+          </p>
         </div>
       </div>
 
       {/* Text pane -- light brand-green panel */}
-      <div className="relative flex items-center px-6 py-8 sm:px-10 lg:px-12 lg:py-10" ref={emblaTextRef}>
+      <div className="relative flex items-center px-6 py-5 sm:px-10 lg:px-12 lg:py-6" ref={emblaTextRef}>
         <div className="flex w-full">
           {slides.map((slide, i) => (
             <div key={i} className="min-w-0 flex-[0_0_100%]">
               <span className="inline-flex items-center rounded-full bg-white/60 px-3 py-1 text-xs font-bold tracking-wide text-deep-800 uppercase">
                 {banners.length > 0 ? siteName : heroEyebrow}
               </span>
-              <h1 className="mt-5 font-serif text-3xl leading-[1.15] font-extrabold text-deep-900 sm:text-4xl lg:text-5xl">
+              <h1 className="mt-3 font-serif text-2xl leading-[1.15] font-extrabold text-deep-900 sm:text-3xl lg:text-4xl">
                 {slide.title}
               </h1>
-              <div className="mt-7 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
                 {trustLabels.map((label) => (
                   <span key={label} className="flex items-center gap-2 text-sm font-semibold text-deep-800 sm:text-base">
                     <Check className="h-5 w-5 shrink-0 text-deep-700" />
@@ -168,7 +181,7 @@ export function HeroCarousel({
                   </span>
                 ))}
               </div>
-              <div className="mt-8">
+              <div className="mt-5">
                 <Link href={slide.href} className={buttonVariants({ variant: "secondary", size: "lg" })}>
                   {heroCta}
                 </Link>
