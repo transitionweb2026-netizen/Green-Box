@@ -49,17 +49,20 @@ export async function createBannerAction(_prevState: BannerActionState, formData
   }
 
   revalidatePath("/admin/content");
+  revalidatePath("/[locale]", "page");
   return { status: "idle" };
 }
 
 export async function deleteBannerAction(bannerId: string) {
   await adminDeleteBanner(bannerId);
   revalidatePath("/admin/content");
+  revalidatePath("/[locale]", "page");
 }
 
 export async function toggleBannerActiveAction(bannerId: string, isActive: boolean) {
   await adminUpdateBanner(bannerId, { is_active: isActive });
   revalidatePath("/admin/content");
+  revalidatePath("/[locale]", "page");
 }
 
 export type SettingsActionState = { status: "idle" | "error" | "success" };
@@ -96,6 +99,7 @@ export async function updateStoreSettingsAction(
 
   revalidatePath("/admin/content");
   revalidatePath("/[locale]/contact", "page");
+  revalidatePath("/[locale]", "layout");
   return { status: "success" };
 }
 

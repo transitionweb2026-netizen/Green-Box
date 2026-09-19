@@ -14,6 +14,24 @@ import {
 } from "@/lib/services/catalog";
 import { uploadMediaFile, deleteMediaFile } from "@/lib/services/storage";
 
+/**
+ * revalidateTag("products") busts the unstable_cache DATA underneath
+ * listProducts()/getProductBySlug(), but every storefront page built on
+ * top of that data (product detail, category listings, homepage, search,
+ * boxes) still needs its own Full Route Cache entry busted explicitly --
+ * without this, a product edit (including an image upload) only shows up
+ * on the storefront after that page's own ~60s revalidate window happens
+ * to elapse, which reads as "uploaded images don't appear on the site".
+ */
+function revalidateStorefrontProductPaths() {
+  revalidatePath("/[locale]/p/[productSlug]", "page");
+  revalidatePath("/[locale]/c/[categorySlug]", "page");
+  revalidatePath("/[locale]/c", "page");
+  revalidatePath("/[locale]/search", "page");
+  revalidatePath("/[locale]/box", "page");
+  revalidatePath("/[locale]", "page");
+}
+
 const productSchema = z.object({
   category_id: z.string().uuid(),
   product_type: z.enum(["standard", "box"]).default("standard"),
@@ -113,6 +131,7 @@ export async function createProductAction(
 
   revalidatePath("/admin/products");
   revalidateTag("products", "max");
+  revalidateStorefrontProductPaths();
   redirect(`/admin/products/${productId}/edit`);
 }
 
@@ -156,6 +175,7 @@ export async function updateProductAction(
   revalidatePath("/admin/products");
   revalidatePath(`/admin/products/${productId}/edit`);
   revalidateTag("products", "max");
+  revalidateStorefrontProductPaths();
   return { status: "success" };
 }
 
@@ -163,6 +183,7 @@ export async function archiveProductAction(productId: string) {
   await adminArchiveProduct(productId);
   revalidatePath("/admin/products");
   revalidateTag("products", "max");
+  revalidateStorefrontProductPaths();
 }
 
 export async function uploadProductImageAction(productId: string, formData: FormData) {
@@ -173,6 +194,7 @@ export async function uploadProductImageAction(productId: string, formData: Form
   await adminAddProductImage(productId, url);
   revalidatePath(`/admin/products/${productId}/edit`);
   revalidateTag("products", "max");
+  revalidateStorefrontProductPaths();
 }
 
 export async function deleteProductImageAction(productId: string, imageId: string, url: string) {
@@ -180,6 +202,7 @@ export async function deleteProductImageAction(productId: string, imageId: strin
   await deleteMediaFile(url).catch(() => {});
   revalidatePath(`/admin/products/${productId}/edit`);
   revalidateTag("products", "max");
+  revalidateStorefrontProductPaths();
 }
 
 export async function setPrimaryProductImageAction(productId: string, imageId: string) {
@@ -187,10 +210,12 @@ export async function setPrimaryProductImageAction(productId: string, imageId: s
   revalidatePath(`/admin/products/${productId}/edit`);
   revalidatePath("/admin/products");
   revalidateTag("products", "max");
+  revalidateStorefrontProductPaths();
 }
 
 export async function setBoxContentsAction(productId: string, items: { productId: string; quantity: number }[]) {
   await adminSetBoxContents(productId, items);
   revalidatePath(`/admin/products/${productId}/edit`);
   revalidateTag("products", "max");
+  revalidateStorefrontProductPaths();
 }

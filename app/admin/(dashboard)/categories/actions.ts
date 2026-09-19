@@ -5,6 +5,19 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { adminCreateCategory, adminDeleteCategory, adminUpdateCategory } from "@/lib/services/catalog";
 
+/**
+ * Same gap as products/actions.ts: revalidateTag("categories") busts the
+ * data cache, but the storefront's own Full Route Cache for pages built on
+ * that data needs busting too -- including the root layout, since the
+ * category nav bar and footer categories column (site-header.tsx,
+ * site-footer.tsx) render on every single page.
+ */
+function revalidateStorefrontCategoryPaths() {
+  revalidatePath("/[locale]", "layout");
+  revalidatePath("/[locale]/c", "page");
+  revalidatePath("/[locale]/c/[categorySlug]", "page");
+}
+
 const categorySchema = z.object({
   slug: z
     .string()
@@ -72,6 +85,7 @@ export async function createCategoryAction(
 
   revalidatePath("/admin/categories");
   revalidateTag("categories", "max");
+  revalidateStorefrontCategoryPaths();
   redirect("/admin/categories");
 }
 
@@ -104,6 +118,7 @@ export async function updateCategoryAction(
 
   revalidatePath("/admin/categories");
   revalidateTag("categories", "max");
+  revalidateStorefrontCategoryPaths();
   redirect("/admin/categories");
 }
 
@@ -111,4 +126,5 @@ export async function deactivateCategoryAction(categoryId: string) {
   await adminDeleteCategory(categoryId);
   revalidatePath("/admin/categories");
   revalidateTag("categories", "max");
+  revalidateStorefrontCategoryPaths();
 }
