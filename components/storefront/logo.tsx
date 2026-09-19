@@ -37,7 +37,14 @@ export function Logo({
           <path d="M12 21V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </span>
-      <span className={cn("text-lg", tone === "dark" ? "text-white" : "text-deep-700")}>{siteName}</span>
+      <span
+        className={cn(
+          "bg-clip-text font-serif text-xl leading-none font-extrabold text-transparent drop-shadow-sm",
+          tone === "dark" ? "bg-gradient-to-r from-gold-300 via-white to-gold-300" : "bg-gradient-to-r from-brand-600 via-brand-500 to-deep-700",
+        )}
+      >
+        {siteName}
+      </span>
     </span>
   );
 }
