@@ -24,7 +24,7 @@ const cairo = Cairo({
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
-  weight: ["700", "800"],
+  weight: ["700", "800", "900"],
 });
 
 // Latin-only -- used solely for the hero's rotated "sticker" tag (a bold,
