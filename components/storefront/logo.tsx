@@ -1,9 +1,11 @@
+import { Package } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
- * Wordmark + leaf mark used across the storefront header/footer, auth
+ * Wordmark + box mark used across the storefront header/footer, auth
  * pages, and (via a dark-tuned instance) the admin shell -- kept as one
- * component so the brand mark stays identical everywhere.
+ * component so the brand mark stays identical everywhere. The mark is a
+ * literal box (not a leaf) since the brand name is "Green Box".
  */
 export function Logo({
   siteName,
@@ -22,20 +24,7 @@ export function Logo({
         )}
         aria-hidden="true"
       >
-        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-          <path
-            d="M12 21c-4.5 0-8-3.5-8-8 0-6 5-9 8-11 3 2 8 5 8 11 0 4.5-3.5 8-8 8Z"
-            fill="currentColor"
-            fillOpacity="0.25"
-          />
-          <path
-            d="M12 21c-4.5 0-8-3.5-8-8 0-6 5-9 8-11 3 2 8 5 8 11 0 4.5-3.5 8-8 8Z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-          <path d="M12 21V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
+        <Package className="h-5 w-5" strokeWidth={2} />
       </span>
       <span
         className={cn(
