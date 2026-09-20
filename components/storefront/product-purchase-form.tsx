@@ -9,11 +9,10 @@ import { AddToCartButton } from "./add-to-cart-button";
 // Weight-priced products (product.sold_by_weight, set in the admin product
 // form) step in whole grams -- `price` is EGP-per-gram for these, so
 // quantity IS the gram amount directly, no unit conversion anywhere.
-// Everything else keeps the previous 0.1 step for fractional kg-style
-// amounts (e.g. 1.2). Rounding through toFixed avoids classic
-// floating-point drift (0.1 + 0.2 !== 0.3) from repeated clicks.
+// Everything else (packaged items sold as whole trays/nets/pieces, not by
+// weight) steps by a plain whole unit -- you can't order "1.2 trays".
 const GRAM_STEP = 50;
-const KG_STEP = 0.1;
+const UNIT_STEP = 1;
 
 export function ProductPurchaseForm({
   productId,
@@ -33,9 +32,9 @@ export function ProductPurchaseForm({
   const locale = useLocale();
   const [quantity, setQuantity] = useState(0);
 
-  const step = soldByWeight ? GRAM_STEP : KG_STEP;
-  const round = (value: number) => (soldByWeight ? Math.round(value) : Number(value.toFixed(1)));
-  const displayQuantity = soldByWeight ? String(quantity) : quantity.toFixed(1);
+  const step = soldByWeight ? GRAM_STEP : UNIT_STEP;
+  const round = (value: number) => Math.round(value);
+  const displayQuantity = String(quantity);
   const displayUnit = soldByWeight ? t("grams") : unit;
 
   return (

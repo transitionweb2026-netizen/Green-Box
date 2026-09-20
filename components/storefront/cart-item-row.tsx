@@ -24,16 +24,14 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
 
   const soldByWeight = item.products.sold_by_weight;
   const unit = soldByWeight ? tProduct("grams") : pickLocalized(item.products.unit_label_ar ?? "", item.products.unit_label_en, locale);
-  const step = soldByWeight ? 50 : 0.1;
-  const minQuantity = soldByWeight ? 50 : 0.1;
+  const step = soldByWeight ? 50 : 1;
+  const minQuantity = soldByWeight ? 50 : 1;
 
-  // Same step/rounding as ProductPurchaseForm, so a quantity set at
-  // add-to-cart time (whole grams for weight-priced products, fractional
-  // kg-style amounts like 1.2 for everything else) keeps adjusting in
-  // matching increments here rather than jumping by a mismatched step.
+  // Same step/rounding as ProductPurchaseForm: whole grams for
+  // weight-priced products, whole units (trays/nets/pieces) for everything
+  // else -- both are plain integers, just at different step sizes.
   function updateQuantity(quantity: number) {
-    const rounded = soldByWeight ? Math.round(quantity) : Number(quantity.toFixed(1));
-    startTransition(() => updateCartItemAction(locale, item.id, rounded));
+    startTransition(() => updateCartItemAction(locale, item.id, Math.round(quantity)));
   }
 
   function remove() {
@@ -94,7 +92,7 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
           <Minus className="h-3.5 w-3.5" />
         </button>
         <span className="flex w-12 items-baseline justify-center gap-1 text-center text-sm font-semibold">
-          {soldByWeight ? item.quantity : item.quantity.toFixed(1)}
+          {Math.round(item.quantity)}
           {unit && <span className="text-[0.65rem] font-medium text-muted-2">{unit}</span>}
         </span>
         <button
