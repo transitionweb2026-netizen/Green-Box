@@ -119,31 +119,31 @@ export default async function HomePage() {
                 const name = pickLocalized(category.name_ar, category.name_en, locale);
                 const description = pickLocalized(category.description_ar ?? "", category.description_en, locale);
                 return (
-                  <Link
-                    key={category.id}
-                    href={`/c/${category.slug}`}
-                    className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white transition-shadow hover:shadow-[var(--shadow-lifted)]"
-                  >
-                    <div className="relative aspect-square w-full overflow-hidden bg-brand-50">
-                      <Image
-                        src={category.image_url || placeholderImage(categoryPlaceholderKey(category.slug))}
-                        alt={name}
-                        fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="flex flex-1 items-end justify-between gap-2 p-3.5">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-sm font-bold text-deep-800">{name}</span>
-                        {description && <span className="line-clamp-2 text-xs text-muted">{description}</span>}
+                  <Link key={category.id} href={`/c/${category.slug}`} className="card-frame group block">
+                    <div className="card-frame-inner">
+                      <div className="card-frame-content">
+                        <div className="relative aspect-square w-full overflow-hidden bg-brand-50">
+                          <Image
+                            src={category.image_url || placeholderImage(categoryPlaceholderKey(category.slug))}
+                            alt={name}
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        </div>
+                        <div className="flex flex-1 items-end justify-between gap-2 p-3.5">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-sm font-bold text-deep-800">{name}</span>
+                            {description && <span className="line-clamp-2 text-xs text-muted">{description}</span>}
+                          </div>
+                          <span
+                            aria-hidden="true"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-white transition-transform group-hover:scale-110"
+                          >
+                            <ArrowIcon className="h-4 w-4" />
+                          </span>
+                        </div>
                       </div>
-                      <span
-                        aria-hidden="true"
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-white transition-transform group-hover:scale-110"
-                      >
-                        <ArrowIcon className="h-4 w-4" />
-                      </span>
                     </div>
                   </Link>
                 );

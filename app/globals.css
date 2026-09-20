@@ -263,6 +263,88 @@ body {
   pointer-events: none;
 }
 
+/*
+ * Framed liquid-glass cards -- product/category grid tiles specifically.
+ * One step beyond `.glass`: the card reads as a small glass pane set
+ * inside a raised, brand-colored frame, like a shadow-box. Two layers give
+ * the frame real thickness instead of a flat border line: `.card-frame` is
+ * the outer bezel (its own padding IS the visible frame width, beveled via
+ * inset highlight/shadow so it reads as raised off the page), and
+ * `.card-frame-inner` is the recessed, tinted, blurred glass pane inside
+ * it, with a slow-drifting gold specular highlight for the "liquid" feel.
+ * `.card-frame-content` sits above those decorative layers (z-index) so
+ * real content never gets dimmed by them.
+ */
+.card-frame {
+  position: relative;
+  height: 100%;
+  padding: 4px;
+  border-radius: calc(var(--radius-card) + 4px);
+  background: linear-gradient(150deg, var(--brand-300) 0%, var(--brand-600) 50%, var(--deep-700) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 0 0 1px rgba(232, 196, 104, 0.35),
+    inset 0 -2px 4px rgba(14, 27, 20, 0.4),
+    0 1px 1px rgba(14, 27, 20, 0.1),
+    0 20px 36px -16px rgba(28, 55, 40, 0.5);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+}
+
+.card-frame:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 0 0 1px rgba(232, 196, 104, 0.5),
+    inset 0 -2px 4px rgba(14, 27, 20, 0.4),
+    0 2px 2px rgba(14, 27, 20, 0.12),
+    0 32px 48px -18px rgba(28, 55, 40, 0.6);
+}
+
+.card-frame-inner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  height: 100%;
+  border-radius: var(--radius-card);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.88), rgba(234, 243, 210, 0.65) 55%, rgba(212, 231, 168, 0.5));
+  box-shadow:
+    inset 0 3px 8px rgba(14, 27, 20, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+}
+
+.card-frame-inner::before {
+  content: "";
+  position: absolute;
+  top: -25%;
+  inset-inline-end: -25%;
+  width: 70%;
+  height: 70%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(232, 196, 104, 0.55), rgba(232, 196, 104, 0) 70%);
+  animation: float-slow 9s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card-frame-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 35%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card-frame-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
 /* ------------------------------------------------------------------ */
 /* Backgrounds & decoration                                            */
 /* ------------------------------------------------------------------ */

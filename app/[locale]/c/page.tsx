@@ -33,18 +33,22 @@ export default async function CategoriesIndexPage() {
               <Link
                 key={category.id}
                 href={`/c/${category.slug}`}
-                className="glass glass-hover group flex w-[calc(50%-0.5rem)] flex-col items-center gap-4 !rounded-2xl px-4 py-8 text-center sm:w-[calc(33.333%-0.667rem)] md:w-[calc(25%-0.75rem)]"
+                className="card-frame group w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.667rem)] md:w-[calc(25%-0.75rem)]"
               >
-                <div className="relative h-24 w-24 overflow-hidden rounded-full ring-4 ring-white transition-transform group-hover:scale-105">
-                  <Image
-                    src={category.image_url || placeholderImage("vegetables", { width: 240, height: 240, variant: i })}
-                    alt={pickLocalized(category.name_ar, category.name_en, locale)}
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
+                <div className="card-frame-inner">
+                  <div className="card-frame-content items-center gap-4 px-4 py-8 text-center">
+                    <div className="relative h-24 w-24 overflow-hidden rounded-full ring-4 ring-white transition-transform group-hover:scale-105">
+                      <Image
+                        src={category.image_url || placeholderImage("vegetables", { width: 240, height: 240, variant: i })}
+                        alt={pickLocalized(category.name_ar, category.name_en, locale)}
+                        fill
+                        sizes="96px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <span className="font-bold text-foreground">{pickLocalized(category.name_ar, category.name_en, locale)}</span>
+                  </div>
                 </div>
-                <span className="font-bold text-foreground">{pickLocalized(category.name_ar, category.name_en, locale)}</span>
               </Link>
             ))}
           </div>
