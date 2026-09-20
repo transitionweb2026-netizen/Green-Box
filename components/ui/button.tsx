@@ -1,7 +1,7 @@
 import { type ButtonHTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "dark" | "danger";
+export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "dark" | "danger" | "box";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -23,6 +23,10 @@ const variantClasses: Record<ButtonVariant, string> = {
     "rounded-xl glass-dark text-white hover:brightness-110 focus-visible:outline-brand-400",
   danger:
     "rounded-xl bg-danger text-white hover:brightness-105 focus-visible:outline-danger",
+  // Light-green "Add to box" pill, matching the product-card reference --
+  // distinct from the gold `primary` CTA used for checkout/hero actions.
+  box:
+    "rounded-full bg-brand-100 text-deep-800 hover:bg-brand-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-brand-600",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

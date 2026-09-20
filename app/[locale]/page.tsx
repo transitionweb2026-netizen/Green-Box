@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AppImage as Image } from "@/components/ui/app-image";
-import { ArrowLeft, ArrowRight, ClipboardCheck, Leaf, Package, ShieldCheck, ShoppingBasket, Star, Truck } from "lucide-react";
+import { ArrowLeft, ArrowRight, ClipboardCheck, CreditCard, Gift, Leaf, Package, ShieldCheck, ShoppingBasket, Star, Truck } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { placeholderImage, categoryPlaceholderKey } from "@/lib/media/placeholde
 import { getSiteOrigin } from "@/lib/seo/site-url";
 import { ProductCard } from "@/components/storefront/product-card";
 import { HeroCarousel } from "@/components/storefront/hero-carousel";
+import { HeroCartSummary } from "@/components/storefront/hero-cart-summary";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -64,6 +65,13 @@ export default async function HomePage() {
     },
   ];
 
+  const trustItems = [
+    { icon: Leaf, title: t("home.trustFreshTitle") },
+    { icon: Truck, title: t("home.trustDeliveryTitle") },
+    { icon: CreditCard, title: t("home.trustPaymentTitle") },
+    { icon: Gift, title: t("home.trustLoyaltyTitle") },
+  ];
+
   const processSteps = [
     { icon: ShoppingBasket, title: t("home.processOrderTitle"), description: t("home.processOrderDescription") },
     { icon: Leaf, title: t("home.processPickTitle"), description: t("home.processPickDescription") },
@@ -79,24 +87,70 @@ export default async function HomePage() {
 
       {/* Hero -- cream, editorial, carousel-driven image + text */}
       <section className="bg-background relative overflow-hidden">
-        <HeroCarousel
-          banners={banners}
-          locale={locale}
-          siteName={t("common.siteName")}
-          heroEyebrow={t("home.heroEyebrow")}
-          heroTitle={t("home.heroTitle")}
-          heroCta={t("home.heroCta")}
-          trustLabels={[
-            t("home.trustFreshTitle"),
-            t("home.trustDeliveryTitle"),
-            t("home.trustPaymentTitle"),
-            t("home.trustLoyaltyTitle"),
-          ]}
-        />
+        <div className="blob h-64 w-64 bg-brand-300/25 -top-10 -start-10 animate-float-slow" aria-hidden="true" />
+        <div className="blob h-56 w-56 bg-gold-400/20 top-1/3 end-0 animate-float-slow" aria-hidden="true" />
+        <div className="blob h-72 w-72 bg-brand-500/15 bottom-0 start-1/3 animate-float-slow" aria-hidden="true" />
+        <div className="relative">
+          <HeroCarousel
+            banners={banners}
+            locale={locale}
+            heroEyebrow={t("home.heroEyebrow")}
+            heroHeadline={t("home.heroHeadline")}
+            heroHeadlineAccent={t("home.heroHeadlineAccent")}
+            heroSubtitleFallback={t("home.heroSubtitle")}
+            heroCta={t("home.heroCta")}
+            heroNote={t("home.heroNote")}
+          />
+          <HeroCartSummary className="absolute end-[6%] top-6 hidden xl:block" />
+        </div>
+
+        {/* Category pill shortcuts -- real categories, not the 3-item mockup list */}
+        {categories.length > 0 && (
+          <div className="relative mx-auto max-w-7xl px-4 pb-10">
+            <div className="flex flex-wrap justify-center gap-3">
+              {categories.map((category) => {
+                const name = pickLocalized(category.name_ar, category.name_en, locale);
+                return (
+                  <Link
+                    key={category.id}
+                    href={`/c/${category.slug}`}
+                    className="glass glass-hover flex items-center gap-2.5 !rounded-full py-1.5 pe-5 ps-1.5"
+                  >
+                    <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-brand-50">
+                      <Image
+                        src={category.image_url || placeholderImage(categoryPlaceholderKey(category.slug), { width: 80, height: 80 })}
+                        alt={name}
+                        fill
+                        sizes="36px"
+                        className="object-cover"
+                      />
+                    </span>
+                    <span className="text-sm font-bold text-deep-800">{name}</span>
+                    <ArrowIcon className="h-3.5 w-3.5 text-brand-600" />
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Compact trust strip */}
+      <section className="border-y border-border bg-white">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-4 sm:grid-cols-4">
+          {trustItems.map((item) => (
+            <div key={item.title} className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+                <item.icon className="h-4 w-4" />
+              </span>
+              <span className="text-xs font-bold text-deep-800 sm:text-sm">{item.title}</span>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Compact process tagline -- transition between hero and shopping content */}
-      <section className="border-y border-border bg-white">
+      <section className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-3.5">
           <Leaf className="h-4 w-4 shrink-0 text-brand-600" aria-hidden="true" />
           <p className="text-center text-sm font-bold text-deep-800 sm:text-base">{t("home.processTagline")}</p>
@@ -119,31 +173,27 @@ export default async function HomePage() {
                 const name = pickLocalized(category.name_ar, category.name_en, locale);
                 const description = pickLocalized(category.description_ar ?? "", category.description_en, locale);
                 return (
-                  <Link key={category.id} href={`/c/${category.slug}`} className="card-frame group block">
-                    <div className="card-frame-inner">
-                      <div className="card-frame-content">
-                        <div className="relative aspect-square w-full overflow-hidden bg-brand-50">
-                          <Image
-                            src={category.image_url || placeholderImage(categoryPlaceholderKey(category.slug))}
-                            alt={name}
-                            fill
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        </div>
-                        <div className="flex flex-1 items-end justify-between gap-2 p-3.5">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-sm font-bold text-deep-800">{name}</span>
-                            {description && <span className="line-clamp-2 text-xs text-muted">{description}</span>}
-                          </div>
-                          <span
-                            aria-hidden="true"
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-white transition-transform group-hover:scale-110"
-                          >
-                            <ArrowIcon className="h-4 w-4" />
-                          </span>
-                        </div>
+                  <Link key={category.id} href={`/c/${category.slug}`} className="card-blob group block bg-brand-50 p-2.5">
+                    <div className="relative aspect-square w-full overflow-hidden rounded-[1.35rem] bg-white/50">
+                      <Image
+                        src={category.image_url || placeholderImage(categoryPlaceholderKey(category.slug))}
+                        alt={name}
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="flex items-end justify-between gap-2 pt-3">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-bold text-deep-800">{name}</span>
+                        {description && <span className="line-clamp-2 text-xs text-muted">{description}</span>}
                       </div>
+                      <span
+                        aria-hidden="true"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-white transition-transform group-hover:scale-110"
+                      >
+                        <ArrowIcon className="h-4 w-4" />
+                      </span>
                     </div>
                   </Link>
                 );

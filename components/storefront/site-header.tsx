@@ -14,6 +14,7 @@ import { SearchBox } from "./search-box";
 import { CartLink } from "./cart-link";
 import { MobileNav } from "./mobile-nav";
 import { CategoryNavBar } from "./category-nav-bar";
+import { PillNav } from "./pill-nav";
 
 /**
  * Three visual bands, matching the reference: a thin utility bar (contact +
@@ -40,8 +41,19 @@ export async function SiteHeader() {
   );
 
   const drawerLinks = [
-    { href: "/c", label: t("nav.categories") },
+    { href: "/c", label: t("nav.shop") },
     { href: "/box", label: t("nav.greenBox") },
+    { href: "/our-story", label: t("nav.ourStory") },
+    { href: "/recipes", label: t("nav.recipes") },
+    { href: "/sustainability", label: t("nav.sustainability") },
+  ];
+
+  const pillLinks = [
+    { href: "/", label: t("nav.home") },
+    { href: "/c", label: t("nav.shop") },
+    { href: "/our-story", label: t("nav.ourStory") },
+    { href: "/recipes", label: t("nav.recipes") },
+    { href: "/sustainability", label: t("nav.sustainability") },
   ];
 
   return (
@@ -81,8 +93,8 @@ export async function SiteHeader() {
       </div>
 
       <div className="border-b border-border bg-white">
-        <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-4 sm:grid-cols-[1fr_auto_1fr]">
-          <div className="flex items-center gap-2">
+        <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-4">
+          <div className="flex items-center gap-3">
             <MobileNav
               links={drawerLinks}
               isLoggedIn={!!user}
@@ -91,15 +103,17 @@ export async function SiteHeader() {
               registerLabel={t("nav.register")}
               menuLabel={t("nav.menu")}
             />
-            <CartLink count={cartCount} label={t("nav.cart")} />
+            <Link href="/" className="shrink-0">
+              <Logo siteName={siteName} />
+            </Link>
           </div>
 
-          <Link href="/" className="mx-auto shrink-0">
-            <Logo siteName={siteName} />
-          </Link>
+          <div className="flex justify-center">
+            <PillNav links={pillLinks} />
+          </div>
 
-          <div className="hidden items-center justify-end gap-3 sm:flex">
-            <div className="w-full max-w-xs">
+          <div className="flex items-center justify-end gap-3">
+            <div className="hidden w-full max-w-xs xl:block">
               <SearchBox />
             </div>
             <div className="hidden lg:block">
@@ -123,9 +137,10 @@ export async function SiteHeader() {
                 <User className="h-4 w-4" />
               </Link>
             )}
+            <CartLink count={cartCount} label={t("nav.cart")} />
           </div>
         </div>
-        <div className="px-4 pb-3 sm:hidden">
+        <div className="px-4 pb-3 xl:hidden">
           <SearchBox />
         </div>
       </div>

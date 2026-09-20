@@ -2,11 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { Check } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { Link } from "@/i18n/navigation";
-import { buttonVariants } from "@/components/ui/button";
 import { pickLocalized } from "@/lib/i18n/localized";
 import type { Banner } from "@/lib/services/content";
 
@@ -20,203 +18,165 @@ import type { Banner } from "@/lib/services/content";
 const FIXED_HERO_IMAGE = "/images/hero.jpg";
 
 interface HeroSlide {
-  title: string;
+  subtitle: string;
   image: string;
   href: string;
 }
 
 /**
- * Two-column split hero: an image pane and a light-green text pane, side
- * by side at roughly equal width. The image pane is placed FIRST in DOM
- * order and the text pane SECOND -- in LTR that reads as image-left/
- * text-right; in RTL the same DOM order naturally mirrors to
- * image-right/text-left, which is the correct reading-order equivalent for
- * Arabic rather than a hardcoded physical side.
- *
- * The seam between the two panes is a diagonal cut (via `clip-path` on the
- * image, mirrored per direction below) rather than a hard vertical line,
- * and the image's own column is widened slightly past 50% so its
- * uncut edge genuinely encroaches into the text pane's nominal half --
- * the two panes blend across that band instead of butting into each other.
- * The light-green backdrop lives on the outer container itself, so
- * wherever the diagonal clip cuts the image away, that same green shows
- * through underneath rather than needing a separate layered background.
- *
- * Two embla-carousel instances share one selected index: the image pane is
- * the interactive one (drag, autoplay, dots all drive it), the text pane
- * only ever follows via `scrollTo()` from the image pane's own `select`
- * event (`watchDrag: false`, not itself draggable).
- *
- * With 0 or 1 real banners this renders a single synthetic slide with no
- * dots and loop disabled.
+ * Editorial cream hero: a static two-tone brand headline (never rotates)
+ * plus a single embla carousel that only drives the photo and its one-line
+ * promo subtitle underneath the headline -- admin-managed banners (title +
+ * image + link) still rotate, they just supply a supporting line rather
+ * than the page's own H1, which reads better against a fixed headline. A
+ * single carousel instance is enough now that the headline itself doesn't
+ * change per slide (an earlier version needed two synced instances when
+ * the whole H1 rotated).
  */
 export function HeroCarousel({
   banners,
   locale,
-  siteName,
   heroEyebrow,
-  heroTitle,
+  heroHeadline,
+  heroHeadlineAccent,
+  heroSubtitleFallback,
   heroCta,
-  trustLabels,
+  heroNote,
 }: {
   banners: Banner[];
   locale: string;
-  siteName: string;
   heroEyebrow: string;
-  heroTitle: string;
+  heroHeadline: string;
+  heroHeadlineAccent: string;
+  heroSubtitleFallback: string;
   heroCta: string;
-  trustLabels: [string, string, string, string];
+  heroNote: string;
 }) {
-  // Functions can't cross the Server -> Client Component boundary, so the
-  // slide-label translator is looked up here directly (this component
-  // already has "use client") rather than passed down as a prop.
-  const t = useTranslations("home");
   const isAr = locale !== "en";
   const direction = isAr ? "rtl" : "ltr";
-
-  // Diagonal seam on the image's trailing edge (the edge facing the text
-  // pane) -- only applied at lg: (see globals.css .hero-image-clip--*),
-  // since the seam only exists once the panes sit side by side; on the
-  // stacked mobile layout there's no adjacent pane for a diagonal cut to
-  // relate to, so applying it there would just look like a stray notch.
-  const imageClipClass = isAr ? "hero-image-clip--rtl" : "hero-image-clip--ltr";
+  const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
 
   const slides: HeroSlide[] = useMemo(() => {
     if (banners.length === 0) {
-      return [{ title: heroTitle, image: FIXED_HERO_IMAGE, href: "/c" }];
+      return [{ subtitle: heroSubtitleFallback, image: FIXED_HERO_IMAGE, href: "/c" }];
     }
     return banners.map((banner) => ({
-      title: pickLocalized(banner.title_ar ?? "", banner.title_en, locale) || heroTitle,
+      subtitle: pickLocalized(banner.title_ar ?? "", banner.title_en, locale) || heroSubtitleFallback,
       image: banner.image_url || FIXED_HERO_IMAGE,
       href: banner.link_url ?? "/c",
     }));
-  }, [banners, locale, heroTitle]);
+  }, [banners, locale, heroSubtitleFallback]);
 
   const hasMultiple = slides.length > 1;
-
-  const [emblaImageRef, emblaImageApi] = useEmblaCarousel({ loop: hasMultiple, direction });
-  const [emblaTextRef, emblaTextApi] = useEmblaCarousel({ loop: hasMultiple, direction, watchDrag: false });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: hasMultiple, direction });
   const [isPaused, setIsPaused] = useState(false);
 
-  // The image carousel's current slide is genuinely external state (embla
-  // owns it, not React) -- useSyncExternalStore is the correct primitive
-  // for that, rather than mirroring it into a setState call inside an
-  // effect body.
   const subscribeToSelection = useCallback(
     (callback: () => void) => {
-      if (!emblaImageApi) return () => {};
-      emblaImageApi.on("select", callback);
-      emblaImageApi.on("reInit", callback);
+      if (!emblaApi) return () => {};
+      emblaApi.on("select", callback);
+      emblaApi.on("reInit", callback);
       return () => {
-        emblaImageApi.off("select", callback);
-        emblaImageApi.off("reInit", callback);
+        emblaApi.off("select", callback);
+        emblaApi.off("reInit", callback);
       };
     },
-    [emblaImageApi],
+    [emblaApi],
   );
-  const getSelectedIndex = useCallback(() => emblaImageApi?.selectedScrollSnap() ?? 0, [emblaImageApi]);
+  const getSelectedIndex = useCallback(() => emblaApi?.selectedScrollSnap() ?? 0, [emblaApi]);
   const selectedIndex = useSyncExternalStore(subscribeToSelection, getSelectedIndex, () => 0);
-
-  // Keeping the text pane in step with the image pane IS a genuine side
-  // effect (an imperative call on a different carousel instance), so it
-  // belongs in its own effect, separate from the state subscription above.
-  useEffect(() => {
-    emblaTextApi?.scrollTo(selectedIndex);
-  }, [selectedIndex, emblaTextApi]);
+  const currentSlide = slides[selectedIndex] ?? slides[0];
 
   useEffect(() => {
-    if (!emblaImageApi || !hasMultiple || isPaused) return;
+    if (!emblaApi || !hasMultiple || isPaused) return;
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const interval = setInterval(() => emblaImageApi.scrollNext(), 5000);
+    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
     return () => clearInterval(interval);
-  }, [emblaImageApi, hasMultiple, isPaused]);
+  }, [emblaApi, hasMultiple, isPaused]);
 
   return (
     <div
-      className="relative grid w-full grid-cols-1 overflow-hidden bg-brand-200 lg:min-h-[16rem] lg:grid-cols-[54%_46%]"
+      className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-10 sm:py-14 lg:grid-cols-2 lg:gap-14"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocus={() => setIsPaused(true)}
       onBlur={() => setIsPaused(false)}
     >
-      {/* Image pane -- widened past 50% and diagonally clipped on its
-          trailing edge, so it genuinely overlaps the text pane's nominal
-          half instead of meeting it on a hard vertical line. */}
-      <div className={`relative h-44 overflow-hidden sm:h-56 lg:h-auto ${imageClipClass}`}>
-        {/* Embla's ref must land on an element whose only child is the
-            slide track -- the sticker below is a sibling of this, one
-            level up, so it can't interfere with embla's own layout math. */}
-        <div className="h-full" ref={emblaImageRef}>
+      {/* Text column -- static two-tone brand headline, never rotates */}
+      <div className="relative z-10 order-2 lg:order-1">
+        <p className="text-xs font-bold tracking-[0.25em] text-muted-2 uppercase">{heroEyebrow}</p>
+        <h1 className="mt-3 leading-[1.02] font-black text-deep-900">
+          <span className="block text-4xl sm:text-5xl lg:text-[3.4rem]">{heroHeadline}</span>
+          <span className="font-script mt-1 block text-5xl leading-none text-brand-600 sm:text-6xl lg:text-7xl">
+            {heroHeadlineAccent}
+          </span>
+        </h1>
+        <p className="mt-5 max-w-md text-base text-muted sm:text-lg">{currentSlide.subtitle}</p>
+
+        <div className="mt-7 flex flex-wrap items-center gap-5">
+          <Link
+            href={currentSlide.href}
+            className="group inline-flex items-center gap-1 rounded-full bg-brand-gradient p-1.5 pe-6 font-bold text-white shadow-[0_10px_24px_-8px_rgba(84,120,41,0.6)] transition-transform hover:-translate-y-0.5"
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-deep-800 text-white transition-transform group-hover:scale-110">
+              <ArrowIcon className="h-4 w-4" />
+            </span>
+            {heroCta}
+          </Link>
+          <span className="font-script -rotate-3 text-xl text-deep-700 sm:text-2xl">{heroNote}</span>
+        </div>
+
+        {hasMultiple && (
+          <div className="mt-8 flex items-center gap-2">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`${i + 1}`}
+                aria-current={i === selectedIndex}
+                onClick={() => emblaApi?.scrollTo(i)}
+                className={`h-2 rounded-full transition-all ${i === selectedIndex ? "w-6 bg-brand-600" : "w-2 bg-brand-600/25 hover:bg-brand-600/40"}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Image column -- floating rounded photo, no diagonal panel seam */}
+      <div className="relative order-1 lg:order-2">
+        <div
+          className="relative aspect-[4/3] w-full overflow-hidden rounded-[2.5rem] shadow-[var(--shadow-lifted)] sm:aspect-square lg:aspect-[4/3]"
+          ref={emblaRef}
+        >
           <div className="flex h-full">
             {slides.map((slide, i) => (
               <div key={i} className="relative h-full min-w-0 flex-[0_0_100%]">
-                <Image src={slide.image} alt={slide.title} fill priority={i === 0} sizes="(max-width: 1024px) 100vw, 54vw" className="object-cover" />
+                <Image
+                  src={slide.image}
+                  alt={slide.subtitle}
+                  fill
+                  priority={i === 0}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Rotated "sticker" tag -- stays on the image, hugging its
-            trailing edge (the one facing the diagonal seam) without
-            crossing over onto the text pane. An irregular torn-paper
-            outline (.sticker-tag) plus a subtle gradient give it real
-            depth instead of reading as a flat rounded box. Colored to
-            match the deep green category nav bar rather than gold. A
-            fixed English brand flourish, not translated (kept identical
-            in both locales, matching what was asked for verbatim), set in
-            a bold rounded display face distinct from the rest of the
-            site's type system. */}
-        <div className="sticker-tag absolute top-[35%] end-10 z-10 -translate-y-1/2 -rotate-[9deg] bg-gradient-to-br from-deep-600 via-deep-700 to-deep-900 px-5 py-3 shadow-[0_10px_22px_-4px_rgba(0,0,0,0.45)] sm:end-12 sm:px-6 sm:py-3.5">
-          <p className="font-sticker text-xl leading-[1.05] font-extrabold whitespace-nowrap text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)] sm:text-3xl">
+        {/* Rotated "sticker" tag, hugging the image's bottom corner -- an
+            irregular torn-paper outline (.sticker-tag) plus a gradient give
+            it real depth instead of reading as a flat rounded box. Fixed
+            English brand flourish, not translated (kept identical in both
+            locales), set in a bold rounded display face distinct from the
+            rest of the site's type system. */}
+        <div className="sticker-tag absolute -bottom-5 start-6 z-10 -rotate-[9deg] bg-gradient-to-br from-deep-600 via-deep-700 to-deep-900 px-5 py-3 shadow-[0_10px_22px_-4px_rgba(0,0,0,0.45)] sm:px-6 sm:py-3.5">
+          <p className="font-sticker text-lg leading-[1.05] font-extrabold whitespace-nowrap text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)] sm:text-2xl">
             Unprocess
             <br />
             your food
           </p>
         </div>
-      </div>
-
-      {/* Text pane -- light brand-green panel */}
-      <div className="relative flex items-center px-6 py-5 sm:px-10 lg:px-12 lg:py-6" ref={emblaTextRef}>
-        <div className="flex w-full">
-          {slides.map((slide, i) => (
-            <div key={i} className="min-w-0 flex-[0_0_100%]">
-              <span className="inline-flex items-center rounded-full bg-white/60 px-3 py-1 text-xs font-bold tracking-wide text-deep-800 uppercase">
-                {banners.length > 0 ? siteName : heroEyebrow}
-              </span>
-              <h1 className="mt-3 font-serif text-2xl leading-[1.15] font-extrabold text-deep-900 sm:text-3xl lg:text-4xl">
-                {slide.title}
-              </h1>
-              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
-                {trustLabels.map((label) => (
-                  <span key={label} className="flex items-center gap-2 text-sm font-semibold text-deep-800 sm:text-base">
-                    <Check className="h-5 w-5 shrink-0 text-deep-700" />
-                    {label}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-5">
-                <Link href={slide.href} className={buttonVariants({ variant: "secondary", size: "lg" })}>
-                  {heroCta}
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {hasMultiple && (
-          <div className="absolute bottom-6 start-10 flex items-center gap-2">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                aria-label={t("heroSlideLabel", { n: i + 1 })}
-                aria-current={i === selectedIndex}
-                onClick={() => emblaImageApi?.scrollTo(i)}
-                className={`h-2 rounded-full transition-all ${i === selectedIndex ? "w-6 bg-deep-800" : "w-2 bg-deep-800/25 hover:bg-deep-800/40"}`}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );

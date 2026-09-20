@@ -23,6 +23,9 @@ export async function SiteFooter() {
   const shopLinks = [
     { href: "/c", label: t("nav.categories") },
     { href: "/box", label: t("nav.greenBox") },
+    { href: "/recipes", label: t("nav.recipes") },
+    { href: "/our-story", label: t("nav.ourStory") },
+    { href: "/sustainability", label: t("nav.sustainability") },
     { href: "/search", label: t("nav.search") },
     { href: "/reviews", label: t("nav.reviews") },
     { href: "/contact", label: t("nav.contactUs") },

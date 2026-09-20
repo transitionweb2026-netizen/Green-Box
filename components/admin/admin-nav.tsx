@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Quote,
   Mail,
+  ChefHat,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -28,6 +29,7 @@ const SECTIONS = [
   { href: "/admin/categories", label: "الأقسام", icon: LayoutGrid },
   { href: "/admin/boxes", label: "صناديق جرين بوكس", icon: Sparkles },
   { href: "/admin/reviews", label: "آراء العملاء", icon: Quote },
+  { href: "/admin/recipes", label: "الوصفات", icon: ChefHat },
   { href: "/admin/customers", label: "العملاء", icon: Users },
   { href: "/admin/delivery-zones", label: "مناطق التوصيل", icon: MapPin },
   { href: "/admin/delivery-slots", label: "مواعيد التوصيل", icon: Clock },

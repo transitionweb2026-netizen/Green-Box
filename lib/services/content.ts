@@ -93,6 +93,50 @@ export interface TermsContent {
   body_en?: string;
 }
 
+/**
+ * "Our Story" -- a single CMS-editable page, same optional-field/fallback
+ * pattern as TermsContent: three short value pillars plus a lead
+ * paragraph, editable from /admin/content without a new table.
+ */
+export interface OurStoryContent {
+  heading_ar?: string;
+  heading_en?: string;
+  body_ar?: string;
+  body_en?: string;
+  pillar1Title_ar?: string;
+  pillar1Title_en?: string;
+  pillar1Body_ar?: string;
+  pillar1Body_en?: string;
+  pillar2Title_ar?: string;
+  pillar2Title_en?: string;
+  pillar2Body_ar?: string;
+  pillar2Body_en?: string;
+  pillar3Title_ar?: string;
+  pillar3Title_en?: string;
+  pillar3Body_ar?: string;
+  pillar3Body_en?: string;
+}
+
+/** "Sustainability" -- same shape/pattern as OurStoryContent. */
+export interface SustainabilityContent {
+  heading_ar?: string;
+  heading_en?: string;
+  body_ar?: string;
+  body_en?: string;
+  pillar1Title_ar?: string;
+  pillar1Title_en?: string;
+  pillar1Body_ar?: string;
+  pillar1Body_en?: string;
+  pillar2Title_ar?: string;
+  pillar2Title_en?: string;
+  pillar2Body_ar?: string;
+  pillar2Body_en?: string;
+  pillar3Title_ar?: string;
+  pillar3Title_en?: string;
+  pillar3Body_ar?: string;
+  pillar3Body_en?: string;
+}
+
 export async function listActiveBanners(): Promise<Banner[]> {
   const supabase = await createClient();
   const nowIso = new Date().toISOString();

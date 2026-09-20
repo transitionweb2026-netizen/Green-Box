@@ -68,7 +68,7 @@ export function CategoryNavBar({
   };
 
   const linkClass =
-    "shrink-0 rounded-lg px-3.5 py-2 text-sm font-semibold whitespace-nowrap text-white/90 transition-colors hover:bg-white/15 hover:text-white";
+    "shrink-0 rounded-full px-3.5 py-2 text-sm font-semibold whitespace-nowrap text-white/90 transition-colors hover:bg-white/15 hover:text-white";
 
   return (
     <nav

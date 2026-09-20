@@ -11,7 +11,7 @@ const MAX_BYTES = 5 * 1024 * 1024; // 5MB
  * requireAdmin() since storage policies are the last line of defense, not
  * the primary one.
  */
-export async function uploadMediaFile(folder: "products" | "categories" | "banners", file: File): Promise<string> {
+export async function uploadMediaFile(folder: "products" | "categories" | "banners" | "recipes", file: File): Promise<string> {
   if (!ALLOWED_TYPES.includes(file.type)) {
     throw new Error("Unsupported file type. Use JPEG, PNG, WEBP, or GIF.");
   }

@@ -942,6 +942,66 @@ export interface Database {
         };
         Relationships: [];
       };
+      recipes: {
+        Row: {
+          id: string;
+          slug: string;
+          title_ar: string;
+          title_en: string | null;
+          description_ar: string | null;
+          description_en: string | null;
+          image_url: string | null;
+          prep_minutes: number | null;
+          servings: number | null;
+          ingredients_ar: string | null;
+          ingredients_en: string | null;
+          steps_ar: string | null;
+          steps_en: string | null;
+          is_published: boolean;
+          display_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title_ar: string;
+          title_en?: string | null;
+          description_ar?: string | null;
+          description_en?: string | null;
+          image_url?: string | null;
+          prep_minutes?: number | null;
+          servings?: number | null;
+          ingredients_ar?: string | null;
+          ingredients_en?: string | null;
+          steps_ar?: string | null;
+          steps_en?: string | null;
+          is_published?: boolean;
+          display_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          title_ar?: string;
+          title_en?: string | null;
+          description_ar?: string | null;
+          description_en?: string | null;
+          image_url?: string | null;
+          prep_minutes?: number | null;
+          servings?: number | null;
+          ingredients_ar?: string | null;
+          ingredients_en?: string | null;
+          steps_ar?: string | null;
+          steps_en?: string | null;
+          is_published?: boolean;
+          display_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {

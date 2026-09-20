@@ -113,6 +113,26 @@ export async function clearCart(cartId: string): Promise<void> {
   if (error) throw error;
 }
 
+/**
+ * Read-only cart summary for display (e.g. the homepage hero's floating
+ * "Your Box" widget) -- deliberately does NOT call getOrCreateActiveCart,
+ * which creates a cart row as a side effect; that's fine when the user is
+ * about to add an item, but not as a side effect of merely viewing a page.
+ * Returns an empty summary for guests or anyone with no cart yet.
+ */
+export async function getCartSummaryForCurrentUser(): Promise<CartSummary> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { items: [], itemCount: 0, subtotal: 0 };
+
+  const cart = await supabase.from("carts").select("id").eq("profile_id", user.id).eq("status", "active").maybeSingle();
+  if (!cart.data) return { items: [], itemCount: 0, subtotal: 0 };
+
+  return getCartSummary(cart.data.id);
+}
+
 export async function getCartItemCountForUser(): Promise<number> {
   const supabase = await createClient();
   const {

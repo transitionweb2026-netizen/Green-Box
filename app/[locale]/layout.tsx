@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Baloo_2, Cairo, Playfair_Display } from "next/font/google";
+import { Baloo_2, Cairo, Caveat, Playfair_Display } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
@@ -34,6 +34,14 @@ const baloo = Baloo_2({
   variable: "--font-baloo",
   subsets: ["latin"],
   weight: ["700", "800"],
+});
+
+// Latin-only -- the casual bold script accent on the homepage hero headline
+// ("reimagined."). Arabic falls back to Cairo like the other display faces.
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["600", "700"],
 });
 
 export function generateStaticParams() {
@@ -89,7 +97,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${cairo.variable} ${playfair.variable} ${baloo.variable} h-full antialiased`}
+      className={`${cairo.variable} ${playfair.variable} ${baloo.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="bg-surface-gradient flex min-h-full flex-col font-sans text-foreground">
         <NextIntlClientProvider locale={locale} messages={messages}>

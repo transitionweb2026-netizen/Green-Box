@@ -1,5 +1,14 @@
 import { FileText } from "lucide-react";
-import { adminListBanners, getSetting, type FaqContent, type HomepageContent, type StoreInfo, type TermsContent } from "@/lib/services/content";
+import {
+  adminListBanners,
+  getSetting,
+  type FaqContent,
+  type HomepageContent,
+  type OurStoryContent,
+  type StoreInfo,
+  type SustainabilityContent,
+  type TermsContent,
+} from "@/lib/services/content";
 import { Card } from "@/components/ui/card";
 import { BannerManager } from "@/components/admin/banner-manager";
 import { StoreSettingsForm } from "@/components/admin/store-settings-form";
@@ -8,6 +17,8 @@ import { OrderPolicySettingsForm } from "@/components/admin/order-policy-setting
 import { HomepageContentForm } from "@/components/admin/homepage-content-form";
 import { FaqContentForm } from "@/components/admin/faq-content-form";
 import { TermsContentForm } from "@/components/admin/terms-content-form";
+import { OurStoryContentForm } from "@/components/admin/our-story-content-form";
+import { SustainabilityContentForm } from "@/components/admin/sustainability-content-form";
 
 interface ReservationSettings {
   lead_days?: number;
@@ -19,7 +30,17 @@ interface OrderPolicySettings {
 }
 
 export default async function AdminContentPage() {
-  const [banners, storeInfo, reservationSettings, orderPolicySettings, homepageContent, faqContent, termsContent] = await Promise.all([
+  const [
+    banners,
+    storeInfo,
+    reservationSettings,
+    orderPolicySettings,
+    homepageContent,
+    faqContent,
+    termsContent,
+    ourStoryContent,
+    sustainabilityContent,
+  ] = await Promise.all([
     adminListBanners(),
     getSetting<StoreInfo>("store_info"),
     getSetting<ReservationSettings>("reservation_settings"),
@@ -27,6 +48,8 @@ export default async function AdminContentPage() {
     getSetting<HomepageContent>("homepage_content"),
     getSetting<FaqContent>("faq_content"),
     getSetting<TermsContent>("terms_content"),
+    getSetting<OurStoryContent>("our_story_content"),
+    getSetting<SustainabilityContent>("sustainability_content"),
   ]);
 
   return (
@@ -68,6 +91,14 @@ export default async function AdminContentPage() {
         <Card tone="glass" className="lg:col-span-2">
           <h2 className="mb-4 font-bold text-foreground">الشروط والأحكام (فوق الفوتر في كل الصفحات)</h2>
           <TermsContentForm content={termsContent} />
+        </Card>
+        <Card tone="glass" className="lg:col-span-2">
+          <h2 className="mb-4 font-bold text-foreground">صفحة &quot;قصتنا&quot;</h2>
+          <OurStoryContentForm content={ourStoryContent} />
+        </Card>
+        <Card tone="glass" className="lg:col-span-2">
+          <h2 className="mb-4 font-bold text-foreground">صفحة &quot;الاستدامة&quot;</h2>
+          <SustainabilityContentForm content={sustainabilityContent} />
         </Card>
       </div>
     </div>

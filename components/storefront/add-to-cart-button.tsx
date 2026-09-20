@@ -48,8 +48,8 @@ export function AddToCartButton({
         className={cn(
           "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all duration-200 disabled:pointer-events-none disabled:opacity-40",
           added
-            ? "bg-deep-700 text-white"
-            : "bg-brand-gradient text-white shadow-[0_6px_16px_-6px_rgba(84,120,41,0.7)] hover:scale-110 active:scale-95",
+            ? "bg-brand-600 text-white"
+            : "bg-deep-800 text-white shadow-[0_6px_16px_-6px_rgba(14,27,20,0.5)] hover:scale-110 active:scale-95",
         )}
       >
         {isPending ? (
@@ -66,7 +66,7 @@ export function AddToCartButton({
   return (
     <Button
       type="button"
-      variant={added ? "secondary" : "primary"}
+      variant={added ? "secondary" : "box"}
       disabled={disabled || isPending}
       loading={isPending}
       onClick={handleClick}

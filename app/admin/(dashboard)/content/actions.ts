@@ -223,6 +223,65 @@ export async function updateTermsContentAction(
   return { status: "success" };
 }
 
+const pageContentFields = [
+  "heading_ar",
+  "heading_en",
+  "body_ar",
+  "body_en",
+  "pillar1Title_ar",
+  "pillar1Title_en",
+  "pillar1Body_ar",
+  "pillar1Body_en",
+  "pillar2Title_ar",
+  "pillar2Title_en",
+  "pillar2Body_ar",
+  "pillar2Body_en",
+  "pillar3Title_ar",
+  "pillar3Title_en",
+  "pillar3Body_ar",
+  "pillar3Body_en",
+] as const;
+
+export async function updateOurStoryContentAction(
+  _prevState: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const value: Record<string, string> = {};
+  for (const field of pageContentFields) {
+    value[field] = String(formData.get(field) ?? "").trim();
+  }
+
+  try {
+    await adminUpsertSetting("our_story_content", value, "The /our-story page's heading, lead paragraph, and three value pillars.");
+  } catch {
+    return { status: "error" };
+  }
+
+  revalidatePath("/admin/content");
+  revalidatePath("/[locale]/our-story", "page");
+  return { status: "success" };
+}
+
+export async function updateSustainabilityContentAction(
+  _prevState: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const value: Record<string, string> = {};
+  for (const field of pageContentFields) {
+    value[field] = String(formData.get(field) ?? "").trim();
+  }
+
+  try {
+    await adminUpsertSetting("sustainability_content", value, "The /sustainability page's heading, lead paragraph, and three value pillars.");
+  } catch {
+    return { status: "error" };
+  }
+
+  revalidatePath("/admin/content");
+  revalidatePath("/[locale]/sustainability", "page");
+  return { status: "success" };
+}
+
 export async function updateReservationSettingsAction(
   _prevState: SettingsActionState,
   formData: FormData,
