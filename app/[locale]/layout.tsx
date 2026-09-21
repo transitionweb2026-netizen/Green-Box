@@ -99,7 +99,8 @@ export default async function LocaleLayout({
       dir={dir}
       className={`${cairo.variable} ${playfair.variable} ${baloo.variable} ${caveat.variable} h-full antialiased`}
     >
-      <body className="bg-surface-gradient flex min-h-full flex-col font-sans text-foreground">
+      <body className="bg-background flex min-h-full flex-col font-sans text-foreground">
+        <div className="site-atmosphere" aria-hidden="true" />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SiteHeader />
           <PageHeroBanner locale={locale} siteName={siteName} />

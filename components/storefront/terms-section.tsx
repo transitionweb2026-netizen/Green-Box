@@ -16,7 +16,7 @@ export async function TermsSection() {
   const body = pickLocalizedOrDefault(content?.body_ar, content?.body_en, locale, t("body"));
 
   return (
-    <section className="bg-background border-t border-border py-12">
+    <section className="border-t border-border py-12">
       <div className="mx-auto max-w-3xl px-4 text-center">
         <h2 className="font-serif text-xl font-bold text-deep-800 sm:text-2xl">{t("title")}</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted">{body}</p>

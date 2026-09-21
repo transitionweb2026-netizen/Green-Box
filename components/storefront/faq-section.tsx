@@ -24,7 +24,7 @@ export async function FaqSection() {
   ];
 
   return (
-    <section className="bg-background border-t border-border py-14 sm:py-16">
+    <section className="border-t border-border py-14 sm:py-16">
       <div className="mx-auto max-w-6xl px-4 text-center">
         <LeafBadge>{t("title")}</LeafBadge>
 

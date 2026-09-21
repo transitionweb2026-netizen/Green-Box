@@ -82,11 +82,11 @@ export default async function HomePage() {
   ];
 
   return (
-    <div className="bg-background">
+    <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Hero -- cream, editorial, carousel-driven image + text */}
-      <section className="bg-background relative overflow-hidden">
+      <section className="relative overflow-hidden">
         <div className="blob h-64 w-64 bg-brand-300/25 -top-10 -start-10 animate-float-slow" aria-hidden="true" />
         <div className="blob h-56 w-56 bg-gold-400/20 top-1/3 end-0 animate-float-slow" aria-hidden="true" />
         <div className="blob h-72 w-72 bg-brand-500/15 bottom-0 start-1/3 animate-float-slow" aria-hidden="true" />
@@ -136,7 +136,7 @@ export default async function HomePage() {
       </section>
 
       {/* Compact trust strip */}
-      <section className="border-y border-border bg-white">
+      <section className="border-y border-border">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-4 sm:grid-cols-4">
           {trustItems.map((item) => (
             <div key={item.title} className="flex items-center gap-2.5">
@@ -150,7 +150,7 @@ export default async function HomePage() {
       </section>
 
       {/* Compact process tagline -- transition between hero and shopping content */}
-      <section className="border-b border-border bg-white">
+      <section className="border-b border-border">
         <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-3.5">
           <Leaf className="h-4 w-4 shrink-0 text-brand-600" aria-hidden="true" />
           <p className="text-center text-sm font-bold text-deep-800 sm:text-base">{t("home.processTagline")}</p>

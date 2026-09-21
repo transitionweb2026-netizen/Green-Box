@@ -364,6 +364,71 @@ body {
     radial-gradient(100% 120% at 100% 0%, rgba(28, 55, 40, 0.08), transparent 50%), var(--background);
 }
 
+/*
+ * Storefront-wide botanical atmosphere -- one fixed, full-viewport layer
+ * rendered once in the storefront root layout (app/[locale]/layout.tsx),
+ * behind every page, instead of a background re-implemented per section.
+ * `position: fixed` (not `absolute`) is what makes this a single
+ * continuous environment: it never scrolls, tiles, or seams between
+ * sections or between pages, it's just always there behind the content.
+ *
+ * Two stacked layers:
+ *  - `::before` -- soft brand-toned corner washes (existing brand-500 /
+ *    deep-700 hues), each anchored to a corner and faded out well before
+ *    the viewport center, same technique as .bg-surface-gradient above.
+ *  - `::after` -- the reference leaf/glass/droplet photograph, radially
+ *    masked so it only ever renders near the viewport edges; the mask's
+ *    transparent center is what GUARANTEES a plain, readable center on
+ *    every page, rather than relying on the photo happening to be light
+ *    in the middle. Where the mask is transparent, the brand wash and the
+ *    page's own --background cream show through underneath.
+ *
+ * `z-index: -1` + `pointer-events: none` keep it strictly decorative: it
+ * paints behind all normal in-flow page content and never intercepts
+ * clicks/scroll/focus.
+ */
+.site-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.site-atmosphere::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(75% 60% at 0% 0%, rgba(132, 182, 61, 0.16), transparent 60%),
+    radial-gradient(70% 55% at 100% 0%, rgba(28, 55, 40, 0.13), transparent 55%),
+    radial-gradient(75% 60% at 0% 100%, rgba(132, 182, 61, 0.14), transparent 60%),
+    radial-gradient(70% 55% at 100% 100%, rgba(28, 55, 40, 0.12), transparent 55%);
+}
+
+.site-atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/atmosphere-leaves.jpg");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.85;
+  -webkit-mask-image: radial-gradient(85% 75% at 50% 42%, transparent 0%, transparent 40%, black 82%);
+  mask-image: radial-gradient(85% 75% at 50% 42%, transparent 0%, transparent 40%, black 82%);
+}
+
+/* Smaller, portrait-cropped asset + a wider transparent safe-zone on
+   narrow screens -- the leafy border otherwise eats a much bigger share
+   of a phone-width viewport and starts crowding real content. */
+@media (max-width: 640px) {
+  .site-atmosphere::after {
+    background-image: url("/images/atmosphere-leaves-mobile.jpg");
+    opacity: 0.7;
+    -webkit-mask-image: radial-gradient(95% 60% at 50% 35%, transparent 0%, transparent 48%, black 88%);
+    mask-image: radial-gradient(95% 60% at 50% 35%, transparent 0%, transparent 48%, black 88%);
+  }
+}
+
 .text-gradient-brand {
   background: linear-gradient(120deg, var(--brand-600), var(--brand-400));
   -webkit-background-clip: text;
