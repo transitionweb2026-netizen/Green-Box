@@ -7,6 +7,8 @@ import { AppImage as Image } from "@/components/ui/app-image";
 import { Link } from "@/i18n/navigation";
 import { pickLocalized } from "@/lib/i18n/localized";
 import type { Banner } from "@/lib/services/content";
+import type { AvailableProduceImage } from "@/lib/media/produce";
+import { GreenBoxGraphic } from "./green-box-graphic";
 
 // Fixed local asset (public/images/hero.jpg) -- deliberately NOT the live
 // loremflickr placeholder used elsewhere on the site: that service can
@@ -43,6 +45,7 @@ export function HeroCarousel({
   heroCta,
   heroNote,
   heroPaperTag,
+  produceImages,
 }: {
   banners: Banner[];
   locale: string;
@@ -53,10 +56,15 @@ export function HeroCarousel({
   heroCta: string;
   heroNote: string;
   heroPaperTag: string;
+  produceImages: AvailableProduceImage[];
 }) {
   const isAr = locale !== "en";
   const direction = isAr ? "rtl" : "ltr";
   const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
+  // No admin banners configured -> show the permanent branded "Green Box"
+  // packaging + produce composition instead of a rotating promo photo.
+  // A real admin banner (when the admin adds one) still takes priority.
+  const showBoxComposition = banners.length === 0;
 
   const slides: HeroSlide[] = useMemo(() => {
     if (banners.length === 0) {
@@ -161,25 +169,53 @@ export function HeroCarousel({
 
       {/* Image column -- floating rounded photo, no diagonal panel seam */}
       <div className="relative order-1 lg:order-2">
-        <div
-          className="relative aspect-[4/3] w-full overflow-hidden rounded-[2.5rem] shadow-[var(--shadow-lifted)] sm:aspect-square lg:aspect-[4/3]"
-          ref={emblaRef}
-        >
-          <div className="flex h-full">
-            {slides.map((slide, i) => (
-              <div key={i} className="relative h-full min-w-0 flex-[0_0_100%]">
+        {showBoxComposition ? (
+          <div className="relative aspect-[4/3] w-full sm:aspect-square lg:aspect-[4/3]">
+            <GreenBoxGraphic className="absolute inset-x-0 bottom-0 h-[70%]" />
+            {produceImages.map((item) => (
+              <div
+                key={item.name}
+                className="absolute"
+                style={{
+                  top: item.top,
+                  insetInlineStart: item.start,
+                  width: item.width,
+                  zIndex: item.zIndex,
+                  transform: `rotate(${item.rotate})`,
+                }}
+              >
                 <Image
-                  src={slide.image}
-                  alt={slide.subtitle}
-                  fill
-                  priority={i === 0}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover"
+                  src={item.src}
+                  alt={item.name}
+                  width={600}
+                  height={600}
+                  sizes="(max-width: 1024px) 40vw, 20vw"
+                  className="h-auto w-full object-contain drop-shadow-[0_20px_24px_rgba(14,27,20,0.35)]"
                 />
               </div>
             ))}
           </div>
-        </div>
+        ) : (
+          <div
+            className="relative aspect-[4/3] w-full overflow-hidden rounded-[2.5rem] shadow-[var(--shadow-lifted)] sm:aspect-square lg:aspect-[4/3]"
+            ref={emblaRef}
+          >
+            <div className="flex h-full">
+              {slides.map((slide, i) => (
+                <div key={i} className="relative h-full min-w-0 flex-[0_0_100%]">
+                  <Image
+                    src={slide.image}
+                    alt={slide.subtitle}
+                    fill
+                    priority={i === 0}
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Rotated "sticker" tag, hugging the image's bottom corner -- an
             irregular torn-paper outline (.sticker-tag) plus a gradient give

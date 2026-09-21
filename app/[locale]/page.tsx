@@ -12,6 +12,7 @@ import { listActiveBanners, getSetting, type HomepageContent } from "@/lib/servi
 import { listActiveReviews } from "@/lib/services/reviews";
 import { pickLocalized, pickLocalizedOrDefault } from "@/lib/i18n/localized";
 import { placeholderImage, categoryPlaceholderKey } from "@/lib/media/placeholders";
+import { listAvailableProduceImages, getPillProduceImage } from "@/lib/media/produce";
 import { getSiteOrigin } from "@/lib/seo/site-url";
 import { ProductCard } from "@/components/storefront/product-card";
 import { HeroCarousel } from "@/components/storefront/hero-carousel";
@@ -71,19 +72,21 @@ export default async function HomePage() {
     vegetablesCategory && {
       href: `/c/${vegetablesCategory.slug}`,
       name: pickLocalized(vegetablesCategory.name_ar, vegetablesCategory.name_en, locale),
-      image: vegetablesCategory.image_url || placeholderImage("vegetables", { width: 80, height: 80 }),
+      image: vegetablesCategory.image_url || getPillProduceImage("broccoli") || placeholderImage("vegetables", { width: 80, height: 80 }),
     },
     fruitsCategory && {
       href: `/c/${fruitsCategory.slug}`,
       name: pickLocalized(fruitsCategory.name_ar, fruitsCategory.name_en, locale),
-      image: fruitsCategory.image_url || placeholderImage("fruits", { width: 80, height: 80 }),
+      image: fruitsCategory.image_url || getPillProduceImage("tomato") || placeholderImage("fruits", { width: 80, height: 80 }),
     },
     {
       href: "/search?q=herbs",
       name: t("home.herbsShortcut"),
-      image: placeholderImage("herbs", { width: 80, height: 80 }),
+      image: getPillProduceImage("herbs") || placeholderImage("herbs", { width: 80, height: 80 }),
     },
   ].filter((x): x is { href: string; name: string; image: string } => Boolean(x));
+
+  const produceImages = listAvailableProduceImages();
 
   const trustItems = [
     { icon: Leaf, title: t("home.trustFreshTitle") },
@@ -121,6 +124,7 @@ export default async function HomePage() {
             heroCta={t("home.heroCta")}
             heroNote={t("home.heroNote")}
             heroPaperTag={t("home.heroPaperTag")}
+            produceImages={produceImages}
           />
           <HeroCartSummary className="absolute end-[6%] top-6 hidden xl:block" />
         </div>
