@@ -849,6 +849,7 @@ export interface Database {
           title_ar: string | null;
           title_en: string | null;
           image_url: string | null;
+          image_url_mobile: string | null;
           link_url: string | null;
           display_order: number;
           is_active: boolean;
@@ -862,6 +863,7 @@ export interface Database {
           title_ar?: string | null;
           title_en?: string | null;
           image_url?: string | null;
+          image_url_mobile?: string | null;
           link_url?: string | null;
           display_order?: number;
           is_active?: boolean;
@@ -875,6 +877,7 @@ export interface Database {
           title_ar?: string | null;
           title_en?: string | null;
           image_url?: string | null;
+          image_url_mobile?: string | null;
           link_url?: string | null;
           display_order?: number;
           is_active?: boolean;

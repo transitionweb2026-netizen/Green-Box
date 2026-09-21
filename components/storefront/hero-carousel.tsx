@@ -22,6 +22,9 @@ const FIXED_HERO_IMAGE = "/images/hero.jpg";
 interface HeroSlide {
   subtitle: string;
   image: string;
+  /** Optional art-directed mobile crop, uploaded separately in
+   * /admin/content -- falls back to `image` when not set. */
+  imageMobile?: string;
   href: string;
 }
 
@@ -78,6 +81,7 @@ export function HeroCarousel({
     return banners.map((banner) => ({
       subtitle: pickLocalized(banner.title_ar ?? "", banner.title_en, locale) || heroSubtitleFallback,
       image: banner.image_url || FIXED_HERO_IMAGE,
+      imageMobile: banner.image_url_mobile ?? undefined,
       href: banner.link_url ?? "/c",
     }));
   }, [banners, locale, heroSubtitleFallback]);
@@ -228,13 +232,24 @@ export function HeroCarousel({
             <div className="flex h-full">
               {slides.map((slide, i) => (
                 <div key={i} className="relative h-full min-w-0 flex-[0_0_100%]">
+                  {/* Art-directed crop swap: a genuinely different mobile
+                      image (not just a resize of the desktop one) when the
+                      admin has uploaded one, else the same image both ways. */}
+                  <Image
+                    src={slide.imageMobile || slide.image}
+                    alt={slide.subtitle}
+                    fill
+                    priority={i === 0}
+                    sizes="100vw"
+                    className="object-cover sm:hidden"
+                  />
                   <Image
                     src={slide.image}
                     alt={slide.subtitle}
                     fill
                     priority={i === 0}
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover"
+                    sizes="50vw"
+                    className="hidden object-cover sm:block"
                   />
                 </div>
               ))}

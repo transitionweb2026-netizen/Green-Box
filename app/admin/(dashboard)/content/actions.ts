@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { adminCreateBanner, adminDeleteBanner, adminUpdateBanner, adminUpsertSetting } from "@/lib/services/content";
-import { uploadMediaFile } from "@/lib/services/storage";
+import { adminCreateBanner, adminDeleteBanner, adminGetBanner, adminUpdateBanner, adminUpsertSetting } from "@/lib/services/content";
+import { uploadMediaFile, deleteMediaFile } from "@/lib/services/storage";
 
 export type BannerActionState = { status: "idle" | "error"; message?: string };
 
@@ -26,12 +26,21 @@ export async function createBannerAction(_prevState: BannerActionState, formData
   if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message };
 
   const file = formData.get("image") as File | null;
+  const mobileFile = formData.get("image_mobile") as File | null;
   let imageUrl: string | null = null;
+  let imageUrlMobile: string | null = null;
   if (file && file.size > 0) {
     try {
       imageUrl = await uploadMediaFile("banners", file);
     } catch (err) {
       return { status: "error", message: err instanceof Error ? err.message : "فشل رفع الصورة" };
+    }
+  }
+  if (mobileFile && mobileFile.size > 0) {
+    try {
+      imageUrlMobile = await uploadMediaFile("banners", mobileFile);
+    } catch (err) {
+      return { status: "error", message: err instanceof Error ? err.message : "فشل رفع صورة الموبايل" };
     }
   }
 
@@ -41,6 +50,7 @@ export async function createBannerAction(_prevState: BannerActionState, formData
       title_en: parsed.data.title_en ?? null,
       link_url: parsed.data.link_url || null,
       image_url: imageUrl,
+      image_url_mobile: imageUrlMobile,
       display_order: parsed.data.display_order,
       is_active: parsed.data.is_active,
     });
@@ -51,6 +61,34 @@ export async function createBannerAction(_prevState: BannerActionState, formData
   revalidatePath("/admin/content");
   revalidatePath("/[locale]", "page");
   return { status: "idle" };
+}
+
+/**
+ * Inline "replace image" control on an existing banner row -- lets the
+ * admin swap the desktop and/or mobile hero image without deleting and
+ * recreating the whole banner (which would also lose its title/link/order).
+ * Either file is optional; only the ones actually provided are replaced.
+ */
+export async function updateBannerImagesAction(bannerId: string, formData: FormData) {
+  const file = formData.get("image") as File | null;
+  const mobileFile = formData.get("image_mobile") as File | null;
+  const existing = await adminGetBanner(bannerId);
+  const update: { image_url?: string; image_url_mobile?: string } = {};
+
+  if (file && file.size > 0) {
+    update.image_url = await uploadMediaFile("banners", file);
+  }
+  if (mobileFile && mobileFile.size > 0) {
+    update.image_url_mobile = await uploadMediaFile("banners", mobileFile);
+  }
+  if (Object.keys(update).length === 0) return;
+
+  await adminUpdateBanner(bannerId, update);
+  if (update.image_url && existing?.image_url) await deleteMediaFile(existing.image_url).catch(() => {});
+  if (update.image_url_mobile && existing?.image_url_mobile) await deleteMediaFile(existing.image_url_mobile).catch(() => {});
+
+  revalidatePath("/admin/content");
+  revalidatePath("/[locale]", "page");
 }
 
 export async function deleteBannerAction(bannerId: string) {

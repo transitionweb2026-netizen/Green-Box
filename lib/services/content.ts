@@ -167,6 +167,13 @@ export async function adminListBanners(): Promise<Banner[]> {
   return data ?? [];
 }
 
+export async function adminGetBanner(id: string): Promise<Banner | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("banners").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function adminCreateBanner(input: TablesInsert<"banners">): Promise<Banner> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("banners").insert(input).select("*").single();
