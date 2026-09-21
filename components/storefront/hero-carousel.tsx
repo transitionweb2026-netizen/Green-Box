@@ -2,13 +2,11 @@
 
 import { type ReactNode, useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { ArrowLeft, ArrowRight, Leaf } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { Link } from "@/i18n/navigation";
 import { pickLocalized } from "@/lib/i18n/localized";
 import type { Banner } from "@/lib/services/content";
-import type { AvailableProduceImage } from "@/lib/media/produce";
-import { GreenBoxGraphic } from "./green-box-graphic";
 
 // Fixed local asset (public/images/hero.jpg) -- deliberately NOT the live
 // loremflickr placeholder used elsewhere on the site: that service can
@@ -18,6 +16,11 @@ import { GreenBoxGraphic } from "./green-box-graphic";
 // swap the file (or add a real banner in /admin/content, which takes
 // priority) once real Green Box photography is ready.
 const FIXED_HERO_IMAGE = "/images/hero.jpg";
+
+// The real, final "Green Box" packaging + produce composition (transparent
+// background), replacing the earlier CSS-built box + individual produce
+// cutout system entirely -- see hero-carousel.tsx git history for that.
+const BOX_COMPOSITION_IMAGE = "/images/hero-green-box.webp";
 
 interface HeroSlide {
   subtitle: string;
@@ -47,8 +50,6 @@ export function HeroCarousel({
   heroSubtitleFallback,
   heroCta,
   heroNote,
-  heroPaperTag,
-  produceImages,
   cartSummary,
 }: {
   banners: Banner[];
@@ -59,8 +60,6 @@ export function HeroCarousel({
   heroSubtitleFallback: string;
   heroCta: string;
   heroNote: string;
-  heroPaperTag: string;
-  produceImages: AvailableProduceImage[];
   /** Rendered server-side (it reads the real cart) and handed down as a
    * slot -- a client component can't import/invoke an async Server
    * Component itself, but it can render one passed in as a prop/child. */
@@ -185,44 +184,15 @@ export function HeroCarousel({
       {/* Box/produce column -- large, close to the headline, no dead gap */}
       <div className="relative order-1 lg:order-2">
         {showBoxComposition ? (
-          <div className="relative aspect-square w-full sm:aspect-[6/5]">
-            <GreenBoxGraphic className="absolute inset-x-0 bottom-0 h-[58%]" />
-            {produceImages.map((item) => (
-              <div
-                key={item.name}
-                className="absolute"
-                style={{
-                  top: item.top,
-                  insetInlineStart: item.start,
-                  width: item.width,
-                  zIndex: item.zIndex,
-                  transform: `rotate(${item.rotate})`,
-                }}
-              >
-                <Image
-                  src={item.src}
-                  alt={item.name}
-                  width={700}
-                  height={700}
-                  sizes="(max-width: 1024px) 45vw, 26vw"
-                  className="h-auto w-full object-contain drop-shadow-[0_24px_28px_rgba(14,27,20,0.35)]"
-                />
-              </div>
-            ))}
-
-            {/* Small floating "paper" note -- tucked against the produce
-                cluster's upper-right, like a tag physically clipped to it,
-                rather than floating at the outer image corner. */}
-            <div className="absolute end-[6%] top-[6%] z-20 max-w-[8.5rem] rotate-[6deg] rounded-2xl bg-[#fbf7ea] px-3.5 py-3 shadow-[0_12px_24px_-10px_rgba(28,55,40,0.35)]">
-              <Leaf className="h-3.5 w-3.5 text-brand-600" aria-hidden="true" />
-              <p className="font-script mt-1 text-sm leading-[1.15] font-semibold text-deep-800 sm:text-base">
-                {heroPaperTag.split("\n").map((line, i) => (
-                  <span key={i} className="block">
-                    {line}
-                  </span>
-                ))}
-              </p>
-            </div>
+          <div className="relative aspect-[3/2] w-full">
+            <Image
+              src={BOX_COMPOSITION_IMAGE}
+              alt={heroHeadline}
+              fill
+              priority
+              sizes="(max-width: 1024px) 90vw, 40vw"
+              className="object-contain drop-shadow-[0_30px_36px_rgba(14,27,20,0.3)]"
+            />
           </div>
         ) : (
           <div
