@@ -65,6 +65,26 @@ export default async function HomePage() {
     },
   ];
 
+  const vegetablesCategory = categories.find((c) => c.slug === "fresh-vegetables");
+  const fruitsCategory = categories.find((c) => c.slug === "fresh-fruits");
+  const heroCategoryShortcuts = [
+    vegetablesCategory && {
+      href: `/c/${vegetablesCategory.slug}`,
+      name: pickLocalized(vegetablesCategory.name_ar, vegetablesCategory.name_en, locale),
+      image: vegetablesCategory.image_url || placeholderImage("vegetables", { width: 80, height: 80 }),
+    },
+    fruitsCategory && {
+      href: `/c/${fruitsCategory.slug}`,
+      name: pickLocalized(fruitsCategory.name_ar, fruitsCategory.name_en, locale),
+      image: fruitsCategory.image_url || placeholderImage("fruits", { width: 80, height: 80 }),
+    },
+    {
+      href: "/search?q=herbs",
+      name: t("home.herbsShortcut"),
+      image: placeholderImage("herbs", { width: 80, height: 80 }),
+    },
+  ].filter((x): x is { href: string; name: string; image: string } => Boolean(x));
+
   const trustItems = [
     { icon: Leaf, title: t("home.trustFreshTitle") },
     { icon: Truck, title: t("home.trustDeliveryTitle") },
@@ -100,39 +120,33 @@ export default async function HomePage() {
             heroSubtitleFallback={t("home.heroSubtitle")}
             heroCta={t("home.heroCta")}
             heroNote={t("home.heroNote")}
+            heroPaperTag={t("home.heroPaperTag")}
           />
           <HeroCartSummary className="absolute end-[6%] top-6 hidden xl:block" />
         </div>
 
-        {/* Category pill shortcuts -- real categories, not the 3-item mockup list */}
-        {categories.length > 0 && (
-          <div className="relative mx-auto max-w-7xl px-4 pb-10">
-            <div className="flex flex-wrap justify-center gap-3">
-              {categories.map((category) => {
-                const name = pickLocalized(category.name_ar, category.name_en, locale);
-                return (
-                  <Link
-                    key={category.id}
-                    href={`/c/${category.slug}`}
-                    className="glass glass-hover flex items-center gap-2.5 !rounded-full py-1.5 pe-5 ps-1.5"
-                  >
-                    <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-brand-50">
-                      <Image
-                        src={category.image_url || placeholderImage(categoryPlaceholderKey(category.slug), { width: 80, height: 80 })}
-                        alt={name}
-                        fill
-                        sizes="36px"
-                        className="object-cover"
-                      />
-                    </span>
-                    <span className="text-sm font-bold text-deep-800">{name}</span>
-                    <ArrowIcon className="h-3.5 w-3.5 text-brand-600" />
-                  </Link>
-                );
-              })}
-            </div>
+        {/* Category shortcuts -- exactly 3, matching the reference
+            (Vegetables / Fruits / Herbs). Vegetables and Fruits link to the
+            real matching categories; there is no dedicated "Herbs" category
+            in the catalog today, so that pill goes to a real search result
+            instead of a fabricated category link. */}
+        <div className="relative mx-auto max-w-7xl px-4 pb-10">
+          <div className="flex flex-wrap justify-center gap-3">
+            {heroCategoryShortcuts.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="glass glass-hover flex items-center gap-2.5 !rounded-full py-1.5 pe-5 ps-1.5"
+              >
+                <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-brand-50">
+                  <Image src={item.image} alt={item.name} fill sizes="36px" className="object-cover" />
+                </span>
+                <span className="text-sm font-bold text-deep-800">{item.name}</span>
+                <ArrowIcon className="h-3.5 w-3.5 text-brand-600" />
+              </Link>
+            ))}
           </div>
-        )}
+        </div>
       </section>
 
       {/* Compact trust strip */}

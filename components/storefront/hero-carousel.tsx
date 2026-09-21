@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Leaf } from "lucide-react";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { Link } from "@/i18n/navigation";
 import { pickLocalized } from "@/lib/i18n/localized";
@@ -42,6 +42,7 @@ export function HeroCarousel({
   heroSubtitleFallback,
   heroCta,
   heroNote,
+  heroPaperTag,
 }: {
   banners: Banner[];
   locale: string;
@@ -51,6 +52,7 @@ export function HeroCarousel({
   heroSubtitleFallback: string;
   heroCta: string;
   heroNote: string;
+  heroPaperTag: string;
 }) {
   const isAr = locale !== "en";
   const direction = isAr ? "rtl" : "ltr";
@@ -106,24 +108,39 @@ export function HeroCarousel({
       <div className="relative z-10 order-2 lg:order-1">
         <p className="text-xs font-bold tracking-[0.25em] text-muted-2 uppercase">{heroEyebrow}</p>
         <h1 className="mt-3 leading-[1.02] font-black text-deep-900">
-          <span className="block text-4xl sm:text-5xl lg:text-[3.4rem]">{heroHeadline}</span>
+          <span className="font-sticker block text-4xl sm:text-5xl lg:text-[3.4rem]">{heroHeadline}</span>
           <span className="font-script mt-1 block text-5xl leading-none text-brand-600 sm:text-6xl lg:text-7xl">
             {heroHeadlineAccent}
           </span>
         </h1>
         <p className="mt-5 max-w-md text-base text-muted sm:text-lg">{currentSlide.subtitle}</p>
 
-        <div className="mt-7 flex flex-wrap items-center gap-5">
+        <div className="mt-7 flex flex-wrap items-center gap-6">
           <Link
             href={currentSlide.href}
-            className="group inline-flex items-center gap-1 rounded-full bg-brand-gradient p-1.5 pe-6 font-bold text-white shadow-[0_10px_24px_-8px_rgba(84,120,41,0.6)] transition-transform hover:-translate-y-0.5"
+            className="group inline-flex items-center gap-3 rounded-full bg-brand-gradient py-1.5 ps-6 pe-1.5 font-bold text-deep-900 shadow-[0_10px_24px_-8px_rgba(84,120,41,0.6)] transition-transform hover:-translate-y-0.5"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-deep-800 text-white transition-transform group-hover:scale-110">
+            {heroCta}
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-deep-800 text-white transition-transform group-hover:scale-110">
               <ArrowIcon className="h-4 w-4" />
             </span>
-            {heroCta}
           </Link>
-          <span className="font-script -rotate-3 text-xl text-deep-700 sm:text-2xl">{heroNote}</span>
+          <p className="font-script -rotate-3 text-xl leading-[1.15] text-deep-700 sm:text-2xl">
+            {heroNote.split("\n").map((line, i) => (
+              <span key={i} className="block">
+                {line}
+              </span>
+            ))}
+            <svg viewBox="0 0 90 12" className="mt-1 h-2.5 w-16 text-deep-700" aria-hidden="true">
+              <path
+                d="M2 8c8-8 14 2 22-4s14 4 22-2 14 3 22-3"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </p>
         </div>
 
         {hasMultiple && (
@@ -175,6 +192,20 @@ export function HeroCarousel({
             Unprocess
             <br />
             your food
+          </p>
+        </div>
+
+        {/* Small floating "paper" note -- warm off-white card, rotated,
+            reads like a physical tag clipped to the produce rather than a
+            UI tooltip. */}
+        <div className="absolute -top-4 end-4 z-10 max-w-[9rem] rotate-[6deg] rounded-2xl bg-[#fbf7ea] px-3.5 py-3 shadow-[0_12px_24px_-10px_rgba(28,55,40,0.35)] sm:end-8">
+          <Leaf className="h-3.5 w-3.5 text-brand-600" aria-hidden="true" />
+          <p className="font-script mt-1 text-sm leading-[1.15] font-semibold text-deep-800 sm:text-base">
+            {heroPaperTag.split("\n").map((line, i) => (
+              <span key={i} className="block">
+                {line}
+              </span>
+            ))}
           </p>
         </div>
       </div>

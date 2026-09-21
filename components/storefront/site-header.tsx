@@ -1,4 +1,4 @@
-import { LogIn, MessageCircle, User } from "lucide-react";
+import { Leaf, LogIn, MessageCircle, User } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -109,11 +109,11 @@ export async function SiteHeader() {
           </div>
 
           <div className="flex justify-center">
-            <PillNav links={pillLinks} />
+            <PillNav links={pillLinks} searchLabel={t("nav.search")} />
           </div>
 
           <div className="flex items-center justify-end gap-3">
-            <div className="hidden w-full max-w-xs xl:block">
+            <div className="hidden w-full max-w-xs 2xl:block">
               <SearchBox />
             </div>
             <div className="hidden lg:block">
@@ -122,25 +122,32 @@ export async function SiteHeader() {
             {!user && (
               <Link
                 href="/auth/login"
-                className="hidden h-10 w-10 items-center justify-center rounded-xl border border-border-strong text-deep-700 transition-colors hover:border-brand-400 hover:bg-brand-50 lg:flex"
+                className="hidden h-10 w-10 items-center justify-center rounded-xl text-deep-700 transition-colors hover:bg-brand-50 lg:flex"
                 aria-label={t("nav.login")}
               >
-                <LogIn className="h-4 w-4" />
+                <LogIn className="h-4 w-4" strokeWidth={1.75} />
               </Link>
             )}
             {user && (
               <Link
                 href="/account"
-                className="hidden h-10 w-10 items-center justify-center rounded-xl border border-border-strong text-deep-700 transition-colors hover:border-brand-400 hover:bg-brand-50 lg:flex"
+                className="hidden h-10 w-10 items-center justify-center rounded-xl text-deep-700 transition-colors hover:bg-brand-50 lg:flex"
                 aria-label={t("nav.account")}
               >
-                <User className="h-4 w-4" />
+                <User className="h-4 w-4" strokeWidth={1.75} />
               </Link>
             )}
+            <span className="hidden h-8 w-px bg-border sm:block" aria-hidden="true" />
+            <div className="hidden items-center gap-1.5 sm:flex">
+              <Leaf className="h-3.5 w-3.5 shrink-0 text-brand-600" aria-hidden="true" />
+              <p className="max-w-[6.5rem] text-end text-[0.7rem] leading-tight font-bold text-deep-800">
+                {t("common.microTagline")}
+              </p>
+            </div>
             <CartLink count={cartCount} label={t("nav.cart")} />
           </div>
         </div>
-        <div className="px-4 pb-3 xl:hidden">
+        <div className="px-4 pb-3 2xl:hidden">
           <SearchBox />
         </div>
       </div>

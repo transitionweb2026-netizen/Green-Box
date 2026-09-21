@@ -15,6 +15,7 @@ export type PlaceholderKey =
   | "hero"
   | "vegetables"
   | "fruits"
+  | "herbs"
   | "chicken"
   | "dairy"
   | "bakery"
@@ -34,6 +35,7 @@ const KEYWORDS: Record<PlaceholderKey, string> = {
   hero: "vegetables,fresh",
   vegetables: "vegetables,fresh",
   fruits: "fruits,fresh",
+  herbs: "herbs,basil",
   chicken: "chicken,meat",
   dairy: "dairy,milk",
   bakery: "bread,fresh",
@@ -58,6 +60,7 @@ const LOCKS: Record<PlaceholderKey, number> = {
   hero: 12,
   vegetables: 21,
   fruits: 34,
+  herbs: 183,
   chicken: 45,
   dairy: 58,
   bakery: 63,
