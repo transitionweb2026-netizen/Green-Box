@@ -35,13 +35,13 @@
     "contactUs": "Contact Us"
   },
   "home": {
-    "heroEyebrow": "Fresh, every day",
+    "heroEyebrow": "Real food\nBrighter tomorrows",
     "heroHeadline": "Freshness,",
     "heroHeadlineAccent": "reimagined.",
     "heroNote": "Good\nFood\nLives Here",
     "heroPaperTag": "Small choices,\nbig healthier\ntomorrows",
     "heroSubtitle": "From the farm to your kitchen, with quality you can trust.",
-    "heroCta": "Browse products",
+    "heroCta": "Shop the season",
     "yourBoxTitle": "Your Box",
     "yourBoxItemCount": "{count, plural, =0 {No items} one {# item} other {# items}}",
     "yourBoxEmpty": "Your box is empty -- start adding fresh picks.",

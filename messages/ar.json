@@ -35,13 +35,13 @@
     "contactUs": "تواصل معنا"
   },
   "home": {
-    "heroEyebrow": "طازج كل يوم",
+    "heroEyebrow": "أكل حقيقي\nأيام أكثر إشراقًا",
     "heroHeadline": "نضارة،",
     "heroHeadlineAccent": "بأسلوب جديد",
     "heroNote": "أكل\nطازج\nمن هنا",
     "heroPaperTag": "اختيارات بسيطة،\nغدًا أصح\nوأجمل",
     "heroSubtitle": "من المزرعة إلى مطبخك، بجودة تقدر تثق بيها.",
-    "heroCta": "تصفح المنتجات",
+    "heroCta": "تسوق موسم الطازج",
     "yourBoxTitle": "صندوقك",
     "yourBoxItemCount": "{count, plural, =0 {لا توجد عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} other {# عنصر}}",
     "yourBoxEmpty": "صندوقك فاضي -- ابدأ بإضافة منتجات طازجة.",

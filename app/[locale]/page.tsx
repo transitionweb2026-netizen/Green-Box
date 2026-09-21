@@ -113,21 +113,19 @@ export default async function HomePage() {
         <div className="blob h-64 w-64 bg-brand-300/25 -top-10 -start-10 animate-float-slow" aria-hidden="true" />
         <div className="blob h-56 w-56 bg-gold-400/20 top-1/3 end-0 animate-float-slow" aria-hidden="true" />
         <div className="blob h-72 w-72 bg-brand-500/15 bottom-0 start-1/3 animate-float-slow" aria-hidden="true" />
-        <div className="relative">
-          <HeroCarousel
-            banners={banners}
-            locale={locale}
-            heroEyebrow={t("home.heroEyebrow")}
-            heroHeadline={t("home.heroHeadline")}
-            heroHeadlineAccent={t("home.heroHeadlineAccent")}
-            heroSubtitleFallback={t("home.heroSubtitle")}
-            heroCta={t("home.heroCta")}
-            heroNote={t("home.heroNote")}
-            heroPaperTag={t("home.heroPaperTag")}
-            produceImages={produceImages}
-          />
-          <HeroCartSummary className="absolute end-[6%] top-6 hidden xl:block" />
-        </div>
+        <HeroCarousel
+          banners={banners}
+          locale={locale}
+          heroEyebrow={t("home.heroEyebrow")}
+          heroHeadline={t("home.heroHeadline")}
+          heroHeadlineAccent={t("home.heroHeadlineAccent")}
+          heroSubtitleFallback={t("home.heroSubtitle")}
+          heroCta={t("home.heroCta")}
+          heroNote={t("home.heroNote")}
+          heroPaperTag={t("home.heroPaperTag")}
+          produceImages={produceImages}
+          cartSummary={<HeroCartSummary />}
+        />
 
         {/* Category shortcuts -- exactly 3, matching the reference
             (Vegetables / Fruits / Herbs). Vegetables and Fruits link to the
@@ -140,13 +138,13 @@ export default async function HomePage() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="glass glass-hover flex items-center gap-2.5 !rounded-full py-1.5 pe-5 ps-1.5"
+                className="glass glass-hover flex items-center gap-3 !rounded-full py-2 pe-6 ps-2"
               >
-                <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-brand-50">
-                  <Image src={item.image} alt={item.name} fill sizes="36px" className="object-cover" />
+                <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-brand-50">
+                  <Image src={item.image} alt={item.name} fill sizes="44px" className="object-cover" />
                 </span>
-                <span className="text-sm font-bold text-deep-800">{item.name}</span>
-                <ArrowIcon className="h-3.5 w-3.5 text-brand-600" />
+                <span className="text-base font-bold text-deep-800">{item.name}</span>
+                <ArrowIcon className="h-4 w-4 text-brand-600" />
               </Link>
             ))}
           </div>

@@ -23,7 +23,7 @@ export async function HeroCartSummary({ className }: { className?: string }) {
   const items = summary.items.slice(0, 3);
 
   return (
-    <div className={cn("glass w-72 !rounded-[1.75rem] !p-5", className)}>
+    <div className={cn("glass w-full max-w-xs !rounded-[1.75rem] !p-5", className)}>
       <div className="flex items-center justify-between">
         <h3 className="font-bold text-deep-900">{t("home.yourBoxTitle")}</h3>
         <span className="text-xs font-semibold text-muted-2">
