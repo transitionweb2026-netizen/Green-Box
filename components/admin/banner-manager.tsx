@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useTransition } from "react";
+import { useActionState, useRef, useState, useTransition } from "react";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { ImageIcon, Plus, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,12 +19,19 @@ import type { Banner } from "@/lib/services/content";
 function BannerImageSlot({ bannerId, kind, url }: { bannerId: string; kind: "image" | "image_mobile"; url: string | null }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const label = kind === "image" ? "ديسكتوب" : "موبايل";
 
   return (
     <form
       ref={formRef}
-      action={(formData) => startTransition(() => updateBannerImagesAction(bannerId, formData))}
+      action={(formData) => {
+        setError(null);
+        startTransition(async () => {
+          const result = await updateBannerImagesAction(bannerId, formData);
+          if (result.status === "error") setError(result.message ?? "فشل رفع الصورة");
+        });
+      }}
       className="flex flex-col items-center gap-1"
     >
       <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-lg bg-brand-50">
@@ -48,6 +55,7 @@ function BannerImageSlot({ bannerId, kind, url }: { bannerId: string; kind: "ima
           onChange={() => formRef.current?.requestSubmit()}
         />
       </label>
+      <FormMessage className="max-w-[6rem] text-center text-[0.65rem]">{error}</FormMessage>
     </form>
   );
 }

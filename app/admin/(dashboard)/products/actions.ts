@@ -186,15 +186,30 @@ export async function archiveProductAction(productId: string) {
   revalidateStorefrontProductPaths();
 }
 
-export async function uploadProductImageAction(productId: string, formData: FormData) {
-  const file = formData.get("file") as File | null;
-  if (!file || file.size === 0) return;
+export type UploadImageState = { status: "idle" | "error"; message?: string };
 
-  const url = await uploadMediaFile("products", file);
-  await adminAddProductImage(productId, url);
+/**
+ * Previously threw straight out of the action on any upload failure (wrong
+ * file type, over the 5MB limit, a storage/network hiccup) -- since the
+ * caller never caught it, that crashed all the way up to the admin's
+ * generic error boundary instead of showing the actual reason. Now returns
+ * a real state the form can display.
+ */
+export async function uploadProductImageAction(productId: string, formData: FormData): Promise<UploadImageState> {
+  const file = formData.get("file") as File | null;
+  if (!file || file.size === 0) return { status: "idle" };
+
+  try {
+    const url = await uploadMediaFile("products", file);
+    await adminAddProductImage(productId, url);
+  } catch (err) {
+    return { status: "error", message: err instanceof Error ? err.message : "فشل رفع الصورة" };
+  }
+
   revalidatePath(`/admin/products/${productId}/edit`);
   revalidateTag("products", "max");
   revalidateStorefrontProductPaths();
+  return { status: "idle" };
 }
 
 export async function deleteProductImageAction(productId: string, imageId: string, url: string) {

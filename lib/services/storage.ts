@@ -13,10 +13,10 @@ const MAX_BYTES = 5 * 1024 * 1024; // 5MB
  */
 export async function uploadMediaFile(folder: "products" | "categories" | "banners" | "recipes", file: File): Promise<string> {
   if (!ALLOWED_TYPES.includes(file.type)) {
-    throw new Error("Unsupported file type. Use JPEG, PNG, WEBP, or GIF.");
+    throw new Error("صيغة الملف غير مدعومة. استخدم JPEG أو PNG أو WEBP أو GIF (صور iPhone بصيغة HEIC لازم تتحول لـ JPEG الأول).");
   }
   if (file.size > MAX_BYTES) {
-    throw new Error("File is too large (max 5MB).");
+    throw new Error("حجم الملف كبير جدًا (الحد الأقصى 5 ميجابايت).");
   }
 
   const supabase = await createClient();

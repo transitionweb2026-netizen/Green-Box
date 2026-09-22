@@ -69,19 +69,23 @@ export async function createBannerAction(_prevState: BannerActionState, formData
  * recreating the whole banner (which would also lose its title/link/order).
  * Either file is optional; only the ones actually provided are replaced.
  */
-export async function updateBannerImagesAction(bannerId: string, formData: FormData) {
+export async function updateBannerImagesAction(bannerId: string, formData: FormData): Promise<BannerActionState> {
   const file = formData.get("image") as File | null;
   const mobileFile = formData.get("image_mobile") as File | null;
   const existing = await adminGetBanner(bannerId);
   const update: { image_url?: string; image_url_mobile?: string } = {};
 
-  if (file && file.size > 0) {
-    update.image_url = await uploadMediaFile("banners", file);
+  try {
+    if (file && file.size > 0) {
+      update.image_url = await uploadMediaFile("banners", file);
+    }
+    if (mobileFile && mobileFile.size > 0) {
+      update.image_url_mobile = await uploadMediaFile("banners", mobileFile);
+    }
+  } catch (err) {
+    return { status: "error", message: err instanceof Error ? err.message : "فشل رفع الصورة" };
   }
-  if (mobileFile && mobileFile.size > 0) {
-    update.image_url_mobile = await uploadMediaFile("banners", mobileFile);
-  }
-  if (Object.keys(update).length === 0) return;
+  if (Object.keys(update).length === 0) return { status: "idle" };
 
   await adminUpdateBanner(bannerId, update);
   if (update.image_url && existing?.image_url) await deleteMediaFile(existing.image_url).catch(() => {});
@@ -89,6 +93,7 @@ export async function updateBannerImagesAction(bannerId: string, formData: FormD
 
   revalidatePath("/admin/content");
   revalidatePath("/[locale]", "page");
+  return { status: "idle" };
 }
 
 export async function deleteBannerAction(bannerId: string) {

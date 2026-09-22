@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { ImagePlus, Star, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { FormMessage } from "@/components/ui/form-message";
 import {
   deleteProductImageAction,
   setPrimaryProductImageAction,
@@ -14,6 +15,7 @@ import type { ProductImage } from "@/lib/services/catalog";
 
 export function ProductImageManager({ productId, images }: { productId: string; images: ProductImage[] }) {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const hasPrimary = images.some((image) => image.is_primary);
 
@@ -63,9 +65,14 @@ export function ProductImageManager({ productId, images }: { productId: string; 
         <form
           ref={formRef}
           action={(formData) => {
+            setError(null);
             startTransition(async () => {
-              await uploadProductImageAction(productId, formData);
-              formRef.current?.reset();
+              const result = await uploadProductImageAction(productId, formData);
+              if (result.status === "error") {
+                setError(result.message ?? "فشل رفع الصورة");
+              } else {
+                formRef.current?.reset();
+              }
             });
           }}
         >
@@ -86,6 +93,7 @@ export function ProductImageManager({ productId, images }: { productId: string; 
         </form>
       </div>
       {isPending && <p className="mt-3 text-sm text-muted">جارٍ الرفع...</p>}
+      <FormMessage>{error}</FormMessage>
     </Card>
   );
 }
