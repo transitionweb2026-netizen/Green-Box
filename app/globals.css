@@ -340,6 +340,28 @@ body {
   -webkit-clip-path: url("#product-card-clip");
 }
 
+/*
+ * The product-image area itself -- shaped by SVG <clipPath
+ * id="product-image-clip"> (organic top corners + a genuinely wavy
+ * bottom edge), NOT a rectangle with a border-bottom. `filter:
+ * drop-shadow` (not box-shadow, which a clip-path would cut away) is what
+ * lets the photo's own shadow spill past the wavy edge onto the content
+ * area below, reinforcing that the product sits above/emerges from the
+ * card rather than being inset in a flat box.
+ */
+.card-image-organic {
+  position: relative;
+  clip-path: url("#product-image-clip");
+  -webkit-clip-path: url("#product-image-clip");
+  filter: drop-shadow(0 18px 20px -10px rgba(14, 27, 20, 0.35));
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+}
+
+.group:hover .card-image-organic {
+  transform: translateY(-3px) scale(1.02);
+  filter: drop-shadow(0 24px 26px -10px rgba(14, 27, 20, 0.42));
+}
+
 .pill-badge {
   display: inline-flex;
   align-items: center;

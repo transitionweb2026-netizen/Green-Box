@@ -9,15 +9,9 @@ import { categoryPlaceholderKey, placeholderImage } from "@/lib/media/placeholde
 import type { ProductWithImages } from "@/lib/services/catalog";
 import { AddToCartButton } from "./add-to-cart-button";
 
-/** Card background + the more saturated "disc" glow color sitting directly
- * behind the round product photo, cycling deterministically per product so
- * a grid reads as varied rather than uniform. */
-const CARD_TONES = [
-  { card: "bg-brand-50", disc: "bg-brand-300/60" },
-  { card: "bg-danger-bg", disc: "bg-danger/25" },
-  { card: "bg-warning-bg", disc: "bg-gold-400/45" },
-  { card: "bg-brand-100", disc: "bg-brand-400/50" },
-];
+/** Card background tones, cycling deterministically per product so a grid
+ * reads as varied rather than uniform. */
+const CARD_TONES = ["bg-brand-50", "bg-danger-bg", "bg-warning-bg", "bg-brand-100"];
 
 export async function ProductCard({ product }: { product: ProductWithImages }) {
   const locale = await getLocale();
@@ -37,51 +31,52 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
     // shape needs this instead of a plain box-shadow/border.
     <div className="card-organic-shadow group">
       <div className="card-organic-border">
-        <div className={`card-organic-surface flex flex-col p-4 sm:p-5 ${tone.card}`}>
-          <Link href={`/p/${product.slug}`} className="relative block pb-2">
-            {/* Round "product disc" -- a colored glow plate the photo floats
-                on, instead of a rectangular photo filling the card top. The
-                disc is wider than the photo and shows around its full
-                circumference, and the photo itself is masked to a circle
-                with a white ring, shadow, and hover lift/scale of its own. */}
-            <div className="relative mx-auto aspect-square w-[80%]">
-              <div className={`absolute inset-0 rounded-full ${tone.disc} blur-xl`} aria-hidden="true" />
-              <div className={`absolute inset-[4%] rounded-full ${tone.disc} opacity-70`} aria-hidden="true" />
-              <div className="absolute inset-[8%] overflow-hidden rounded-full shadow-[0_22px_32px_-14px_rgba(14,27,20,0.5)] ring-4 ring-white/85 transition-transform duration-500 ease-out group-hover:-translate-y-1.5">
+        <div className={`card-organic-surface flex flex-col p-4 sm:p-5 ${tone}`}>
+          <Link href={`/p/${product.slug}`} className="relative block pb-4">
+            {/* Large product-visual "stage" -- no circle, no rectangular
+                photo box. The panel itself is shaped by the
+                product-image-clip SVG path (organic top corners + a
+                genuinely wavy bottom edge), and its own filter:drop-shadow
+                (not box-shadow, which the clip-path would cut away) lets
+                the shadow spill past that wavy edge onto the content
+                below, so the photo reads as sitting above/emerging from
+                the card rather than inset in a flat box. */}
+            <div className="relative aspect-[6/5] w-full">
+              <div className="card-image-organic absolute inset-0 overflow-hidden bg-white/60">
                 <Image
                   src={primaryImage?.url ?? placeholderImage(fallbackKey, { variant })}
                   alt={pickLocalized(primaryImage?.alt_ar ?? name, primaryImage?.alt_en, locale)}
                   fill
-                  sizes="(max-width: 640px) 45vw, (max-width: 1024px) 28vw, 18vw"
-                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                  sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 24vw"
+                  className="object-cover"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-transparent" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
                 {!product.is_available && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]">
                     <Badge tone="danger">{t("outOfStock")}</Badge>
                   </div>
                 )}
               </div>
-            </div>
 
-            {isBox && (
-              <Badge tone="deep" className="absolute start-[6%] top-0 shadow-md">
-                {t("boxContents")}
-              </Badge>
-            )}
-            {!isBox && product.is_available && (
-              <Badge tone="surface" className="absolute start-[6%] top-0 shadow-md transition-transform duration-300 group-hover:-translate-y-0.5">
-                <Leaf className="h-3 w-3 text-brand-600" />
-                {t("freshBadge")}
-              </Badge>
-            )}
-            {product.requires_reservation && (
-              <Badge tone="info" className="absolute end-[6%] top-0 shadow-md">
-                {t("reservationRequired")}
-              </Badge>
-            )}
-            <div className="pill-price absolute end-[10%] bottom-2 transition-transform duration-300 group-hover:-translate-y-0.5">
-              <PriceDisplay value={product.price} locale={locale} size="sm" />
+              {isBox && (
+                <Badge tone="deep" className="absolute start-1 top-1 shadow-md">
+                  {t("boxContents")}
+                </Badge>
+              )}
+              {!isBox && product.is_available && (
+                <Badge tone="surface" className="absolute start-1 top-1 shadow-md transition-transform duration-300 group-hover:-translate-y-0.5">
+                  <Leaf className="h-3 w-3 text-brand-600" />
+                  {t("freshBadge")}
+                </Badge>
+              )}
+              {product.requires_reservation && (
+                <Badge tone="info" className="absolute end-1 top-1 shadow-md">
+                  {t("reservationRequired")}
+                </Badge>
+              )}
+              <div className="pill-price absolute end-[12%] bottom-[10%] transition-transform duration-300 group-hover:-translate-y-0.5">
+                <PriceDisplay value={product.price} locale={locale} size="sm" />
+              </div>
             </div>
           </Link>
 
