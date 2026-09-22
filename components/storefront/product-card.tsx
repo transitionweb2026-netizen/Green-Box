@@ -1,4 +1,4 @@
-import { Leaf, Star } from "lucide-react";
+import { ChevronDown, Leaf, Star } from "lucide-react";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -29,7 +29,12 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
   return (
     <div className={`card-blob group flex flex-col p-3 sm:p-4 ${BLOB_TONES[variant % BLOB_TONES.length]}`}>
       <Link href={`/p/${product.slug}`} className="relative block">
-        <div className="relative aspect-square w-full overflow-hidden rounded-[1.5rem] bg-white/50">
+        {/* Soft glow halo behind the image plate -- real catalog photos are
+            plain (not transparent cutouts), so the "product glowing free of
+            the frame" effect has to live around the photo's own rounded
+            edges rather than through it. */}
+        <div className="absolute inset-1 rounded-[1.5rem] bg-white/70 blur-md" aria-hidden="true" />
+        <div className="relative aspect-square w-full overflow-hidden rounded-[1.5rem] bg-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_18px_26px_-16px_rgba(14,27,20,0.4)]">
           <Image
             src={primaryImage?.url ?? placeholderImage(fallbackKey, { variant })}
             alt={pickLocalized(primaryImage?.alt_ar ?? name, primaryImage?.alt_en, locale)}
@@ -37,20 +42,23 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
             className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
+          {/* Diagonal gloss sweep -- a static highlight, not a hover-only
+              effect, so the plate reads as glossy at rest. */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
           {isBox && (
-            <Badge tone="deep" className="absolute start-2 top-2">
+            <Badge tone="deep" className="absolute -start-1 -top-1">
               {t("boxContents")}
             </Badge>
           )}
-          {product.is_featured && !isBox && (
-            <Badge tone="surface" className="absolute start-2 top-2">
+          {!isBox && product.is_available && (
+            <Badge tone="surface" className="absolute -start-1 -top-1">
               <Leaf className="h-3 w-3 text-brand-600" />
               {t("freshBadge")}
             </Badge>
           )}
           {product.requires_reservation && (
-            <Badge tone="info" className="absolute end-2 top-2">
+            <Badge tone="info" className="absolute -end-1 -top-1">
               {t("reservationRequired")}
             </Badge>
           )}
@@ -93,8 +101,9 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
         )}
         <div className="mt-auto flex items-center gap-1.5 pt-2">
           {unit && (
-            <span className="hidden shrink-0 rounded-full border border-border-strong bg-white/80 px-3 py-2.5 text-xs font-bold whitespace-nowrap text-deep-800 sm:inline-block">
+            <span className="hidden shrink-0 items-center gap-0.5 rounded-full border border-border-strong bg-white/80 px-3 py-2.5 text-xs font-bold whitespace-nowrap text-deep-800 sm:inline-flex">
               {unit}
+              <ChevronDown className="h-3 w-3 text-muted-2" />
             </span>
           )}
           <div className="min-w-0 flex-1">

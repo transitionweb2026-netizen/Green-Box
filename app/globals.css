@@ -276,13 +276,19 @@ body {
   position: relative;
   height: 100%;
   border-radius: 2rem;
-  box-shadow: var(--shadow-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+    var(--shadow-soft);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
 }
 
 .card-blob:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lifted);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+    var(--shadow-lifted);
 }
 
 .pill-badge {
@@ -415,6 +421,9 @@ body {
   background-size: cover;
   background-position: center;
   opacity: 0.85;
+  /* Deepens the greens and sharpens leaf/edge distinction -- the source
+     photo reads a little soft/pale at typical opacity otherwise. */
+  filter: saturate(1.55) contrast(1.12) brightness(0.95);
   -webkit-mask-image: radial-gradient(85% 75% at 50% 42%, transparent 0%, transparent 40%, black 82%);
   mask-image: radial-gradient(85% 75% at 50% 42%, transparent 0%, transparent 40%, black 82%);
 }

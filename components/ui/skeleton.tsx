@@ -5,14 +5,17 @@ export function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>
   return <div className={cn("skeleton rounded-lg", className)} {...props} />;
 }
 
+/** Matches the real ProductCard's blob-card shape (see
+ * components/storefront/product-card.tsx) so the loading state doesn't
+ * flash a differently-shaped placeholder right before the real card. */
 export function ProductCardSkeleton() {
   return (
-    <div className="flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-border bg-surface">
-      <Skeleton className="aspect-square w-full rounded-none" />
-      <div className="flex flex-col gap-2 p-3">
+    <div className="card-blob flex flex-col bg-brand-50 p-3 sm:p-4">
+      <Skeleton className="aspect-square w-full rounded-[1.5rem]" />
+      <div className="flex flex-col gap-2 pt-3">
         <Skeleton className="h-4 w-3/4" />
         <Skeleton className="h-3 w-1/3" />
-        <Skeleton className="mt-2 h-8 w-full" />
+        <Skeleton className="mt-2 h-10 w-full rounded-full" />
       </div>
     </div>
   );

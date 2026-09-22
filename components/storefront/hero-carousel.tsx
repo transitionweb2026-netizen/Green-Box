@@ -114,7 +114,7 @@ export function HeroCarousel({
 
   return (
     <div
-      className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-6 px-4 py-8 sm:py-10 lg:grid-cols-[1.05fr_1fr] lg:gap-6 xl:grid-cols-[1.05fr_1fr_0.62fr] xl:gap-8"
+      className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-6 px-4 py-8 sm:py-10 lg:grid-cols-[0.95fr_1.2fr] lg:gap-4 xl:grid-cols-[0.95fr_1.3fr_0.58fr] xl:gap-6"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocus={() => setIsPaused(true)}
@@ -129,13 +129,18 @@ export function HeroCarousel({
             </span>
           ))}
         </p>
+        {/* The script accent font (Caveat) bakes a lot of extra vertical
+            space into its own line box (room for tall ascenders/loops)
+            even at leading-none, so closing the gap to the line above --
+            and to the subtitle below -- takes negative margins, not just
+            removing positive ones. */}
         <h1 className="mt-3 leading-[0.95] font-black text-deep-900">
           <span className="font-sticker block text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem]">{heroHeadline}</span>
-          <span className="font-script mt-2 block text-6xl leading-none text-brand-600 sm:text-7xl lg:text-8xl xl:text-9xl">
+          <span className="font-script -mt-3 block text-6xl leading-none text-brand-600 sm:-mt-4 sm:text-7xl lg:-mt-5 lg:text-8xl xl:-mt-7 xl:text-9xl">
             {heroHeadlineAccent}
           </span>
         </h1>
-        <p className="mt-5 max-w-md text-base text-muted sm:text-lg">{currentSlide.subtitle}</p>
+        <p className="-mt-3 max-w-md text-base text-muted sm:-mt-4 sm:text-lg lg:-mt-5 xl:-mt-6">{currentSlide.subtitle}</p>
 
         <div className="mt-8 flex flex-wrap items-center gap-6">
           <Link
@@ -181,16 +186,19 @@ export function HeroCarousel({
         )}
       </div>
 
-      {/* Box/produce column -- large, close to the headline, no dead gap */}
-      <div className="relative order-1 lg:order-2">
+      {/* Box/produce column -- the hero's focal object: sized to bleed
+          slightly past its own grid cell so it dominates the composition
+          rather than sitting politely inside it. */}
+      <div className="relative order-1 lg:order-2 lg:-mx-6 xl:-mx-10">
         {showBoxComposition ? (
-          <div className="relative aspect-[3/2] w-full">
+          <div className="relative aspect-[4/3] w-full" style={{ perspective: "1600px" }}>
             {/* Ambient glow -- a soft, wide halo behind the box so it
                 separates from the botanical backdrop by light, not a hard
                 edge, and reads as lit by the same soft daylight as the
-                environment around it. */}
+                environment around it. Sized generously so the box reads as
+                the hero's focal point at a glance. */}
             <div
-              className="absolute inset-[8%] rounded-full bg-brand-200/35 blur-3xl"
+              className="absolute inset-[2%] rounded-full bg-brand-200/45 blur-3xl"
               aria-hidden="true"
             />
             {/* Contact shadow -- grounds the box in the scene: soft,
@@ -198,7 +206,7 @@ export function HeroCarousel({
                 the box and fading out, rather than a generic drop-shadow
                 that would just outline the PNG. */}
             <div
-              className="absolute inset-x-[14%] bottom-[10%] h-[12%] rounded-[50%] bg-deep-900/25 blur-2xl"
+              className="absolute inset-x-[10%] bottom-[6%] h-[12%] rounded-[50%] bg-deep-900/25 blur-2xl"
               aria-hidden="true"
             />
             <Image
@@ -206,8 +214,9 @@ export function HeroCarousel({
               alt={heroHeadline}
               fill
               priority
-              sizes="(max-width: 1024px) 90vw, 40vw"
-              className="relative object-contain drop-shadow-[0_8px_10px_rgba(14,27,20,0.3)] drop-shadow-[0_36px_40px_rgba(14,27,20,0.28)]"
+              sizes="(max-width: 1024px) 95vw, 55vw"
+              className="relative object-contain drop-shadow-[0_10px_12px_rgba(14,27,20,0.32)] drop-shadow-[0_40px_44px_rgba(14,27,20,0.3)]"
+              style={{ transform: "rotateY(-4deg) rotateX(2deg)" }}
             />
           </div>
         ) : (

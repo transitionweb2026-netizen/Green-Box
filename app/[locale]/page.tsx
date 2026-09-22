@@ -115,7 +115,7 @@ export default async function HomePage() {
             plain cream canvas. */}
         <div
           className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: "url(/images/hero-bg-botanical.webp)" }}
+          style={{ backgroundImage: "url(/images/hero-bg-botanical.webp)", filter: "saturate(1.55) contrast(1.12) brightness(0.95)" }}
           aria-hidden="true"
         />
         <HeroCarousel
