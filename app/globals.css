@@ -376,8 +376,10 @@ body {
  *  - `::before` -- soft brand-toned corner washes (existing brand-500 /
  *    deep-700 hues), each anchored to a corner and faded out well before
  *    the viewport center, same technique as .bg-surface-gradient above.
- *  - `::after` -- the reference leaf/glass/droplet photograph, radially
- *    masked so it only ever renders near the viewport edges; the mask's
+ *  - `::after` -- the botanical leaf/glass/droplet photograph (the same
+ *    asset used, unmasked, as the hero's own local backdrop -- one
+ *    consistent image sitewide), radially masked here so it only ever
+ *    renders near the viewport edges on every OTHER page; the mask's
  *    transparent center is what GUARANTEES a plain, readable center on
  *    every page, rather than relying on the photo happening to be light
  *    in the middle. Where the mask is transparent, the brand wash and the
@@ -409,7 +411,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("/images/atmosphere-leaves.jpg");
+  background-image: url("/images/hero-bg-botanical.webp");
   background-size: cover;
   background-position: center;
   opacity: 0.85;
@@ -417,15 +419,21 @@ body {
   mask-image: radial-gradient(85% 75% at 50% 42%, transparent 0%, transparent 40%, black 82%);
 }
 
-/* Smaller, portrait-cropped asset + a wider transparent safe-zone on
-   narrow screens -- the leafy border otherwise eats a much bigger share
-   of a phone-width viewport and starts crowding real content. */
+/* This asset is a wide landscape crop (its leaf detail sits at the far
+   left/right edges) -- `cover` on a tall, narrow phone viewport would zoom
+   in past those edges entirely and show only the plain center. `contain`
+   keeps the whole image (leaves included) in frame instead, letterboxed
+   against the page's own cream --background above/below. Also a wider
+   transparent safe-zone on narrow screens, matched to that smaller
+   effective image height, so it doesn't crowd real content. */
 @media (max-width: 640px) {
   .site-atmosphere::after {
-    background-image: url("/images/atmosphere-leaves-mobile.jpg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: top center;
     opacity: 0.7;
-    -webkit-mask-image: radial-gradient(95% 60% at 50% 35%, transparent 0%, transparent 48%, black 88%);
-    mask-image: radial-gradient(95% 60% at 50% 35%, transparent 0%, transparent 48%, black 88%);
+    -webkit-mask-image: radial-gradient(95% 60% at 50% 22%, transparent 0%, transparent 48%, black 88%);
+    mask-image: radial-gradient(95% 60% at 50% 22%, transparent 0%, transparent 48%, black 88%);
   }
 }
 
