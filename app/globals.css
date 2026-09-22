@@ -291,6 +291,55 @@ body {
     var(--shadow-lifted);
 }
 
+/*
+ * Product-card-only organic silhouette -- NOT a border-radius rectangle.
+ * The actual shape comes from the SVG <clipPath id="product-card-clip">
+ * (components/storefront/svg-defs.tsx, rendered once sitewide), whose
+ * `objectBoundingBox` units make it scale with each card's own size
+ * instead of a fixed-pixel path that would distort across breakpoints.
+ *
+ * Three nested layers, because a `clip-path`d element can't use a normal
+ * `box-shadow` (the shadow gets clipped away with everything outside the
+ * shape) or a normal `border` (it would draw a rectangle around the
+ * clipped content, not follow the silhouette):
+ *  - `.card-organic-shadow` (outermost): no clip-path itself, just a
+ *    layered `filter: drop-shadow(...)`, which -- unlike box-shadow --
+ *    is computed from the actual rendered (post-clip) alpha shape, so the
+ *    shadow genuinely follows the organic outline.
+ *  - `.card-organic-border`: clipped to the shape, filled with a soft
+ *    green-tinted gradient; only a ~2px rim of it is ever visible.
+ *  - `.card-organic-surface`: also clipped to the same shape, inset by
+ *    that ~2px so the border layer's rim shows through uniformly all the
+ *    way around the silhouette (a normal 1-2px CSS border can't follow a
+ *    clip-path either).
+ */
+.card-organic-shadow {
+  display: block;
+  height: 100%;
+  filter: drop-shadow(0 1px 1px rgba(14, 27, 20, 0.08)) drop-shadow(0 20px 30px -14px rgba(14, 27, 20, 0.35));
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+}
+
+.card-organic-shadow:hover {
+  transform: translateY(-5px);
+  filter: drop-shadow(0 1px 1px rgba(14, 27, 20, 0.1)) drop-shadow(0 30px 40px -14px rgba(14, 27, 20, 0.42));
+}
+
+.card-organic-border {
+  height: 100%;
+  padding: 2px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(132, 182, 61, 0.35));
+  clip-path: url("#product-card-clip");
+  -webkit-clip-path: url("#product-card-clip");
+}
+
+.card-organic-surface {
+  position: relative;
+  height: 100%;
+  clip-path: url("#product-card-clip");
+  -webkit-clip-path: url("#product-card-clip");
+}
+
 .pill-badge {
   display: inline-flex;
   align-items: center;

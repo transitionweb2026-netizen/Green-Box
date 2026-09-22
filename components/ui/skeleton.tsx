@@ -5,17 +5,22 @@ export function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>
   return <div className={cn("skeleton rounded-lg", className)} {...props} />;
 }
 
-/** Matches the real ProductCard's blob-card shape (see
- * components/storefront/product-card.tsx) so the loading state doesn't
- * flash a differently-shaped placeholder right before the real card. */
+/** Matches the real ProductCard's organic silhouette (see
+ * components/storefront/product-card.tsx / .card-organic-* in globals.css)
+ * so the loading state doesn't flash a differently-shaped placeholder
+ * right before the real card. */
 export function ProductCardSkeleton() {
   return (
-    <div className="card-blob flex flex-col bg-brand-50 p-3 sm:p-4">
-      <Skeleton className="aspect-square w-full rounded-[1.5rem]" />
-      <div className="flex flex-col gap-2 pt-3">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-3 w-1/3" />
-        <Skeleton className="mt-2 h-10 w-full rounded-full" />
+    <div className="card-organic-shadow">
+      <div className="card-organic-border">
+        <div className="card-organic-surface flex flex-col bg-brand-50 p-4 sm:p-5">
+          <Skeleton className="mx-auto aspect-square w-[80%] rounded-full" />
+          <div className="flex flex-col gap-2 pt-3">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/3" />
+            <Skeleton className="mt-2 h-10 w-full rounded-full" />
+          </div>
+        </div>
       </div>
     </div>
   );
