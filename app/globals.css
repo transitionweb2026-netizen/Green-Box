@@ -378,6 +378,21 @@ body {
  * `filter: drop-shadow` (not box-shadow, which a mask would cut away) so
  * the photo's own shadow spills past the wavy edge onto the content area
  * below; `.card-image-mask` carries only the mask.
+ *
+ * `.card-image-mask` must NOT declare `position` itself: this file is
+ * unlayered CSS (only `@import "tailwindcss"` above, no `@layer` wrapper),
+ * and unlayered rules always beat Tailwind's utilities, which Tailwind
+ * puts in `@layer utilities` -- regardless of specificity or source
+ * order. The element's actual `position: absolute` comes from the
+ * `absolute inset-0` Tailwind classes in the JSX (needed to fill the
+ * aspect-ratio stage above it); a `position: relative` here would
+ * silently win over that, and since every child of this element is
+ * itself `position: absolute` (the fill <img>, the gradient overlay, the
+ * out-of-stock overlay), none of them contribute to normal-flow height --
+ * the element collapses to zero height and the photo renders at 0x0,
+ * invisible despite a fully correct <img> src. This exact bug is what
+ * caused the "photo never shows" issue previously misdiagnosed as a
+ * clip-path/mask-image or filter/mask compositing problem.
  */
 .card-image-shadow {
   filter: drop-shadow(0 18px 20px -10px rgba(14, 27, 20, 0.35));
@@ -390,7 +405,6 @@ body {
 }
 
 .card-image-mask {
-  position: relative;
   -webkit-mask-image: var(--card-image-mask);
   mask-image: var(--card-image-mask);
   -webkit-mask-size: 100% 100%;
