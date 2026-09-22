@@ -301,18 +301,34 @@ body {
  * Three nested layers, because a `clip-path`d element can't use a normal
  * `box-shadow` (the shadow gets clipped away with everything outside the
  * shape) or a normal `border` (it would draw a rectangle around the
- * clipped content, not follow the silhouette):
- *  - `.card-organic-shadow` (outermost): no clip-path itself, just a
- *    layered `filter: drop-shadow(...)`, which -- unlike box-shadow --
- *    is computed from the actual rendered (post-clip) alpha shape, so the
+ * masked content, not follow the silhouette):
+ *  - `.card-organic-shadow` (outermost): no mask itself, just a layered
+ *    `filter: drop-shadow(...)`, which -- unlike box-shadow -- is
+ *    computed from the actual rendered (post-mask) alpha shape, so the
  *    shadow genuinely follows the organic outline.
- *  - `.card-organic-border`: clipped to the shape, filled with a soft
+ *  - `.card-organic-border`: masked to the shape, filled with a soft
  *    green-tinted gradient; only a ~2px rim of it is ever visible.
- *  - `.card-organic-surface`: also clipped to the same shape, inset by
+ *  - `.card-organic-surface`: also masked to the same shape, inset by
  *    that ~2px so the border layer's rim shows through uniformly all the
  *    way around the silhouette (a normal 1-2px CSS border can't follow a
- *    clip-path either).
+ *    mask either).
+ *
+ * The shape itself is a `mask-image` built from an inline data-URI SVG
+ * (`--card-organic-mask` / `--card-image-mask` below), NOT a `clip-path:
+ * url(#id)` referencing a separate <clipPath> element elsewhere in the
+ * DOM -- that cross-reference pattern is a known source of WebKit/Safari
+ * bugs (particularly on iOS) where the referenced shape silently fails to
+ * resolve and the whole element clips away to nothing instead of falling
+ * back to unclipped. A self-contained data-URI mask has no such
+ * reference to fail, and `mask-size: 100% 100%` gives it the same
+ * "scales with the element" behavior the clipPath's objectBoundingBox
+ * units were providing.
  */
+:root {
+  --card-organic-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath fill='white' d='M16 0C34 2 50 0.5 64 1.6C76 2.5 85 1 91 2.8C97 4.6 100 8.5 100 14L100 80C100 86.5 97.5 92 92 94.5C84 98 70 96.5 56 98.2C42 99.8 26 98.5 15 96C6 94 0 88.5 0 81.5L0 16C0 9 6 2.5 16 0Z'/%3E%3C/svg%3E");
+  --card-image-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath fill='white' d='M18 0C40 2 62 0.5 82 2C92 3 100 6 100 14L100 70C93 64 85 77.5 74.5 73.5C64 69.5 55 81.5 44 77.5C33 73.5 23.5 84.5 13.5 79.5C6 75.5 0 70 0 62L0 13C0 5 8 1 18 0Z'/%3E%3C/svg%3E");
+}
+
 .card-organic-shadow {
   display: block;
   height: 100%;
@@ -329,30 +345,42 @@ body {
   height: 100%;
   padding: 2px;
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(132, 182, 61, 0.35));
-  clip-path: url("#product-card-clip");
-  -webkit-clip-path: url("#product-card-clip");
+  -webkit-mask-image: var(--card-organic-mask);
+  mask-image: var(--card-organic-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 .card-organic-surface {
   position: relative;
   height: 100%;
-  clip-path: url("#product-card-clip");
-  -webkit-clip-path: url("#product-card-clip");
+  -webkit-mask-image: var(--card-organic-mask);
+  mask-image: var(--card-organic-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 /*
- * The product-image area itself -- shaped by SVG <clipPath
- * id="product-image-clip"> (organic top corners + a genuinely wavy
- * bottom edge), NOT a rectangle with a border-bottom. `filter:
- * drop-shadow` (not box-shadow, which a clip-path would cut away) is what
- * lets the photo's own shadow spill past the wavy edge onto the content
- * area below, reinforcing that the product sits above/emerges from the
- * card rather than being inset in a flat box.
+ * The product-image area itself -- shaped by the --card-image-mask data
+ * URI (organic top corners + a genuinely wavy bottom edge), NOT a
+ * rectangle with a border-bottom. `filter: drop-shadow` (not box-shadow,
+ * which a mask would cut away) is what lets the photo's own shadow spill
+ * past the wavy edge onto the content area below, reinforcing that the
+ * product sits above/emerges from the card rather than being inset in a
+ * flat box.
  */
 .card-image-organic {
   position: relative;
-  clip-path: url("#product-image-clip");
-  -webkit-clip-path: url("#product-image-clip");
+  -webkit-mask-image: var(--card-image-mask);
+  mask-image: var(--card-image-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
   filter: drop-shadow(0 18px 20px -10px rgba(14, 27, 20, 0.35));
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
 }

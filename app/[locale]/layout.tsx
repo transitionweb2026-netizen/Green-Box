@@ -7,7 +7,6 @@ import { getSiteOrigin } from "@/lib/seo/site-url";
 import { getSetting, type StoreInfo } from "@/lib/services/content";
 import { pickStrictLocalized } from "@/lib/i18n/localized";
 import { SiteHeader } from "@/components/storefront/site-header";
-import { SvgDefs } from "@/components/storefront/svg-defs";
 import { PageHeroBanner } from "@/components/storefront/page-hero-banner";
 import { FaqSection } from "@/components/storefront/faq-section";
 import { TermsSection } from "@/components/storefront/terms-section";
@@ -102,7 +101,6 @@ export default async function LocaleLayout({
     >
       <body className="bg-background flex min-h-full flex-col font-sans text-foreground">
         <div className="site-atmosphere" aria-hidden="true" />
-        <SvgDefs />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SiteHeader />
           <PageHeroBanner locale={locale} siteName={siteName} />

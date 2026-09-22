@@ -27,7 +27,7 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
 
   return (
     // Three nested layers for the organic (non-rounded-rect) silhouette --
-    // see the .card-organic-* comment in globals.css for why a clip-path'd
+    // see the .card-organic-* comment in globals.css for why a mask'd
     // shape needs this instead of a plain box-shadow/border.
     <div className="card-organic-shadow group">
       <div className="card-organic-border">
@@ -35,9 +35,9 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
           <Link href={`/p/${product.slug}`} className="relative block pb-4">
             {/* Large product-visual "stage" -- no circle, no rectangular
                 photo box. The panel itself is shaped by the
-                product-image-clip SVG path (organic top corners + a
+                --card-image-mask data-URI (organic top corners + a
                 genuinely wavy bottom edge), and its own filter:drop-shadow
-                (not box-shadow, which the clip-path would cut away) lets
+                (not box-shadow, which the mask would cut away) lets
                 the shadow spill past that wavy edge onto the content
                 below, so the photo reads as sitting above/emerging from
                 the card rather than inset in a flat box. */}
