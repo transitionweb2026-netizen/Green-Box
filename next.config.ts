@@ -11,6 +11,17 @@ const nextConfig: NextConfig = {
     // nested not-found.tsx can't handle for generic unmatched routes. See
     // app/global-not-found.tsx.
     globalNotFound: true,
+    serverActions: {
+      // Next's own default is 1MB. Every image upload in this app (product
+      // photos, category/banner/recipe images) goes through a Server
+      // Action, and lib/services/storage.ts's own validation already caps
+      // uploads at 5MB -- without raising this, Next itself was silently
+      // rejecting any upload over 1MB before that 5MB check (or the admin
+      // action's own try/catch) ever ran, which is exactly why real
+      // product photos (routinely 1-5MB) kept failing. Set comfortably
+      // above 5MB to leave room for multipart/form-data overhead.
+      bodySizeLimit: "8mb",
+    },
   },
   images: {
     // Product/category/banner images are served from the real Supabase
