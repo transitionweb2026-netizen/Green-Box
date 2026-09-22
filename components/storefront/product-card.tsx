@@ -9,11 +9,15 @@ import { categoryPlaceholderKey, placeholderImage } from "@/lib/media/placeholde
 import type { ProductWithImages } from "@/lib/services/catalog";
 import { AddToCartButton } from "./add-to-cart-button";
 
-/** Soft pastel backdrops the photo appears to float above, cycling
- * deterministically per product so a grid of cards reads as varied rather
- * than uniform -- all four are existing design tokens (brand/warning/danger
- * surface tints), not new colors invented for this. */
-const BLOB_TONES = ["bg-brand-50", "bg-danger-bg", "bg-warning-bg", "bg-brand-100"];
+/** Card background + the more saturated "disc" glow color sitting directly
+ * behind the round product photo, cycling deterministically per product so
+ * a grid reads as varied rather than uniform. */
+const CARD_TONES = [
+  { card: "bg-brand-50", disc: "bg-brand-300/60" },
+  { card: "bg-danger-bg", disc: "bg-danger/25" },
+  { card: "bg-warning-bg", disc: "bg-gold-400/45" },
+  { card: "bg-brand-100", disc: "bg-brand-400/50" },
+];
 
 export async function ProductCard({ product }: { product: ProductWithImages }) {
   const locale = await getLocale();
@@ -25,61 +29,66 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
   const isBox = product.product_type === "box";
   const fallbackKey = isBox ? "greenBox" : categoryPlaceholderKey(product.categories?.slug);
   const variant = hashVariant(product.id);
+  const tone = CARD_TONES[variant % CARD_TONES.length];
 
   return (
-    <div className={`card-blob group flex flex-col p-3 sm:p-4 ${BLOB_TONES[variant % BLOB_TONES.length]}`}>
-      <Link href={`/p/${product.slug}`} className="relative block">
-        {/* Soft glow halo behind the image plate -- real catalog photos are
-            plain (not transparent cutouts), so the "product glowing free of
-            the frame" effect has to live around the photo's own rounded
-            edges rather than through it. */}
-        <div className="absolute inset-1 rounded-[1.5rem] bg-white/70 blur-md" aria-hidden="true" />
-        <div className="relative aspect-square w-full overflow-hidden rounded-[1.5rem] bg-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_18px_26px_-16px_rgba(14,27,20,0.4)]">
-          <Image
-            src={primaryImage?.url ?? placeholderImage(fallbackKey, { variant })}
-            alt={pickLocalized(primaryImage?.alt_ar ?? name, primaryImage?.alt_en, locale)}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-          {/* Diagonal gloss sweep -- a static highlight, not a hover-only
-              effect, so the plate reads as glossy at rest. */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-          {isBox && (
-            <Badge tone="deep" className="absolute -start-1 -top-1">
-              {t("boxContents")}
-            </Badge>
-          )}
-          {!isBox && product.is_available && (
-            <Badge tone="surface" className="absolute -start-1 -top-1">
-              <Leaf className="h-3 w-3 text-brand-600" />
-              {t("freshBadge")}
-            </Badge>
-          )}
-          {product.requires_reservation && (
-            <Badge tone="info" className="absolute -end-1 -top-1">
-              {t("reservationRequired")}
-            </Badge>
-          )}
-          {!product.is_available && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]">
-              <Badge tone="danger">{t("outOfStock")}</Badge>
-            </div>
-          )}
-          <div className="pill-price absolute bottom-2 end-2">
-            <PriceDisplay value={product.price} locale={locale} size="sm" />
+    <div className={`card-blob group flex flex-col p-4 sm:p-5 ${tone.card}`}>
+      <Link href={`/p/${product.slug}`} className="relative block pb-2">
+        {/* Round "product disc" -- a colored glow plate the photo floats
+            on, instead of a rectangular photo filling the card top. This is
+            the deliberate structural break from a plain "image in a box":
+            the disc is wider than the photo and shows around its full
+            circumference, and the photo itself is masked to a circle with
+            a white ring, shadow, and hover lift/scale of its own. */}
+        <div className="relative mx-auto aspect-square w-[80%]">
+          <div className={`absolute inset-0 rounded-full ${tone.disc} blur-xl`} aria-hidden="true" />
+          <div className={`absolute inset-[4%] rounded-full ${tone.disc} opacity-70`} aria-hidden="true" />
+          <div className="absolute inset-[8%] overflow-hidden rounded-full shadow-[0_22px_32px_-14px_rgba(14,27,20,0.5)] ring-4 ring-white/85 transition-transform duration-500 ease-out group-hover:-translate-y-1.5">
+            <Image
+              src={primaryImage?.url ?? placeholderImage(fallbackKey, { variant })}
+              alt={pickLocalized(primaryImage?.alt_ar ?? name, primaryImage?.alt_en, locale)}
+              fill
+              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 28vw, 18vw"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/35 via-transparent to-transparent" />
+            {!product.is_available && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]">
+                <Badge tone="danger">{t("outOfStock")}</Badge>
+              </div>
+            )}
           </div>
         </div>
+
+        {isBox && (
+          <Badge tone="deep" className="absolute start-[6%] top-0 shadow-md">
+            {t("boxContents")}
+          </Badge>
+        )}
+        {!isBox && product.is_available && (
+          <Badge tone="surface" className="absolute start-[6%] top-0 shadow-md transition-transform duration-300 group-hover:-translate-y-0.5">
+            <Leaf className="h-3 w-3 text-brand-600" />
+            {t("freshBadge")}
+          </Badge>
+        )}
+        {product.requires_reservation && (
+          <Badge tone="info" className="absolute end-[6%] top-0 shadow-md">
+            {t("reservationRequired")}
+          </Badge>
+        )}
+        <div className="pill-price absolute end-[10%] bottom-2 transition-transform duration-300 group-hover:-translate-y-0.5">
+          <PriceDisplay value={product.price} locale={locale} size="sm" />
+        </div>
       </Link>
-      <div className="flex flex-1 flex-col gap-1.5 pt-3">
+
+      <div className="flex flex-1 flex-col gap-1.5 pt-2 text-center">
         <Link href={`/p/${product.slug}`}>
           <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-bold text-deep-900 transition-colors group-hover:text-brand-700">
             {name}
           </h3>
         </Link>
         {product.rating != null && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-center gap-1.5">
             <div className="relative flex text-deep-100" aria-hidden="true">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="h-3.5 w-3.5 fill-current" />
@@ -99,9 +108,13 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
             </span>
           </div>
         )}
-        <div className="mt-auto flex items-center gap-1.5 pt-2">
+
+        {/* One unified pale-green action bar -- unit, Add to box, and the
+            quick-add circle now share a single pill-shaped surface instead
+            of sitting as three separate free-floating controls. */}
+        <div className="mt-auto flex items-center gap-1 rounded-full bg-white/50 p-1.5 shadow-[inset_0_1px_2px_rgba(14,27,20,0.08)]">
           {unit && (
-            <span className="hidden shrink-0 items-center gap-0.5 rounded-full border border-border-strong bg-white/80 px-3 py-2.5 text-xs font-bold whitespace-nowrap text-deep-800 sm:inline-flex">
+            <span className="hidden shrink-0 items-center gap-0.5 rounded-full bg-white/90 px-2.5 py-2 text-xs font-bold whitespace-nowrap text-deep-800 shadow-sm sm:inline-flex">
               {unit}
               <ChevronDown className="h-3 w-3 text-muted-2" />
             </span>

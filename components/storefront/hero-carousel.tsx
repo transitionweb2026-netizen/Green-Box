@@ -140,7 +140,7 @@ export function HeroCarousel({
             {heroHeadlineAccent}
           </span>
         </h1>
-        <p className="-mt-3 max-w-md text-base text-muted sm:-mt-4 sm:text-lg lg:-mt-5 xl:-mt-6">{currentSlide.subtitle}</p>
+        <p className="mt-2 max-w-md text-base text-muted sm:text-lg">{currentSlide.subtitle}</p>
 
         <div className="mt-8 flex flex-wrap items-center gap-6">
           <Link
