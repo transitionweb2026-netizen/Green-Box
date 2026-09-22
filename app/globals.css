@@ -367,13 +367,29 @@ body {
 /*
  * The product-image area itself -- shaped by the --card-image-mask data
  * URI (organic top corners + a genuinely wavy bottom edge), NOT a
- * rectangle with a border-bottom. `filter: drop-shadow` (not box-shadow,
- * which a mask would cut away) is what lets the photo's own shadow spill
- * past the wavy edge onto the content area below, reinforcing that the
- * product sits above/emerges from the card rather than being inset in a
- * flat box.
+ * rectangle with a border-bottom. Split into two layers for the same
+ * reason as .card-organic-shadow/-surface above: `filter` and
+ * `mask-image` on the SAME element is a real cross-browser compositing
+ * hazard (notably WebKit/Safari, and some Chromium-on-mobile builds) --
+ * the masked layer can render fully blank even though the element,
+ * mask, and underlying <img> are all individually correct, because the
+ * filter forces the element onto an offscreen buffer that the mask then
+ * fails to composite back. `.card-image-shadow` carries only the
+ * `filter: drop-shadow` (not box-shadow, which a mask would cut away) so
+ * the photo's own shadow spills past the wavy edge onto the content area
+ * below; `.card-image-mask` carries only the mask.
  */
-.card-image-organic {
+.card-image-shadow {
+  filter: drop-shadow(0 18px 20px -10px rgba(14, 27, 20, 0.35));
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+}
+
+.group:hover .card-image-shadow {
+  transform: translateY(-3px) scale(1.02);
+  filter: drop-shadow(0 24px 26px -10px rgba(14, 27, 20, 0.42));
+}
+
+.card-image-mask {
   position: relative;
   -webkit-mask-image: var(--card-image-mask);
   mask-image: var(--card-image-mask);
@@ -381,13 +397,6 @@ body {
   mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-  filter: drop-shadow(0 18px 20px -10px rgba(14, 27, 20, 0.35));
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
-}
-
-.group:hover .card-image-organic {
-  transform: translateY(-3px) scale(1.02);
-  filter: drop-shadow(0 24px 26px -10px rgba(14, 27, 20, 0.42));
 }
 
 .pill-badge {

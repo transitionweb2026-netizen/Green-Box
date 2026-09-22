@@ -42,20 +42,22 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
                 below, so the photo reads as sitting above/emerging from
                 the card rather than inset in a flat box. */}
             <div className="relative aspect-[6/5] w-full">
-              <div className="card-image-organic absolute inset-0 overflow-hidden bg-white/60">
-                <Image
-                  src={primaryImage?.url ?? placeholderImage(fallbackKey, { variant })}
-                  alt={pickLocalized(primaryImage?.alt_ar ?? name, primaryImage?.alt_en, locale)}
-                  fill
-                  sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 24vw"
-                  className="object-cover"
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
-                {!product.is_available && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]">
-                    <Badge tone="danger">{t("outOfStock")}</Badge>
-                  </div>
-                )}
+              <div className="card-image-shadow absolute inset-0">
+                <div className="card-image-mask absolute inset-0 overflow-hidden bg-white/60">
+                  <Image
+                    src={primaryImage?.url ?? placeholderImage(fallbackKey, { variant })}
+                    alt={pickLocalized(primaryImage?.alt_ar ?? name, primaryImage?.alt_en, locale)}
+                    fill
+                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 24vw"
+                    className="object-cover"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
+                  {!product.is_available && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]">
+                      <Badge tone="danger">{t("outOfStock")}</Badge>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {isBox && (
