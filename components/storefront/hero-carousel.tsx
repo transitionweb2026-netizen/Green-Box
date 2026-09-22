@@ -185,29 +185,13 @@ export function HeroCarousel({
       <div className="relative order-1 lg:order-2">
         {showBoxComposition ? (
           <div className="relative aspect-[3/2] w-full">
-            {/* Ambient glow -- a soft, wide halo behind the box so it
-                separates from the botanical backdrop by light, not a hard
-                edge, and reads as lit by the same soft daylight as the
-                environment around it. */}
-            <div
-              className="absolute inset-[8%] rounded-full bg-brand-200/35 blur-3xl"
-              aria-hidden="true"
-            />
-            {/* Contact shadow -- grounds the box in the scene: soft,
-                diffused, greenish-neutral (never black), widest right under
-                the box and fading out, rather than a generic drop-shadow
-                that would just outline the PNG. */}
-            <div
-              className="absolute inset-x-[14%] bottom-[10%] h-[12%] rounded-[50%] bg-deep-900/25 blur-2xl"
-              aria-hidden="true"
-            />
             <Image
               src={BOX_COMPOSITION_IMAGE}
               alt={heroHeadline}
               fill
               priority
               sizes="(max-width: 1024px) 90vw, 40vw"
-              className="relative object-contain drop-shadow-[0_8px_10px_rgba(14,27,20,0.3)] drop-shadow-[0_36px_40px_rgba(14,27,20,0.28)]"
+              className="object-contain drop-shadow-[0_30px_36px_rgba(14,27,20,0.3)]"
             />
           </div>
         ) : (

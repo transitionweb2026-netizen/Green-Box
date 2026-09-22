@@ -107,17 +107,9 @@ export default async function HomePage() {
 
       {/* Hero -- cream, editorial, carousel-driven image + text */}
       <section className="relative overflow-hidden">
-        {/* Botanical backdrop, local to the hero only (the sitewide
-            .site-atmosphere layer is untouched) -- gives the area directly
-            behind the Green Box real leaf/droplet/glass depth instead of
-            three flat CSS blobs, so the box has an actual environment to
-            sit inside rather than an empty gap between it and the page's
-            plain cream canvas. */}
-        <div
-          className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: "url(/images/hero-bg-botanical.webp)" }}
-          aria-hidden="true"
-        />
+        <div className="blob h-64 w-64 bg-brand-300/25 -top-10 -start-10 animate-float-slow" aria-hidden="true" />
+        <div className="blob h-56 w-56 bg-gold-400/20 top-1/3 end-0 animate-float-slow" aria-hidden="true" />
+        <div className="blob h-72 w-72 bg-brand-500/15 bottom-0 start-1/3 animate-float-slow" aria-hidden="true" />
         <HeroCarousel
           banners={banners}
           locale={locale}
