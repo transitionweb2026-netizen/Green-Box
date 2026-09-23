@@ -32,7 +32,7 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
     <div className="card-organic-shadow group">
       <div className="card-organic-border">
         <div className={`card-organic-surface flex flex-col p-4 sm:p-5 ${tone}`}>
-          <Link href={`/p/${product.slug}`} className="relative block pb-2">
+          <Link href={`/p/${product.slug}`} className="relative block pb-4">
             {/* Large product-visual "stage" -- no circle, no rectangular
                 photo box. The panel itself is shaped by the
                 --card-image-mask data-URI (organic top corners + a
@@ -56,16 +56,20 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
                 height across the whole practical width range, not just
                 at a few sampled breakpoints. */}
             <div className="relative aspect-[5/4] w-full">
-              {/* -bottom-3 (not inset-0's plain bottom-0): extends the
-                  masked photo 0.75rem past the stage's own bottom edge --
-                  through the Link's pb-2 gap and right up to where the
+              {/* -bottom-4 (not inset-0's plain bottom-0): extends the
+                  masked photo 1rem past the stage's own bottom edge --
+                  through the Link's pb-4 gap and right up to where the
                   product name's own box starts (measured: 0px gap
                   remaining) -- without changing the stage's own
-                  aspect-ratio, the card's height, or where the content
-                  section below starts. The mask's `mask-size: 100% 100%`
-                  just stretches the same wave shape to fit this very
+                  aspect-ratio or the card's total height. Link's pb-2
+                  grew to pb-4 (a real, not just visual, +0.5rem) so the
+                  product name genuinely starts a bit lower than before;
+                  the content stack below was trimmed by that same
+                  0.5rem (gap-1->gap-0.5, pt-1->pt-0) to keep the card's
+                  total height unchanged. The mask's `mask-size: 100%
+                  100%` just stretches the same wave shape to fit this
                   slightly taller box. */}
-              <div className="card-image-shadow absolute inset-x-0 top-0 -bottom-3">
+              <div className="card-image-shadow absolute inset-x-0 top-0 -bottom-4">
                 <div className="card-image-mask absolute inset-0 overflow-hidden bg-white/60">
                   {/* scale-110 + object-[center_65%] (not plain
                       object-cover): the sourced product photos are
@@ -117,12 +121,14 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
             </div>
           </Link>
 
-          {/* gap-1/pt-1 (down from gap-1.5/pt-2) is a deliberate, small
-              trim of this stack's own internal whitespace -- not the
-              name/rating/button/badge sizing themselves -- freeing a
-              few px so the image above can grow without the card's
-              total height visibly changing. */}
-          <div className="flex flex-1 flex-col gap-1 pt-1 text-center">
+          {/* gap-0.5/pt-0 (down from gap-1.5/pt-2 originally, then
+              gap-1/pt-1) is a further, still-deliberate trim of this
+              stack's own internal whitespace -- not the
+              name/rating/button/badge sizing themselves -- matching the
+              0.5rem Link's pb-2->pb-4 grew by, so the card's total
+              height stays unchanged while the image above genuinely
+              extends further and this content stack starts lower. */}
+          <div className="flex flex-1 flex-col gap-0.5 pt-0 text-center">
             <Link href={`/p/${product.slug}`}>
               <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-bold text-deep-900 transition-colors group-hover:text-brand-700">
                 {name}
