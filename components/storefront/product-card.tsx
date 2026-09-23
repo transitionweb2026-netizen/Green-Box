@@ -67,12 +67,24 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
                   slightly taller box. */}
               <div className="card-image-shadow absolute inset-x-0 top-0 -bottom-3">
                 <div className="card-image-mask absolute inset-0 overflow-hidden bg-white/60">
+                  {/* scale-110 + object-[center_65%] (not plain
+                      object-cover): the sourced product photos are
+                      transparent PNGs with a soft, semi-transparent fade
+                      around the actual subject, so even with the mask
+                      box now extended to its full available height (see
+                      the -bottom-3 note above), the last stretch of that
+                      box was showing mostly faded edge rather than
+                      solid subject. Zooming in 10% and biasing the crop
+                      toward the lower 65% (vs. object-cover's default
+                      centered 50%) crops that fade away on every edge,
+                      so the dense part of the photo reaches the wavy
+                      bottom edge instead of just the box doing so. */}
                   <Image
                     src={primaryImage?.url ?? placeholderImage(fallbackKey, { variant })}
                     alt={pickLocalized(primaryImage?.alt_ar ?? name, primaryImage?.alt_en, locale)}
                     fill
                     sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 24vw"
-                    className="object-cover"
+                    className="scale-110 object-cover object-[center_65%]"
                   />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
                   {!product.is_available && (
