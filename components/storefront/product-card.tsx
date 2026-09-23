@@ -32,7 +32,7 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
     <div className="card-organic-shadow group">
       <div className="card-organic-border">
         <div className={`card-organic-surface flex flex-col p-4 sm:p-5 ${tone}`}>
-          <Link href={`/p/${product.slug}`} className="relative block pb-4">
+          <Link href={`/p/${product.slug}`} className="relative block pb-2">
             {/* Large product-visual "stage" -- no circle, no rectangular
                 photo box. The panel itself is shaped by the
                 --card-image-mask data-URI (organic top corners + a
@@ -40,8 +40,11 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
                 (not box-shadow, which the mask would cut away) lets
                 the shadow spill past that wavy edge onto the content
                 below, so the photo reads as sitting above/emerging from
-                the card rather than inset in a flat box. */}
-            <div className="relative aspect-[6/5] w-full">
+                the card rather than inset in a flat box. Sized to ~half
+                the card (aspect-[4/3], up from 6/5) with a smaller gap
+                below (pb-2, down from pb-4) so the photo reaches close
+                to the product name instead of leaving dead cream space. */}
+            <div className="relative aspect-[4/3] w-full">
               <div className="card-image-shadow absolute inset-0">
                 <div className="card-image-mask absolute inset-0 overflow-hidden bg-white/60">
                   <Image
