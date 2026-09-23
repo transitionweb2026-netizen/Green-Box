@@ -56,16 +56,16 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
                 height across the whole practical width range, not just
                 at a few sampled breakpoints. */}
             <div className="relative aspect-[5/4] w-full">
-              {/* -bottom-2 (not inset-0's plain bottom-0): extends the
-                  masked photo 0.5rem past the stage's own bottom edge,
-                  into the pb-2 gap below (currently empty space) so the
-                  organic edge visually reaches closer to the product
-                  name -- without changing the stage's own aspect-ratio,
-                  the card's height, or where the content section below
-                  starts. The mask's `mask-size: 100% 100%` just stretches
-                  the same wave shape to fit this very slightly taller
-                  box. */}
-              <div className="card-image-shadow absolute inset-x-0 top-0 -bottom-2">
+              {/* -bottom-3 (not inset-0's plain bottom-0): extends the
+                  masked photo 0.75rem past the stage's own bottom edge --
+                  through the Link's pb-2 gap and right up to where the
+                  product name's own box starts (measured: 0px gap
+                  remaining) -- without changing the stage's own
+                  aspect-ratio, the card's height, or where the content
+                  section below starts. The mask's `mask-size: 100% 100%`
+                  just stretches the same wave shape to fit this very
+                  slightly taller box. */}
+              <div className="card-image-shadow absolute inset-x-0 top-0 -bottom-3">
                 <div className="card-image-mask absolute inset-0 overflow-hidden bg-white/60">
                   <Image
                     src={primaryImage?.url ?? placeholderImage(fallbackKey, { variant })}
