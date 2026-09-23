@@ -56,20 +56,25 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
                 height across the whole practical width range, not just
                 at a few sampled breakpoints. */}
             <div className="relative aspect-[5/4] w-full">
-              {/* -bottom-4 (not inset-0's plain bottom-0): extends the
-                  masked photo 1rem past the stage's own bottom edge --
-                  through the Link's pb-4 gap and right up to where the
-                  product name's own box starts (measured: 0px gap
-                  remaining) -- without changing the stage's own
-                  aspect-ratio or the card's total height. Link's pb-2
-                  grew to pb-4 (a real, not just visual, +0.5rem) so the
-                  product name genuinely starts a bit lower than before;
-                  the content stack below was trimmed by that same
-                  0.5rem (gap-1->gap-0.5, pt-1->pt-0) to keep the card's
-                  total height unchanged. The mask's `mask-size: 100%
-                  100%` just stretches the same wave shape to fit this
-                  slightly taller box. */}
-              <div className="card-image-shadow absolute inset-x-0 top-0 -bottom-4">
+              {/* -bottom-10 (not inset-0's plain bottom-0, and bumped up
+                  from an earlier -bottom-4): the organic wave in
+                  --card-image-mask isn't a flat line, so even with the
+                  box's bounding rect already touching the product name
+                  (0px gap by that measure alone), the wave's SHALLOW
+                  points (its left/right edges) were leaving a large
+                  visible cream gap down to the name -- exactly what was
+                  reported from a screenshot cropped at the card's left
+                  edge. This value was picked empirically (verified with
+                  real screenshots, full-width crops so the text isn't
+                  cut off in a way that looks like overlap when it isn't)
+                  rather than computed from the mask's SVG path -- the
+                  path's control points make the curve's actual deepest
+                  reach hard to predict by hand, and a much larger value
+                  tried first (based on that hand math) genuinely did
+                  overlap the product name. -bottom-10 visibly closes
+                  much of the shallow-edge gap with no overlap anywhere
+                  on the card, at both mobile and desktop widths. */}
+              <div className="card-image-shadow absolute inset-x-0 top-0 -bottom-10">
                 <div className="card-image-mask absolute inset-0 overflow-hidden bg-white/60">
                   {/* scale-110 + object-[center_65%] (not plain
                       object-cover): the sourced product photos are
