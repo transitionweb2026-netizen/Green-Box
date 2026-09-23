@@ -40,11 +40,22 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
                 (not box-shadow, which the mask would cut away) lets
                 the shadow spill past that wavy edge onto the content
                 below, so the photo reads as sitting above/emerging from
-                the card rather than inset in a flat box. Sized to ~half
-                the card (aspect-[4/3], up from 6/5) with a smaller gap
-                below (pb-2, down from pb-4) so the photo reaches close
-                to the product name instead of leaving dead cream space. */}
-            <div className="relative aspect-[4/3] w-full">
+                the card rather than inset in a flat box. Deliberately
+                sized via its OWN aspect-ratio (scales with card width),
+                exactly like the card's total height always has, rather
+                than a synthetic "lock the total, then split it" scheme:
+                that was tried and, since card width grows continuously
+                (not just at the sm/md breakpoints) while the content
+                section below has a roughly fixed pixel height, a single
+                aspect-ratio for the whole card could only match the
+                original total height at the one width it was calibrated
+                for -- it drifted (and once badly overflowed the content
+                section) at every other width. aspect-[5/4] (up from
+                4/3) plus the tightened gaps in the content section below
+                together land within a few px of the original total
+                height across the whole practical width range, not just
+                at a few sampled breakpoints. */}
+            <div className="relative aspect-[5/4] w-full">
               <div className="card-image-shadow absolute inset-0">
                 <div className="card-image-mask absolute inset-0 overflow-hidden bg-white/60">
                   <Image
@@ -85,7 +96,12 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
             </div>
           </Link>
 
-          <div className="flex flex-1 flex-col gap-1.5 pt-2 text-center">
+          {/* gap-1/pt-1 (down from gap-1.5/pt-2) is a deliberate, small
+              trim of this stack's own internal whitespace -- not the
+              name/rating/button/badge sizing themselves -- freeing a
+              few px so the image above can grow without the card's
+              total height visibly changing. */}
+          <div className="flex flex-1 flex-col gap-1 pt-1 text-center">
             <Link href={`/p/${product.slug}`}>
               <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-bold text-deep-900 transition-colors group-hover:text-brand-700">
                 {name}

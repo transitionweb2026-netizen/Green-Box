@@ -14,7 +14,7 @@ export function ProductCardSkeleton() {
     <div className="card-organic-shadow">
       <div className="card-organic-border">
         <div className="card-organic-surface flex flex-col bg-brand-50 p-4 sm:p-5">
-          <Skeleton className="card-image-mask aspect-[4/3] w-full" />
+          <Skeleton className="card-image-mask aspect-[5/4] w-full" />
           <div className="flex flex-col gap-2 pt-3">
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-3 w-1/3" />
