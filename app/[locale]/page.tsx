@@ -65,25 +65,11 @@ export default async function HomePage() {
     },
   ];
 
-  const vegetablesCategory = categories.find((c) => c.slug === "fresh-vegetables");
-  const fruitsCategory = categories.find((c) => c.slug === "fresh-fruits");
-  const heroCategoryShortcuts = [
-    vegetablesCategory && {
-      href: `/c/${vegetablesCategory.slug}`,
-      name: pickLocalized(vegetablesCategory.name_ar, vegetablesCategory.name_en, locale),
-      image: vegetablesCategory.image_url || placeholderImage("vegetables", { width: 80, height: 80 }),
-    },
-    fruitsCategory && {
-      href: `/c/${fruitsCategory.slug}`,
-      name: pickLocalized(fruitsCategory.name_ar, fruitsCategory.name_en, locale),
-      image: fruitsCategory.image_url || placeholderImage("fruits", { width: 80, height: 80 }),
-    },
-    {
-      href: "/search?q=herbs",
-      name: t("home.herbsShortcut"),
-      image: placeholderImage("herbs", { width: 80, height: 80 }),
-    },
-  ].filter((x): x is { href: string; name: string; image: string } => Boolean(x));
+  const heroCategoryShortcuts = categories.map((category) => ({
+    href: `/c/${category.slug}`,
+    name: pickLocalized(category.name_ar, category.name_en, locale),
+    image: category.image_url || placeholderImage(categoryPlaceholderKey(category.slug), { width: 80, height: 80 }),
+  }));
 
   const trustItems = [
     { icon: Leaf, title: t("home.trustFreshTitle") },
@@ -130,28 +116,31 @@ export default async function HomePage() {
           cartSummary={<HeroCartSummary />}
         />
 
-        {/* Category shortcuts -- exactly 3, matching the reference
-            (Vegetables / Fruits / Herbs). Vegetables and Fruits link to the
-            real matching categories; there is no dedicated "Herbs" category
-            in the catalog today, so that pill goes to a real search result
-            instead of a fabricated category link. */}
-        <div className="relative mx-auto max-w-7xl px-4 pb-10">
-          <div className="flex flex-wrap justify-center gap-3">
-            {heroCategoryShortcuts.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="glass glass-hover flex items-center gap-3 !rounded-full py-2 pe-6 ps-2"
-              >
-                <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-brand-50">
-                  <Image src={item.image} alt={item.name} fill sizes="44px" className="object-cover" />
-                </span>
-                <span className="text-base font-bold text-deep-800">{item.name}</span>
-                <ArrowIcon className="h-4 w-4 text-brand-600" />
-              </Link>
-            ))}
+        {/* Category shortcuts -- every real active category as a pill,
+            right under the hero (previously a hardcoded 3: Vegetables /
+            Fruits / a fabricated "Herbs" search link; the rest only
+            appeared in the "Shop by category" grid further down the page).
+            Same category list/order as that grid, just rendered as pills
+            here instead of large cards. */}
+        {heroCategoryShortcuts.length > 0 && (
+          <div className="relative mx-auto max-w-7xl px-4 pb-10">
+            <div className="flex flex-wrap justify-center gap-3">
+              {heroCategoryShortcuts.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="glass glass-hover flex items-center gap-3 !rounded-full py-2 pe-6 ps-2"
+                >
+                  <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-brand-50">
+                    <Image src={item.image} alt={item.name} fill sizes="44px" className="object-cover" />
+                  </span>
+                  <span className="text-base font-bold text-deep-800">{item.name}</span>
+                  <ArrowIcon className="h-4 w-4 text-brand-600" />
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* Compact trust strip */}
