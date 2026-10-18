@@ -228,9 +228,29 @@ export async function setPrimaryProductImageAction(productId: string, imageId: s
   revalidateStorefrontProductPaths();
 }
 
-export async function setBoxContentsAction(productId: string, items: { productId: string; quantity: number }[]) {
-  await adminSetBoxContents(productId, items);
+export type SetBoxContentsState = { status: "idle" | "error"; message?: string };
+
+/**
+ * Previously threw straight out of the action on any failure (e.g. the
+ * underlying admin_set_box_contents RPC rejecting a value it doesn't
+ * accept) -- same crash-to-generic-error-boundary bug as the image
+ * upload actions had before they were fixed, since BoxContentsEditor's
+ * save() never caught anything either. Now returns a real state so the
+ * editor can show the actual reason instead of crashing the page.
+ */
+export async function setBoxContentsAction(
+  productId: string,
+  items: { productId: string; quantity: number }[],
+): Promise<SetBoxContentsState> {
+  try {
+    await adminSetBoxContents(productId, items);
+  } catch (err) {
+    return { status: "error", message: err instanceof Error ? err.message : "فشل حفظ محتويات الصندوق" };
+  }
+
   revalidatePath(`/admin/products/${productId}/edit`);
+  revalidatePath(`/admin/boxes/${productId}/edit`);
   revalidateTag("products", "max");
   revalidateStorefrontProductPaths();
+  return { status: "idle" };
 }

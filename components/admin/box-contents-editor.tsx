@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FormMessage } from "@/components/ui/form-message";
 import { setBoxContentsAction } from "@/app/admin/(dashboard)/products/actions";
 import type { Product } from "@/lib/services/catalog";
 
@@ -43,6 +44,7 @@ export function BoxContentsEditor({
   const [selectedProductId, setSelectedProductId] = useState("");
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function addItem() {
     if (!selectedProductId || items.some((i) => i.productId === selectedProductId)) return;
@@ -67,8 +69,13 @@ export function BoxContentsEditor({
   }
 
   function save() {
+    setError(null);
     startTransition(async () => {
-      await setBoxContentsAction(boxProductId, items);
+      const result = await setBoxContentsAction(boxProductId, items);
+      if (result.status === "error") {
+        setError(result.message ?? "فشل حفظ محتويات الصندوق");
+        return;
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
     });
@@ -168,6 +175,7 @@ export function BoxContentsEditor({
           محفوظ
         </Badge>
       )}
+      {error && <FormMessage className="mt-1.5">{error}</FormMessage>}
     </Card>
   );
 }
