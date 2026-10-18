@@ -1,5 +1,8 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
+import { setDeepValue, deleteDeepValue } from "@/lib/i18n/deep-object";
 import type { Json, Tables, TablesInsert, TablesUpdate } from "@/types/database";
 
 export type Banner = Tables<"banners">;
@@ -56,6 +59,22 @@ export interface HomepageContent {
   finalCtaTitle_en?: string;
   finalCtaDescription_ar?: string;
   finalCtaDescription_en?: string;
+}
+
+/**
+ * The two hero images that had no upload path at all before this: the
+ * permanent branded box+produce composition (shown whenever no admin
+ * banner is configured -- see components/storefront/hero-carousel.tsx's
+ * BOX_COMPOSITION_IMAGE) and the hero section's botanical backdrop (see
+ * app/[locale]/page.tsx's inline background-image). Both fall back to
+ * their shipped static asset when unset, so nothing breaks before an
+ * admin uploads a replacement. The rotating banner images themselves
+ * (shown once any banner exists) are already admin-uploadable via the
+ * existing banners table/BannerManager and aren't duplicated here.
+ */
+export interface HeroImages {
+  boxCompositionUrl?: string;
+  backgroundUrl?: string;
 }
 
 /**
@@ -158,6 +177,39 @@ export async function getSetting<T = Json>(key: string): Promise<T | null> {
   return (data?.value as T) ?? null;
 }
 
+/**
+ * The sitewide translation-override system (see /admin/translations):
+ * admin-entered replacement text for any next-intl message key, stored
+ * as a sparse nested JSON blob matching the real shape of
+ * messages/{locale}.json (only overridden keys present), reusing the
+ * same generic `settings` table as every other CMS blob here -- one row
+ * per locale, keyed "i18n_overrides_ar" / "i18n_overrides_en".
+ *
+ * Deliberately cached with the cookie-free public client + unstable_cache
+ * (same pattern as listActiveCategories above), unlike plain getSetting:
+ * i18n/request.ts calls this on every single page render across the
+ * whole app to build next-intl's message object, so this is the
+ * highest-traffic read in the entire CMS system and an uncached
+ * cookie-bound query here would add real latency sitewide. Not
+ * personalized (identical for every visitor of a given locale), so the
+ * public client is safe here for the same reason it's safe for the
+ * catalog reads.
+ */
+export const getTranslationOverrides = unstable_cache(
+  async (locale: string): Promise<Record<string, Json>> => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", `i18n_overrides_${locale}`)
+      .maybeSingle();
+    if (error) throw error;
+    return (data?.value as Record<string, Json>) ?? {};
+  },
+  ["i18n-overrides"],
+  { revalidate: 60, tags: ["i18n-overrides"] },
+);
+
 // --- Admin -------------------------------------------------------------
 
 export async function adminListBanners(): Promise<Banner[]> {
@@ -210,4 +262,42 @@ export async function adminListSettings(): Promise<Setting[]> {
   const { data, error } = await supabase.from("settings").select("*").order("key", { ascending: true });
   if (error) throw error;
   return data ?? [];
+}
+
+/** Uncached, fresh read for the /admin/translations editor -- the
+ * public getTranslationOverrides above is 60s-cached, which would make
+ * an admin's own just-saved edit appear to silently fail to save when
+ * they immediately look at the editor again. */
+export async function adminGetTranslationOverrides(locale: string): Promise<Record<string, Json>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", `i18n_overrides_${locale}`)
+    .maybeSingle();
+  if (error) throw error;
+  return (data?.value as Record<string, Json>) ?? {};
+}
+
+/**
+ * Applies a batch of edits to one locale's override blob in a single
+ * read-modify-write (not a full overwrite, so concurrent edits to
+ * different namespaces never clobber each other). `value: null` (or an
+ * empty string) removes that key's override entirely -- "reset to
+ * default" -- rather than storing an empty string that would otherwise
+ * win over the real translated default.
+ */
+export async function adminUpdateTranslationOverrides(
+  locale: string,
+  updates: { path: string; value: string | null }[],
+): Promise<void> {
+  const current = await adminGetTranslationOverrides(locale);
+  let next: Record<string, Json> = current;
+  for (const { path, value } of updates) {
+    next = (value && value.trim() ? setDeepValue(next, path, value) : deleteDeepValue(next, path)) as Record<
+      string,
+      Json
+    >;
+  }
+  await adminUpsertSetting(`i18n_overrides_${locale}`, next, `Admin translation overrides (${locale})`);
 }

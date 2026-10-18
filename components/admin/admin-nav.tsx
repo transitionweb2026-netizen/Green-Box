@@ -19,6 +19,7 @@ import {
   Quote,
   Mail,
   ChefHat,
+  Languages,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -38,6 +39,7 @@ const SECTIONS = [
   { href: "/admin/subscriptions", label: "الاشتراكات", icon: RefreshCw },
   { href: "/admin/staff", label: "الموظفون", icon: ShieldCheck },
   { href: "/admin/content", label: "المحتوى", icon: FileText },
+  { href: "/admin/translations", label: "نصوص الموقع", icon: Languages },
   { href: "/admin/newsletter", label: "النشرة البريدية", icon: Mail },
 ];
 

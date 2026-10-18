@@ -3,6 +3,7 @@ import {
   adminListBanners,
   getSetting,
   type FaqContent,
+  type HeroImages,
   type HomepageContent,
   type OurStoryContent,
   type StoreInfo,
@@ -11,6 +12,7 @@ import {
 } from "@/lib/services/content";
 import { Card } from "@/components/ui/card";
 import { BannerManager } from "@/components/admin/banner-manager";
+import { HeroImagesManager } from "@/components/admin/hero-images-manager";
 import { StoreSettingsForm } from "@/components/admin/store-settings-form";
 import { ReservationSettingsForm } from "@/components/admin/reservation-settings-form";
 import { OrderPolicySettingsForm } from "@/components/admin/order-policy-settings-form";
@@ -40,6 +42,7 @@ export default async function AdminContentPage() {
     termsContent,
     ourStoryContent,
     sustainabilityContent,
+    heroImages,
   ] = await Promise.all([
     adminListBanners(),
     getSetting<StoreInfo>("store_info"),
@@ -50,6 +53,7 @@ export default async function AdminContentPage() {
     getSetting<TermsContent>("terms_content"),
     getSetting<OurStoryContent>("our_story_content"),
     getSetting<SustainabilityContent>("sustainability_content"),
+    getSetting<HeroImages>("hero_images"),
   ]);
 
   return (
@@ -64,6 +68,9 @@ export default async function AdminContentPage() {
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card tone="glass">
           <BannerManager banners={banners} />
+        </Card>
+        <Card tone="glass">
+          <HeroImagesManager images={heroImages} />
         </Card>
         <Card tone="glass">
           <h2 className="mb-4 font-bold text-foreground">إعدادات المتجر</h2>

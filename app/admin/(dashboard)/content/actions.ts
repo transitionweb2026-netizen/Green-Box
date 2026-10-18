@@ -2,7 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { adminCreateBanner, adminDeleteBanner, adminGetBanner, adminUpdateBanner, adminUpsertSetting } from "@/lib/services/content";
+import {
+  adminCreateBanner,
+  adminDeleteBanner,
+  adminGetBanner,
+  adminUpdateBanner,
+  adminUpsertSetting,
+  getSetting,
+  type HeroImages,
+} from "@/lib/services/content";
 import { uploadMediaFile, deleteMediaFile } from "@/lib/services/storage";
 
 export type BannerActionState = { status: "idle" | "error"; message?: string };
@@ -346,4 +354,38 @@ export async function updateReservationSettingsAction(
 
   revalidatePath("/admin/content");
   return { status: "success" };
+}
+
+export type HeroImageActionState = { status: "idle" | "error"; message?: string };
+
+/** One upload slot ("box" or "background") at a time -- same single-file-
+ * per-submit shape as BannerImageSlot's updateBannerImagesAction, so the
+ * same auto-submit-on-file-select UI pattern works unchanged here. */
+export async function updateHeroImageAction(
+  slot: "box" | "background",
+  formData: FormData,
+): Promise<HeroImageActionState> {
+  const file = formData.get("image") as File | null;
+  if (!file || file.size === 0) return { status: "idle" };
+
+  const existing = (await getSetting<HeroImages>("hero_images")) ?? {};
+  let url: string;
+  try {
+    url = await uploadMediaFile("banners", file);
+  } catch (err) {
+    return { status: "error", message: err instanceof Error ? err.message : "فشل رفع الصورة" };
+  }
+
+  const key = slot === "box" ? "boxCompositionUrl" : "backgroundUrl";
+  const previousUrl = existing[key];
+  await adminUpsertSetting(
+    "hero_images",
+    { ...existing, [key]: url },
+    "Hero section images (box composition + background) -- falls back to the built-in asset when unset.",
+  );
+  if (previousUrl) await deleteMediaFile(previousUrl).catch(() => {});
+
+  revalidatePath("/admin/content");
+  revalidatePath("/[locale]", "page");
+  return { status: "idle" };
 }

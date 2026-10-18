@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { listActiveCategories, listProducts, getBoxContents } from "@/lib/services/catalog";
-import { listActiveBanners, getSetting, type HomepageContent } from "@/lib/services/content";
+import { listActiveBanners, getSetting, type HeroImages, type HomepageContent } from "@/lib/services/content";
 import { listActiveReviews } from "@/lib/services/reviews";
 import { pickLocalized, pickLocalizedOrDefault } from "@/lib/i18n/localized";
 import { placeholderImage, categoryPlaceholderKey } from "@/lib/media/placeholders";
@@ -34,13 +34,14 @@ export default async function HomePage() {
   const isAr = locale === "ar";
   const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
 
-  const [categories, featured, boxProducts, banners, content, testimonials] = await Promise.all([
+  const [categories, featured, boxProducts, banners, content, testimonials, heroImages] = await Promise.all([
     listActiveCategories(),
     listProducts({ featured: true, pageSize: 8 }),
     listProducts({ productType: "box", pageSize: 6 }),
     listActiveBanners(),
     getSetting<HomepageContent>("homepage_content"),
     listActiveReviews(6),
+    getSetting<HeroImages>("hero_images"),
   ]);
 
   const cms = (ar?: string, en?: string, fallback?: string) => pickLocalizedOrDefault(ar, en, locale, fallback ?? "");
@@ -131,7 +132,10 @@ export default async function HomePage() {
             plain cream canvas. */}
         <div
           className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: "url(/images/hero-bg-botanical.webp)", filter: "saturate(1.55) contrast(1.12) brightness(0.95)" }}
+          style={{
+            backgroundImage: `url(${heroImages?.backgroundUrl || "/images/hero-bg-botanical.webp"})`,
+            filter: "saturate(1.55) contrast(1.12) brightness(0.95)",
+          }}
           aria-hidden="true"
         />
         <HeroCarousel
@@ -143,6 +147,7 @@ export default async function HomePage() {
           heroSubtitleFallback={t("home.heroSubtitle")}
           heroCta={t("home.heroCta")}
           heroNote={t("home.heroNote")}
+          boxCompositionImage={heroImages?.boxCompositionUrl}
           cartSummary={<HeroCartSummary />}
         />
 

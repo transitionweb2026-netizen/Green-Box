@@ -51,6 +51,7 @@ export function HeroCarousel({
   heroSubtitleFallback,
   heroCta,
   heroNote,
+  boxCompositionImage,
   cartSummary,
 }: {
   banners: Banner[];
@@ -61,6 +62,10 @@ export function HeroCarousel({
   heroSubtitleFallback: string;
   heroCta: string;
   heroNote: string;
+  /** Admin-uploaded replacement for BOX_COMPOSITION_IMAGE below (see
+   * lib/services/content.ts's HeroImages) -- falls back to the shipped
+   * asset when unset. */
+  boxCompositionImage?: string;
   /** Rendered server-side (it reads the real cart) and handed down as a
    * slot -- a client component can't import/invoke an async Server
    * Component itself, but it can render one passed in as a prop/child. */
@@ -230,7 +235,7 @@ export function HeroCarousel({
               aria-hidden="true"
             />
             <Image
-              src={BOX_COMPOSITION_IMAGE}
+              src={boxCompositionImage || BOX_COMPOSITION_IMAGE}
               alt={heroHeadline}
               fill
               priority
