@@ -14,6 +14,22 @@ interface BoxItemEntry {
   quantity: number;
 }
 
+/**
+ * box_items.quantity is numeric(10,2) -- already decimal-capable, no
+ * migration needed. What was missing was purely this input: a plain
+ * whole-number stepper for every item regardless of what it actually
+ * is. For a product the admin has marked "sold by weight" (same flag
+ * grocery pricing already uses, product-form.tsx), quantity here means
+ * kilograms directly (e.g. 1.5 = "1.5 كجم") -- a different unit than
+ * the live gram-stepper purchase flow (product-purchase-form.tsx, which
+ * steps in whole grams since quantity there IS the live order amount
+ * tied to a per-gram price), but this is a purely descriptive "how much
+ * of this is in the box" label with no price calculation behind it, so
+ * kg at 2-decimal precision (matching the column) is the natural unit
+ * for an admin typing it in. Everything else keeps the original
+ * whole-number piece count.
+ */
+
 export function BoxContentsEditor({
   boxProductId,
   availableProducts,
@@ -92,13 +108,28 @@ export function BoxContentsEditor({
                 </button>
               </div>
               <span className="flex-1 text-sm font-medium text-foreground">{product?.name_ar ?? item.productId}</span>
-              <input
-                type="number"
-                min={1}
-                value={item.quantity}
-                onChange={(e) => updateQuantity(item.productId, Math.max(1, Number(e.target.value)))}
-                className="h-9 w-20 rounded-lg border border-border bg-white px-2 text-sm"
-              />
+              {product?.sold_by_weight ? (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    min={0.05}
+                    step={0.05}
+                    value={item.quantity}
+                    onChange={(e) => updateQuantity(item.productId, Math.max(0.05, Number(e.target.value) || 0))}
+                    className="h-9 w-20 rounded-lg border border-border bg-white px-2 text-sm"
+                  />
+                  <span className="text-xs font-medium text-muted-2">كجم</span>
+                </div>
+              ) : (
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={item.quantity}
+                  onChange={(e) => updateQuantity(item.productId, Math.max(1, Math.round(Number(e.target.value) || 1)))}
+                  className="h-9 w-20 rounded-lg border border-border bg-white px-2 text-sm"
+                />
+              )}
               <button
                 type="button"
                 onClick={() => removeItem(item.productId)}

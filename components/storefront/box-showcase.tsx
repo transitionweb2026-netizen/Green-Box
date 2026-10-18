@@ -7,10 +7,14 @@ import { AppImage as Image } from "@/components/ui/app-image";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { PriceDisplay } from "@/components/ui/price-display";
+import { formatBoxItemQuantity } from "@/lib/i18n/box-item-quantity";
 
 export interface BoxShowcaseItem {
   id: string;
   quantity: number;
+  /** When true, `quantity` is kilograms ("1.5 كجم") rather than a piece
+   * count ("×2") -- see box-contents-editor.tsx's doc comment. */
+  soldByWeight: boolean;
   name: string;
   image: string | null;
 }
@@ -158,7 +162,7 @@ export function BoxShowcase({ boxes, placeholderImage }: { boxes: BoxShowcaseBox
                         )}
                       </span>
                       <span className="min-w-0 flex-1 truncate text-sm text-foreground">{entry.name}</span>
-                      <Badge tone="brand">×{entry.quantity}</Badge>
+                      <Badge tone="brand">{formatBoxItemQuantity(entry.quantity, entry.soldByWeight, tProduct("kilograms"))}</Badge>
                     </li>
                   ))}
                 </ul>

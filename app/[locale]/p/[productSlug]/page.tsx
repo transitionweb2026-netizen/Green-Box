@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getBoxContents, getProductBySlug, listRecommendedProducts } from "@/lib/services/catalog";
 import { pickLocalized } from "@/lib/i18n/localized";
+import { formatBoxItemQuantity } from "@/lib/i18n/box-item-quantity";
 import { getSiteOrigin } from "@/lib/seo/site-url";
 import { categoryPlaceholderKey } from "@/lib/media/placeholders";
 import { Badge } from "@/components/ui/badge";
@@ -213,7 +214,9 @@ export default async function ProductPage({ params }: PageProps) {
                     className="flex items-center justify-between rounded-xl border border-border bg-white/60 px-3.5 py-2.5 text-sm"
                   >
                     <span className="text-foreground">{pickLocalized(entry.item.name_ar, entry.item.name_en, locale)}</span>
-                    <Badge tone="brand">×{entry.quantity}</Badge>
+                    <Badge tone="brand">
+                      {formatBoxItemQuantity(entry.quantity, entry.item.sold_by_weight, t("kilograms"))}
+                    </Badge>
                   </li>
                 ))}
               </ul>
