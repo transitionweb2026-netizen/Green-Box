@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { Link } from "@/i18n/navigation";
 import { pickLocalized } from "@/lib/i18n/localized";
+import { cn } from "@/lib/utils/cn";
 import type { Banner } from "@/lib/services/content";
 
 // Fixed local asset (public/images/hero.jpg) -- deliberately NOT the live
@@ -133,10 +134,29 @@ export function HeroCarousel({
             space into its own line box (room for tall ascenders/loops)
             even at leading-none, so closing the gap to the line above --
             and to the subtitle below -- takes negative margins, not just
-            removing positive ones. */}
+            removing positive ones. Those margins are Caveat-specific: for
+            Arabic, font-script's own fallback chain (--font-caveat,
+            --font-cairo, cursive) already renders this span in Cairo
+            instead (Caveat has no Arabic glyphs), which has a normal
+            line-box, so it gets a plain small positive margin instead.
+            The Arabic accent text is also a noticeably smaller size: at
+            the English sizes, the two-word Arabic translation ("بأسلوب
+            جديد", vs. the single word "reimagined") wrapped onto two
+            lines inside this column, turning the headline into three
+            lines instead of two and breaking the match to the English
+            layout far more than any margin tweak -- this isn't a
+            translation-length edge case, it reproduces at every
+            breakpoint, so the fix is sizing, not copy. */}
         <h1 className="mt-3 leading-[0.95] font-black text-deep-900">
           <span className="font-sticker block text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem]">{heroHeadline}</span>
-          <span className="font-script -mt-3 block text-6xl leading-none text-brand-600 sm:-mt-4 sm:text-7xl lg:-mt-5 lg:text-8xl xl:-mt-7 xl:text-9xl">
+          <span
+            className={cn(
+              "font-script block text-brand-600",
+              isAr
+                ? "mt-1 text-4xl leading-tight sm:text-5xl lg:text-6xl xl:text-7xl"
+                : "-mt-3 text-6xl leading-none sm:-mt-4 sm:text-7xl lg:-mt-5 lg:text-8xl xl:-mt-7 xl:text-9xl",
+            )}
+          >
             {heroHeadlineAccent}
           </span>
         </h1>
