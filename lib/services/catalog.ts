@@ -315,6 +315,20 @@ export async function adminDeleteCategory(id: string): Promise<void> {
 
 // --- Admin: products -------------------------------------------------
 
+/** All box-type products (available and archived alike, so an admin can
+ * find and re-enable a hidden one) with their images, for the dedicated
+ * /admin/boxes list -- see app/admin/(dashboard)/boxes/page.tsx. */
+export async function adminListBoxes(): Promise<ProductWithImages[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*, product_images(*)")
+    .eq("product_type", "box")
+    .order("display_order", { ascending: true });
+  if (error) throw error;
+  return (data as ProductWithImages[]) ?? [];
+}
+
 export interface AdminListProductsOptions {
   categoryId?: string;
   search?: string;
