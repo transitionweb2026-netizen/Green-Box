@@ -226,14 +226,14 @@ export interface BoxContentItem {
   id: string;
   quantity: number;
   display_order: number;
-  item: Product;
+  item: ProductWithImages;
 }
 
 export async function getBoxContents(boxProductId: string): Promise<BoxContentItem[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("box_items")
-    .select("id, quantity, display_order, item:products!box_items_item_product_id_fkey(*)")
+    .select("id, quantity, display_order, item:products!box_items_item_product_id_fkey(*, product_images(*))")
     .eq("box_product_id", boxProductId)
     .order("display_order", { ascending: true });
   if (error) throw error;

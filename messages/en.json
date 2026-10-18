@@ -77,6 +77,8 @@
     "greenBoxTitle": "A curated box of fresh essentials, ready in one click",
     "greenBoxDescription": "Skip the item-by-item shopping. Each Green Box is a hand-picked bundle of fresh produce and essentials at one simple price.",
     "greenBoxCta": "Explore Green Box",
+    "boxViewContents": "View contents",
+    "boxesEmptyNotice": "No boxes are available right now -- check back soon.",
     "loyaltyEyebrow": "Green Box Rewards",
     "loyaltyTitle": "Every order brings you closer to a reward",
     "loyaltyDescription": "Earn points automatically on every delivered order, then redeem them for real discounts at checkout.",

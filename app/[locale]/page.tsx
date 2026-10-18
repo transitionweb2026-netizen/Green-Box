@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
-import { listActiveCategories, listProducts } from "@/lib/services/catalog";
+import { listActiveCategories, listProducts, getBoxContents } from "@/lib/services/catalog";
 import { listActiveBanners, getSetting, type HomepageContent } from "@/lib/services/content";
 import { listActiveReviews } from "@/lib/services/reviews";
 import { pickLocalized, pickLocalizedOrDefault } from "@/lib/i18n/localized";
@@ -16,6 +16,7 @@ import { getSiteOrigin } from "@/lib/seo/site-url";
 import { ProductCard } from "@/components/storefront/product-card";
 import { HeroCarousel } from "@/components/storefront/hero-carousel";
 import { HeroCartSummary } from "@/components/storefront/hero-cart-summary";
+import { BoxShowcase, type BoxShowcaseBox } from "@/components/storefront/box-showcase";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -33,15 +34,44 @@ export default async function HomePage() {
   const isAr = locale === "ar";
   const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
 
-  const [categories, featured, banners, content, testimonials] = await Promise.all([
+  const [categories, featured, boxProducts, banners, content, testimonials] = await Promise.all([
     listActiveCategories(),
     listProducts({ featured: true, pageSize: 8 }),
+    listProducts({ productType: "box", pageSize: 6 }),
     listActiveBanners(),
     getSetting<HomepageContent>("homepage_content"),
     listActiveReviews(6),
   ]);
 
   const cms = (ar?: string, en?: string, fallback?: string) => pickLocalizedOrDefault(ar, en, locale, fallback ?? "");
+
+  // Each box's contents are fetched alongside its own product row (not a
+  // separate client round-trip) so the homepage's box popup opens
+  // instantly with no loading state -- six boxes' worth of box_items is a
+  // small, cheap payload next to the rest of this page's data.
+  const boxShowcaseItems: BoxShowcaseBox[] = await Promise.all(
+    boxProducts.products.map(async (product) => {
+      const contents = await getBoxContents(product.id);
+      const primaryImage = product.product_images.find((img) => img.is_primary) ?? product.product_images[0];
+      return {
+        id: product.id,
+        slug: product.slug,
+        name: pickLocalized(product.name_ar, product.name_en, locale),
+        description: pickLocalized(product.description_ar ?? "", product.description_en, locale),
+        price: product.price,
+        image: primaryImage?.url ?? null,
+        contents: contents.map((entry) => {
+          const itemImage = entry.item.product_images.find((img) => img.is_primary) ?? entry.item.product_images[0];
+          return {
+            id: entry.id,
+            quantity: entry.quantity,
+            name: pickLocalized(entry.item.name_ar, entry.item.name_en, locale),
+            image: itemImage?.url ?? null,
+          };
+        }),
+      };
+    }),
+  );
 
   const origin = await getSiteOrigin();
   const siteName = t("common.siteName");
@@ -270,31 +300,49 @@ export default async function HomePage() {
 
         {/* Green Box Boxes -- signature, editorial, dominant section */}
         <section className="mt-20 sm:mt-28">
-          <div className="bg-deep-gradient relative grid gap-8 overflow-hidden rounded-[var(--radius-card)] p-8 sm:p-14 lg:grid-cols-2 lg:items-center lg:gap-14 lg:p-20">
-            <div className="blob h-72 w-72 bg-brand-500/20 -top-16 -start-16 animate-float-slow" aria-hidden="true" />
-            <div className="relative order-2 lg:order-1">
-              <Badge tone="brand" className="bg-white/10 text-brand-300 ring-brand-300/30">
-                {t("home.greenBoxEyebrow")}
-              </Badge>
-              <h2 className="mt-5 text-3xl leading-tight font-extrabold text-white sm:text-4xl">
-                {cms(content?.greenBoxTitle_ar, content?.greenBoxTitle_en, t("home.greenBoxTitle"))}
-              </h2>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">
-                {cms(content?.greenBoxDescription_ar, content?.greenBoxDescription_en, t("home.greenBoxDescription"))}
-              </p>
-              <Link href="/box" className={`${buttonVariants({ size: "lg" })} mt-8`}>
-                {t("home.greenBoxCta")}
-                <ArrowIcon className="h-4 w-4" />
-              </Link>
+          <div className="bg-deep-gradient relative overflow-hidden rounded-[var(--radius-card)]">
+            <div className="relative grid gap-8 p-8 sm:p-14 lg:grid-cols-2 lg:items-center lg:gap-14 lg:p-20">
+              <div className="blob h-72 w-72 bg-brand-500/20 -top-16 -start-16 animate-float-slow" aria-hidden="true" />
+              <div className="relative order-2 lg:order-1">
+                <Badge tone="brand" className="bg-white/10 text-brand-300 ring-brand-300/30">
+                  {t("home.greenBoxEyebrow")}
+                </Badge>
+                <h2 className="mt-5 text-3xl leading-tight font-extrabold text-white sm:text-4xl">
+                  {cms(content?.greenBoxTitle_ar, content?.greenBoxTitle_en, t("home.greenBoxTitle"))}
+                </h2>
+                <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">
+                  {cms(content?.greenBoxDescription_ar, content?.greenBoxDescription_en, t("home.greenBoxDescription"))}
+                </p>
+                <Link href="/box" className={`${buttonVariants({ size: "lg" })} mt-8`}>
+                  {t("home.greenBoxCta")}
+                  <ArrowIcon className="h-4 w-4" />
+                </Link>
+              </div>
+              <div className="relative order-1 aspect-[4/3] overflow-hidden rounded-2xl lg:order-2 lg:aspect-square">
+                <Image
+                  src={placeholderImage("greenBox", { width: 900, height: 900 })}
+                  alt={t("home.greenBoxTitle")}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
+              </div>
             </div>
-            <div className="relative order-1 aspect-[4/3] overflow-hidden rounded-2xl lg:order-2 lg:aspect-square">
-              <Image
-                src={placeholderImage("greenBox", { width: 900, height: 900 })}
-                alt={t("home.greenBoxTitle")}
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-              />
+
+            {/* The six (or however many are active) real Green Box
+                packages -- distinct from the teaser above, which links out
+                to the full /box catalog. A plain block below the 2-column
+                teaser grid (not a 3rd grid item inside it): that grid uses
+                lg:items-center to vertically center its own two columns
+                against each other, which also centered this section's
+                content inside an inherited row height when it lived
+                inside the same grid, leaving an odd empty gap above it.
+                Clicking a card opens its contents in a popup right here
+                rather than navigating away; adding/removing boxes is the
+                existing product admin (product_type = "box"), nothing new
+                to manage. */}
+            <div className="relative px-8 pb-8 sm:px-14 sm:pb-14 lg:px-20 lg:pb-20">
+              <BoxShowcase boxes={boxShowcaseItems} placeholderImage={placeholderImage("greenBox", { width: 400, height: 400 })} />
             </div>
           </div>
         </section>
