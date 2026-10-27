@@ -15,6 +15,13 @@ import type { BoxItemQuantityUnit } from "@/types/database";
 interface BoxItemEntry {
   productId: string;
   quantity: number;
+  // Freely-typed text, separate from the numeric `quantity` -- lets an
+  // admin type a decimal kg amount ("1.5") without React reformatting the
+  // input back to "1" mid-keystroke the moment "1." parses as 1. Only
+  // re-synced from `quantity` on blur (commitQuantityText) or when the
+  // unit/quantity changes through a non-typing path (unit switch,
+  // add/create), never derived on every render.
+  quantityText: string;
   unit: BoxItemQuantityUnit;
   prepNoteAr: string;
   prepNoteEn: string;
@@ -65,6 +72,7 @@ export function BoxContentsEditor({
     initialItems.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
+      quantityText: String(item.quantity),
       unit: item.quantityUnit,
       prepNoteAr: item.prepNoteAr ?? "",
       prepNoteEn: item.prepNoteEn ?? "",
@@ -88,7 +96,11 @@ export function BoxContentsEditor({
     if (!selectedProductId || items.some((i) => i.productId === selectedProductId)) return;
     const product = availableProducts.find((p) => p.id === selectedProductId);
     const unit: BoxItemQuantityUnit = product?.sold_by_weight ? "kg" : "piece";
-    setItems([...items, { productId: selectedProductId, quantity: UNIT_CONFIG[unit].min, unit, prepNoteAr: "", prepNoteEn: "" }]);
+    const quantity = UNIT_CONFIG[unit].min;
+    setItems([
+      ...items,
+      { productId: selectedProductId, quantity, quantityText: String(quantity), unit, prepNoteAr: "", prepNoteEn: "" },
+    ]);
     setSelectedProductId("");
   }
 
@@ -105,14 +117,39 @@ export function BoxContentsEditor({
       setCreatedProducts((prev) => [...prev, result.product!]);
       setItems((prev) => [
         ...prev,
-        { productId: result.product!.id, quantity: 1, unit: "piece", prepNoteAr: "", prepNoteEn: "" },
+        { productId: result.product!.id, quantity: 1, quantityText: "1", unit: "piece", prepNoteAr: "", prepNoteEn: "" },
       ]);
       setNewProductName("");
     });
   }
 
-  function updateQuantity(productId: string, quantity: number) {
-    setItems(items.map((i) => (i.productId === productId ? { ...i, quantity } : i)));
+  // Keeps whatever the admin typed, even a not-yet-valid partial value
+  // ("1.", ""), so the input never snaps back mid-keystroke. `quantity`
+  // (the numeric value actually sent to the server) only updates once the
+  // text parses to a real number; commitQuantityText normalizes/clamps
+  // both on blur.
+  function updateQuantityText(productId: string, text: string) {
+    setItems(
+      items.map((i) => {
+        if (i.productId !== productId) return i;
+        const parsed = Number(text);
+        if (text.trim() === "" || Number.isNaN(parsed)) return { ...i, quantityText: text };
+        return { ...i, quantityText: text, quantity: parsed };
+      }),
+    );
+  }
+
+  function commitQuantityText(productId: string) {
+    setItems(
+      items.map((i) => {
+        if (i.productId !== productId) return i;
+        const config = UNIT_CONFIG[i.unit];
+        const parsed = Number(i.quantityText);
+        const raw = Number.isNaN(parsed) ? config.min : parsed;
+        const quantity = config.round ? Math.max(config.min, Math.round(raw)) : Math.max(config.min, raw);
+        return { ...i, quantity, quantityText: String(quantity) };
+      }),
+    );
   }
 
   function updateUnit(productId: string, unit: BoxItemQuantityUnit) {
@@ -121,7 +158,7 @@ export function BoxContentsEditor({
         if (i.productId !== productId) return i;
         const config = UNIT_CONFIG[unit];
         const quantity = config.round ? Math.max(config.min, Math.round(i.quantity)) : Math.max(config.min, i.quantity);
-        return { ...i, unit, quantity };
+        return { ...i, unit, quantity, quantityText: String(quantity) };
       }),
     );
   }
@@ -201,16 +238,11 @@ export function BoxContentsEditor({
                 <span className="flex-1 text-sm font-medium text-foreground">{product?.name_ar ?? item.productId}</span>
                 <div className="flex items-center gap-1.5">
                   <input
-                    type="number"
-                    min={UNIT_CONFIG[item.unit].min}
-                    step={UNIT_CONFIG[item.unit].step}
-                    value={item.quantity}
-                    onChange={(e) => {
-                      const config = UNIT_CONFIG[item.unit];
-                      const raw = Number(e.target.value) || 0;
-                      const next = config.round ? Math.max(config.min, Math.round(raw)) : Math.max(config.min, raw);
-                      updateQuantity(item.productId, next);
-                    }}
+                    type="text"
+                    inputMode={UNIT_CONFIG[item.unit].round ? "numeric" : "decimal"}
+                    value={item.quantityText}
+                    onChange={(e) => updateQuantityText(item.productId, e.target.value)}
+                    onBlur={() => commitQuantityText(item.productId)}
                     className="h-9 w-20 rounded-lg border border-border bg-white px-2 text-sm"
                   />
                   <select

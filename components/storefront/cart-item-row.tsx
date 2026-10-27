@@ -37,8 +37,34 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
   const minQuantity = soldByWeight ? (isKg ? 250 : 50) : 1;
   const displayQuantity = isKg ? Number((item.quantity / 1000).toFixed(2)) : Math.round(item.quantity);
 
+  // Freely-typed text, kept separate from `displayQuantity` so a partial
+  // kg decimal ("1.") isn't clobbered by a reformat mid-keystroke. Only
+  // re-synced when the server-confirmed quantity actually changes (a
+  // stepper click, or this input's own blur-triggered save resolving) --
+  // adjusted during render (React's documented pattern for syncing state
+  // to a changed prop) rather than in an effect, so it never lags a frame
+  // behind and never fires on every keystroke. The update itself only
+  // fires on blur/Enter, not per keystroke, so typing never spams
+  // updateCartItemAction.
+  const [prevDisplayQuantity, setPrevDisplayQuantity] = useState(displayQuantity);
+  const [quantityText, setQuantityText] = useState(String(displayQuantity));
+  if (displayQuantity !== prevDisplayQuantity) {
+    setPrevDisplayQuantity(displayQuantity);
+    setQuantityText(String(displayQuantity));
+  }
+
   function updateQuantity(quantity: number) {
     startTransition(() => updateCartItemAction(locale, item.id, Math.round(quantity)));
+  }
+
+  function commitQuantityText() {
+    const parsed = Number(quantityText);
+    if (quantityText.trim() === "" || Number.isNaN(parsed) || parsed <= 0) {
+      setQuantityText(String(displayQuantity));
+      return;
+    }
+    const grams = isKg ? parsed * 1000 : parsed;
+    updateQuantity(Math.max(minQuantity, grams));
   }
 
   function remove() {
@@ -98,8 +124,23 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
         >
           <Minus className="h-3.5 w-3.5" />
         </button>
-        <span className="flex w-12 items-baseline justify-center gap-1 text-center text-sm font-semibold">
-          {displayQuantity}
+        <span className="flex w-14 items-baseline justify-center gap-1">
+          <input
+            type="text"
+            inputMode={isKg ? "decimal" : "numeric"}
+            value={quantityText}
+            onChange={(e) => setQuantityText(e.target.value)}
+            onBlur={commitQuantityText}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
+            disabled={isPending || isUnavailable}
+            aria-label={tProduct("quantity")}
+            className="w-8 bg-transparent text-center text-sm font-semibold text-foreground focus-visible:outline-none disabled:opacity-50"
+          />
           {unit && <span className="text-[0.65rem] font-medium text-muted-2">{unit}</span>}
         </span>
         <button
