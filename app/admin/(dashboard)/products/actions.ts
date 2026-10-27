@@ -15,7 +15,7 @@ import {
 } from "@/lib/services/catalog";
 import { uploadMediaFile, deleteMediaFile } from "@/lib/services/storage";
 import { weightUnitMultiplier } from "@/lib/utils/weight-unit";
-import type { WeightUnit } from "@/types/database";
+import type { BoxItemQuantityUnit, WeightUnit } from "@/types/database";
 
 /**
  * revalidateTag("products") busts the unstable_cache DATA underneath
@@ -264,7 +264,13 @@ export type SetBoxContentsState = { status: "idle" | "error"; message?: string }
  */
 export async function setBoxContentsAction(
   productId: string,
-  items: { productId: string; quantity: number; prepNoteAr?: string | null; prepNoteEn?: string | null }[],
+  items: {
+    productId: string;
+    quantity: number;
+    quantityUnit: BoxItemQuantityUnit;
+    prepNoteAr?: string | null;
+    prepNoteEn?: string | null;
+  }[],
 ): Promise<SetBoxContentsState> {
   try {
     await adminSetBoxContents(productId, items);

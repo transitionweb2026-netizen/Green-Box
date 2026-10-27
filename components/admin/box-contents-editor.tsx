@@ -10,29 +10,39 @@ import { Badge } from "@/components/ui/badge";
 import { FormMessage } from "@/components/ui/form-message";
 import { setBoxContentsAction, quickCreateBoxItemProductAction } from "@/app/admin/(dashboard)/products/actions";
 import type { Product } from "@/lib/services/catalog";
+import type { BoxItemQuantityUnit } from "@/types/database";
 
 interface BoxItemEntry {
   productId: string;
   quantity: number;
+  unit: BoxItemQuantityUnit;
   prepNoteAr: string;
   prepNoteEn: string;
 }
 
 /**
  * box_items.quantity is numeric(10,2) -- already decimal-capable, no
- * migration needed. What was missing was purely this input: a plain
- * whole-number stepper for every item regardless of what it actually
- * is. For a product the admin has marked "sold by weight" (same flag
- * grocery pricing already uses, product-form.tsx), quantity here means
- * kilograms directly (e.g. 1.5 = "1.5 كجم") -- a different unit than
- * the live gram-stepper purchase flow (product-purchase-form.tsx, which
- * steps in whole grams since quantity there IS the live order amount
- * tied to a per-gram price), but this is a purely descriptive "how much
- * of this is in the box" label with no price calculation behind it, so
- * kg at 2-decimal precision (matching the column) is the natural unit
- * for an admin typing it in. Everything else keeps the original
- * whole-number piece count.
+ * migration needed for the number itself. The unit (`quantity_unit`,
+ * 0037_box_item_quantity_unit.sql) is a per-box-item choice the admin
+ * sets explicitly here -- piece count ("×2"), grams, or kilograms --
+ * independent of whether the contained product is itself sold by weight
+ * on the storefront (that's product-form.tsx's unrelated `sold_by_weight`
+ * flag). This is a purely descriptive "how much of this is in the box"
+ * label with no price calculation behind it, unlike the live gram-stepper
+ * purchase flow (product-purchase-form.tsx, where quantity IS the actual
+ * order amount tied to a per-gram price).
  */
+const UNIT_CONFIG: Record<BoxItemQuantityUnit, { min: number; step: number; round: boolean }> = {
+  piece: { min: 1, step: 1, round: true },
+  gram: { min: 1, step: 50, round: true },
+  kg: { min: 0.05, step: 0.05, round: false },
+};
+
+const UNIT_LABELS: Record<BoxItemQuantityUnit, string> = {
+  piece: "قطعة",
+  gram: "جرام",
+  kg: "كجم",
+};
 
 export function BoxContentsEditor({
   boxProductId,
@@ -43,12 +53,19 @@ export function BoxContentsEditor({
   boxProductId: string;
   boxCategoryId: string;
   availableProducts: Product[];
-  initialItems: { productId: string; quantity: number; prepNoteAr?: string | null; prepNoteEn?: string | null }[];
+  initialItems: {
+    productId: string;
+    quantity: number;
+    quantityUnit: BoxItemQuantityUnit;
+    prepNoteAr?: string | null;
+    prepNoteEn?: string | null;
+  }[];
 }) {
   const [items, setItems] = useState<BoxItemEntry[]>(
     initialItems.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
+      unit: item.quantityUnit,
       prepNoteAr: item.prepNoteAr ?? "",
       prepNoteEn: item.prepNoteEn ?? "",
     })),
@@ -69,7 +86,9 @@ export function BoxContentsEditor({
 
   function addItem() {
     if (!selectedProductId || items.some((i) => i.productId === selectedProductId)) return;
-    setItems([...items, { productId: selectedProductId, quantity: 1, prepNoteAr: "", prepNoteEn: "" }]);
+    const product = availableProducts.find((p) => p.id === selectedProductId);
+    const unit: BoxItemQuantityUnit = product?.sold_by_weight ? "kg" : "piece";
+    setItems([...items, { productId: selectedProductId, quantity: UNIT_CONFIG[unit].min, unit, prepNoteAr: "", prepNoteEn: "" }]);
     setSelectedProductId("");
   }
 
@@ -84,13 +103,27 @@ export function BoxContentsEditor({
         return;
       }
       setCreatedProducts((prev) => [...prev, result.product!]);
-      setItems((prev) => [...prev, { productId: result.product!.id, quantity: 1, prepNoteAr: "", prepNoteEn: "" }]);
+      setItems((prev) => [
+        ...prev,
+        { productId: result.product!.id, quantity: 1, unit: "piece", prepNoteAr: "", prepNoteEn: "" },
+      ]);
       setNewProductName("");
     });
   }
 
   function updateQuantity(productId: string, quantity: number) {
     setItems(items.map((i) => (i.productId === productId ? { ...i, quantity } : i)));
+  }
+
+  function updateUnit(productId: string, unit: BoxItemQuantityUnit) {
+    setItems(
+      items.map((i) => {
+        if (i.productId !== productId) return i;
+        const config = UNIT_CONFIG[unit];
+        const quantity = config.round ? Math.max(config.min, Math.round(i.quantity)) : Math.max(config.min, i.quantity);
+        return { ...i, unit, quantity };
+      }),
+    );
   }
 
   function updatePrepNote(productId: string, field: "prepNoteAr" | "prepNoteEn", value: string) {
@@ -117,6 +150,7 @@ export function BoxContentsEditor({
         items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
+          quantityUnit: item.unit,
           prepNoteAr: item.prepNoteAr.trim() || null,
           prepNoteEn: item.prepNoteEn.trim() || null,
         })),
@@ -165,28 +199,32 @@ export function BoxContentsEditor({
                   </button>
                 </div>
                 <span className="flex-1 text-sm font-medium text-foreground">{product?.name_ar ?? item.productId}</span>
-                {product?.sold_by_weight ? (
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      min={0.05}
-                      step={0.05}
-                      value={item.quantity}
-                      onChange={(e) => updateQuantity(item.productId, Math.max(0.05, Number(e.target.value) || 0))}
-                      className="h-9 w-20 rounded-lg border border-border bg-white px-2 text-sm"
-                    />
-                    <span className="text-xs font-medium text-muted-2">كجم</span>
-                  </div>
-                ) : (
+                <div className="flex items-center gap-1.5">
                   <input
                     type="number"
-                    min={1}
-                    step={1}
+                    min={UNIT_CONFIG[item.unit].min}
+                    step={UNIT_CONFIG[item.unit].step}
                     value={item.quantity}
-                    onChange={(e) => updateQuantity(item.productId, Math.max(1, Math.round(Number(e.target.value) || 1)))}
+                    onChange={(e) => {
+                      const config = UNIT_CONFIG[item.unit];
+                      const raw = Number(e.target.value) || 0;
+                      const next = config.round ? Math.max(config.min, Math.round(raw)) : Math.max(config.min, raw);
+                      updateQuantity(item.productId, next);
+                    }}
                     className="h-9 w-20 rounded-lg border border-border bg-white px-2 text-sm"
                   />
-                )}
+                  <select
+                    value={item.unit}
+                    onChange={(e) => updateUnit(item.productId, e.target.value as BoxItemQuantityUnit)}
+                    className="h-9 rounded-lg border border-border bg-white px-1.5 text-xs font-medium text-muted-2"
+                  >
+                    {(Object.keys(UNIT_LABELS) as BoxItemQuantityUnit[]).map((unit) => (
+                      <option key={unit} value={unit}>
+                        {UNIT_LABELS[unit]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <button
                   type="button"
                   onClick={() => removeItem(item.productId)}

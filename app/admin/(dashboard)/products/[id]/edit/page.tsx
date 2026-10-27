@@ -37,6 +37,7 @@ async function BoxContentsSection({ boxProductId, boxCategoryId }: { boxProductI
       initialItems={boxContents.map((entry) => ({
         productId: entry.item.id,
         quantity: entry.quantity,
+        quantityUnit: entry.quantity_unit,
         prepNoteAr: entry.prep_note_ar,
         prepNoteEn: entry.prep_note_en,
       }))}

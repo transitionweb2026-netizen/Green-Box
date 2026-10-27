@@ -8,13 +8,15 @@ import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { PriceDisplay } from "@/components/ui/price-display";
 import { formatBoxItemQuantity } from "@/lib/i18n/box-item-quantity";
+import type { BoxItemQuantityUnit } from "@/types/database";
 
 export interface BoxShowcaseItem {
   id: string;
   quantity: number;
-  /** When true, `quantity` is kilograms ("1.5 كجم") rather than a piece
-   * count ("×2") -- see box-contents-editor.tsx's doc comment. */
-  soldByWeight: boolean;
+  /** Determines how `quantity` reads: a piece count ("×2"), grams
+   * ("250 جم"), or kilograms ("1.5 كجم") -- an admin-set choice per box
+   * item, see box-contents-editor.tsx's doc comment. */
+  quantityUnit: BoxItemQuantityUnit;
   name: string;
   image: string | null;
   /** How this specific item is prepared inside this box ("متقورة",
@@ -169,7 +171,12 @@ export function BoxShowcase({ boxes, placeholderImage }: { boxes: BoxShowcaseBox
                         <span className="truncate text-sm text-foreground">{entry.name}</span>
                         {entry.prepNote && <span className="truncate text-xs text-muted">{entry.prepNote}</span>}
                       </span>
-                      <Badge tone="brand">{formatBoxItemQuantity(entry.quantity, entry.soldByWeight, tProduct("kilograms"))}</Badge>
+                      <Badge tone="brand">
+                        {formatBoxItemQuantity(entry.quantity, entry.quantityUnit, {
+                          gram: tProduct("grams"),
+                          kilogram: tProduct("kilograms"),
+                        })}
+                      </Badge>
                     </li>
                   ))}
                 </ul>

@@ -66,7 +66,7 @@ export default async function HomePage() {
           return {
             id: entry.id,
             quantity: entry.quantity,
-            soldByWeight: entry.item.sold_by_weight,
+            quantityUnit: entry.quantity_unit,
             name: pickLocalized(entry.item.name_ar, entry.item.name_en, locale),
             image: itemImage?.url ?? null,
             prepNote: pickLocalized(entry.prep_note_ar ?? "", entry.prep_note_en, locale) || null,

@@ -34,6 +34,7 @@ export default async function EditBoxPage({ params }: { params: Promise<{ id: st
           initialItems={boxContents.map((entry) => ({
             productId: entry.item.id,
             quantity: entry.quantity,
+            quantityUnit: entry.quantity_unit,
             prepNoteAr: entry.prep_note_ar,
             prepNoteEn: entry.prep_note_en,
           }))}

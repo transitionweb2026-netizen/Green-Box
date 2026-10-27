@@ -52,6 +52,8 @@ export type ProductType = "standard" | "box";
 
 export type WeightUnit = "gram" | "kg";
 
+export type BoxItemQuantityUnit = "piece" | "gram" | "kg";
+
 export type ProfileRole = "customer" | "admin";
 
 export interface Database {
@@ -292,6 +294,7 @@ export interface Database {
           box_product_id: string;
           item_product_id: string;
           quantity: number;
+          quantity_unit: BoxItemQuantityUnit;
           display_order: number;
           prep_note_ar: string | null;
           prep_note_en: string | null;
@@ -302,6 +305,7 @@ export interface Database {
           box_product_id: string;
           item_product_id: string;
           quantity?: number;
+          quantity_unit?: BoxItemQuantityUnit;
           display_order?: number;
           prep_note_ar?: string | null;
           prep_note_en?: string | null;
@@ -312,6 +316,7 @@ export interface Database {
           box_product_id?: string;
           item_product_id?: string;
           quantity?: number;
+          quantity_unit?: BoxItemQuantityUnit;
           display_order?: number;
           prep_note_ar?: string | null;
           prep_note_en?: string | null;

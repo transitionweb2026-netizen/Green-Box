@@ -2,7 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
-import type { Tables, TablesInsert, TablesUpdate } from "@/types/database";
+import type { BoxItemQuantityUnit, Tables, TablesInsert, TablesUpdate } from "@/types/database";
 
 export type Category = Tables<"categories">;
 export type Product = Tables<"products">;
@@ -225,6 +225,7 @@ export async function getSearchSuggestions(query: string, limit = 8): Promise<Se
 export interface BoxContentItem {
   id: string;
   quantity: number;
+  quantity_unit: BoxItemQuantityUnit;
   display_order: number;
   prep_note_ar: string | null;
   prep_note_en: string | null;
@@ -236,7 +237,7 @@ export async function getBoxContents(boxProductId: string): Promise<BoxContentIt
   const { data, error } = await supabase
     .from("box_items")
     .select(
-      "id, quantity, display_order, prep_note_ar, prep_note_en, item:products!box_items_item_product_id_fkey(*, product_images(*))",
+      "id, quantity, quantity_unit, display_order, prep_note_ar, prep_note_en, item:products!box_items_item_product_id_fkey(*, product_images(*))",
     )
     .eq("box_product_id", boxProductId)
     .order("display_order", { ascending: true });
@@ -430,7 +431,13 @@ export async function adminSetPrimaryProductImage(productId: string, imageId: st
  */
 export async function adminSetBoxContents(
   boxProductId: string,
-  items: { productId: string; quantity: number; prepNoteAr?: string | null; prepNoteEn?: string | null }[],
+  items: {
+    productId: string;
+    quantity: number;
+    quantityUnit: BoxItemQuantityUnit;
+    prepNoteAr?: string | null;
+    prepNoteEn?: string | null;
+  }[],
 ): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_set_box_contents", {
@@ -438,6 +445,7 @@ export async function adminSetBoxContents(
     p_items: items.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
+      quantityUnit: item.quantityUnit,
       prepNoteAr: item.prepNoteAr || null,
       prepNoteEn: item.prepNoteEn || null,
     })),

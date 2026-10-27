@@ -228,7 +228,10 @@ export default async function ProductPage({ params }: PageProps) {
                         {itemPrepNote && <span className="text-xs text-muted">{itemPrepNote}</span>}
                       </div>
                       <Badge tone="brand">
-                        {formatBoxItemQuantity(entry.quantity, entry.item.sold_by_weight, t("kilograms"))}
+                        {formatBoxItemQuantity(entry.quantity, entry.quantity_unit, {
+                          gram: t("grams"),
+                          kilogram: t("kilograms"),
+                        })}
                       </Badge>
                     </li>
                   );
