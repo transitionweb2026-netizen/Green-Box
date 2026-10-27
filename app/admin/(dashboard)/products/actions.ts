@@ -11,6 +11,7 @@ import {
   adminArchiveProduct,
   adminSetBoxContents,
   adminUpdateProduct,
+  type Product,
 } from "@/lib/services/catalog";
 import { uploadMediaFile, deleteMediaFile } from "@/lib/services/storage";
 import { weightUnitMultiplier } from "@/lib/utils/weight-unit";
@@ -354,4 +355,48 @@ export async function quickCreateProductInCategoryAction(
   revalidateTag("products", "max");
   revalidateStorefrontProductPaths();
   redirect(`/admin/products/${productId}/edit`);
+}
+
+export type QuickCreateBoxItemState = { status: "idle" | "error"; message?: string; product?: Product };
+
+/**
+ * Lets an admin type a box-item name that isn't a product yet (e.g. a
+ * Mahshi ingredient like "كوسة" with no standalone listing) straight from
+ * BoxContentsEditor, instead of having to go create it as a full product
+ * first. Mirrors quickCreateProductInCategoryAction's minimal-product
+ * shape (name only, price 0, is_available: false so it can never be sold
+ * on its own) but returns the created product instead of redirecting,
+ * since the editor adds it to the box's item list in place and the admin
+ * still needs to hit "save contents" themselves. Reuses the box's own
+ * category_id as the new product's category (there's no category picker
+ * in this flow) -- an admin can still move it elsewhere later from the
+ * product's own edit page.
+ */
+export async function quickCreateBoxItemProductAction(
+  categoryId: string,
+  nameAr: string,
+): Promise<QuickCreateBoxItemState> {
+  const name = nameAr.trim();
+  if (!name) return { status: "error", message: "اكتب اسم المنتج" };
+
+  let product: Product;
+  try {
+    const base = slugify(name) || "product";
+    const slug = `${base}-${Math.random().toString(36).slice(2, 7)}`;
+    product = await adminCreateProduct({
+      category_id: categoryId,
+      product_type: "standard",
+      slug,
+      name_ar: name,
+      price: 0,
+      is_available: false,
+    });
+  } catch (err) {
+    return { status: "error", message: err instanceof Error ? err.message : "حصل خطأ أثناء إنشاء المنتج" };
+  }
+
+  revalidatePath("/admin/products");
+  revalidateTag("products", "max");
+  revalidateStorefrontProductPaths();
+  return { status: "idle", product };
 }

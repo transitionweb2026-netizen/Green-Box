@@ -29,6 +29,7 @@ export default async function EditBoxPage({ params }: { params: Promise<{ id: st
         <BoxForm box={box} action={updateBoxAction.bind(null, id)} />
         <BoxContentsEditor
           boxProductId={id}
+          boxCategoryId={box.category_id}
           availableProducts={allProducts}
           initialItems={boxContents.map((entry) => ({
             productId: entry.item.id,

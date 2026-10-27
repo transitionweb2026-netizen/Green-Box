@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, ChevronDown, ChevronUp, PackagePlus, X } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, PackagePlus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FormMessage } from "@/components/ui/form-message";
-import { setBoxContentsAction } from "@/app/admin/(dashboard)/products/actions";
+import { setBoxContentsAction, quickCreateBoxItemProductAction } from "@/app/admin/(dashboard)/products/actions";
 import type { Product } from "@/lib/services/catalog";
 
 interface BoxItemEntry {
@@ -35,10 +36,12 @@ interface BoxItemEntry {
 
 export function BoxContentsEditor({
   boxProductId,
+  boxCategoryId,
   availableProducts,
   initialItems,
 }: {
   boxProductId: string;
+  boxCategoryId: string;
   availableProducts: Product[];
   initialItems: { productId: string; quantity: number; prepNoteAr?: string | null; prepNoteEn?: string | null }[];
 }) {
@@ -50,15 +53,40 @@ export function BoxContentsEditor({
       prepNoteEn: item.prepNoteEn ?? "",
     })),
   );
+  // Products created on the fly below (typed name, not picked from the
+  // list) aren't in `availableProducts` (that prop is fetched once, server
+  // side, before this component mounts) -- kept here so the new item's
+  // name still renders immediately without a full page reload.
+  const [createdProducts, setCreatedProducts] = useState<Product[]>([]);
   const [selectedProductId, setSelectedProductId] = useState("");
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [newProductName, setNewProductName] = useState("");
+  const [isCreatingProduct, startCreateTransition] = useTransition();
+  const [createError, setCreateError] = useState<string | null>(null);
+
   function addItem() {
     if (!selectedProductId || items.some((i) => i.productId === selectedProductId)) return;
     setItems([...items, { productId: selectedProductId, quantity: 1, prepNoteAr: "", prepNoteEn: "" }]);
     setSelectedProductId("");
+  }
+
+  function createAndAddItem() {
+    const name = newProductName.trim();
+    if (!name) return;
+    setCreateError(null);
+    startCreateTransition(async () => {
+      const result = await quickCreateBoxItemProductAction(boxCategoryId, name);
+      if (result.status === "error" || !result.product) {
+        setCreateError(result.message ?? "حصل خطأ أثناء إنشاء المنتج");
+        return;
+      }
+      setCreatedProducts((prev) => [...prev, result.product!]);
+      setItems((prev) => [...prev, { productId: result.product!.id, quantity: 1, prepNoteAr: "", prepNoteEn: "" }]);
+      setNewProductName("");
+    });
   }
 
   function updateQuantity(productId: string, quantity: number) {
@@ -102,7 +130,7 @@ export function BoxContentsEditor({
     });
   }
 
-  const productById = new Map(availableProducts.map((p) => [p.id, p]));
+  const productById = new Map([...availableProducts, ...createdProducts].map((p) => [p.id, p]));
 
   return (
     <Card tone="glass">
@@ -207,6 +235,33 @@ export function BoxContentsEditor({
           إضافة
         </Button>
       </div>
+
+      <div className="mt-2 flex gap-2">
+        <Input
+          type="text"
+          placeholder="أو اكتب اسم منتج جديد مش موجود في القايمة"
+          value={newProductName}
+          onChange={(e) => setNewProductName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              createAndAddItem();
+            }
+          }}
+          className="flex-1"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={createAndAddItem}
+          disabled={!newProductName.trim() || isCreatingProduct}
+        >
+          {!isCreatingProduct && <Plus className="h-4 w-4" />}
+          {isCreatingProduct ? "جارٍ الإنشاء..." : "إنشاء وإضافة"}
+        </Button>
+      </div>
+      {createError && <FormMessage className="mt-1.5">{createError}</FormMessage>}
 
       <Button type="button" size="sm" className="mt-4" onClick={save} disabled={isPending} loading={isPending}>
         {!isPending && (saved ? <Check className="h-4 w-4" /> : null)}

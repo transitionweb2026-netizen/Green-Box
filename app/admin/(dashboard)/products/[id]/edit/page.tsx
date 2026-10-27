@@ -17,13 +17,13 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
       <div className="mt-6 space-y-10">
         <ProductForm categories={categories} product={product} action={updateProductAction.bind(null, id)} />
         <ProductImageManager productId={id} images={product.product_images} />
-        {product.product_type === "box" && <BoxContentsSection boxProductId={id} />}
+        {product.product_type === "box" && <BoxContentsSection boxProductId={id} boxCategoryId={product.category_id} />}
       </div>
     </div>
   );
 }
 
-async function BoxContentsSection({ boxProductId }: { boxProductId: string }) {
+async function BoxContentsSection({ boxProductId, boxCategoryId }: { boxProductId: string; boxCategoryId: string }) {
   const [{ products: allProducts }, boxContents] = await Promise.all([
     adminListProducts({ pageSize: 500 }),
     getBoxContents(boxProductId),
@@ -32,6 +32,7 @@ async function BoxContentsSection({ boxProductId }: { boxProductId: string }) {
   return (
     <BoxContentsEditor
       boxProductId={boxProductId}
+      boxCategoryId={boxCategoryId}
       availableProducts={allProducts}
       initialItems={boxContents.map((entry) => ({
         productId: entry.item.id,
