@@ -277,3 +277,81 @@ export async function setBoxContentsAction(
   revalidateStorefrontProductPaths();
   return { status: "idle" };
 }
+
+export type AssignCategoryState = { status: "idle" | "error"; message?: string };
+
+/** "Add an existing product to this category" from the category's own
+ * edit page -- products.category_id is a single FK (not a join table),
+ * so "adding" an already-created product here means reassigning it,
+ * exactly like changing its category in the full product form would. */
+export async function assignProductToCategoryAction(categoryId: string, productId: string): Promise<AssignCategoryState> {
+  try {
+    await adminUpdateProduct(productId, { category_id: categoryId });
+  } catch (err) {
+    return { status: "error", message: err instanceof Error ? err.message : "حصل خطأ" };
+  }
+
+  revalidatePath("/admin/products");
+  revalidatePath(`/admin/categories/${categoryId}/edit`);
+  revalidateTag("products", "max");
+  revalidateStorefrontProductPaths();
+  return { status: "idle" };
+}
+
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+const quickCreateProductSchema = z.object({
+  category_id: z.string().uuid(),
+  name_ar: z.string().trim().min(1, "اكتب اسم المنتج"),
+});
+
+export type QuickCreateProductState = { status: "idle" | "error"; message?: string };
+
+/**
+ * The "or just type a name" half of adding a product to a category --
+ * creates a minimal product (name only, price 0, unavailable until the
+ * admin fills in the rest) and sends them straight to its edit page to
+ * finish it, same shape as createBoxAction's quick-create-then-edit flow.
+ * is_available is forced false here (unlike the full product form, which
+ * defaults to available) so a $0 placeholder product can never go live
+ * just because the admin hasn't set a real price yet.
+ */
+export async function quickCreateProductInCategoryAction(
+  _prevState: QuickCreateProductState,
+  formData: FormData,
+): Promise<QuickCreateProductState> {
+  const parsed = quickCreateProductSchema.safeParse({
+    category_id: String(formData.get("category_id") ?? ""),
+    name_ar: String(formData.get("name_ar") ?? "").trim(),
+  });
+  if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message };
+
+  let productId: string;
+  try {
+    const base = slugify(parsed.data.name_ar) || "product";
+    const slug = `${base}-${Math.random().toString(36).slice(2, 7)}`;
+    const product = await adminCreateProduct({
+      category_id: parsed.data.category_id,
+      product_type: "standard",
+      slug,
+      name_ar: parsed.data.name_ar,
+      price: 0,
+      is_available: false,
+    });
+    productId = product.id;
+  } catch (err) {
+    return { status: "error", message: err instanceof Error ? err.message : "حصل خطأ أثناء إنشاء المنتج" };
+  }
+
+  revalidatePath("/admin/products");
+  revalidatePath(`/admin/categories/${parsed.data.category_id}/edit`);
+  revalidateTag("products", "max");
+  revalidateStorefrontProductPaths();
+  redirect(`/admin/products/${productId}/edit`);
+}
