@@ -75,6 +75,11 @@ export interface HomepageContent {
 export interface HeroImages {
   boxCompositionUrl?: string;
   backgroundUrl?: string;
+  /** The /box ("Green Box" landing page) hero photo -- that page had no
+   * upload path at all before this, it only ever rendered an external
+   * placeholder image (see app/[locale]/box/page.tsx git history). Falls
+   * back to the homepage's box composition asset when unset. */
+  greenBoxPageUrl?: string;
 }
 
 /**

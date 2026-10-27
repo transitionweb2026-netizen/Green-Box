@@ -13,6 +13,8 @@ import {
   adminUpdateProduct,
 } from "@/lib/services/catalog";
 import { uploadMediaFile, deleteMediaFile } from "@/lib/services/storage";
+import { weightUnitMultiplier } from "@/lib/utils/weight-unit";
+import type { WeightUnit } from "@/types/database";
 
 /**
  * revalidateTag("products") busts the unstable_cache DATA underneath
@@ -50,6 +52,9 @@ const productSchema = z.object({
   unit_label_en: z.string().trim().max(50).optional(),
   price: z.coerce.number().min(0),
   sold_by_weight: z.boolean().default(false),
+  weight_unit: z.enum(["gram", "kg"]).default("gram"),
+  prep_note_ar: z.string().trim().max(200).optional(),
+  prep_note_en: z.string().trim().max(200).optional(),
   is_available: z.boolean().default(true),
   requires_reservation: z.boolean().default(false),
   is_featured: z.boolean().default(false),
@@ -63,6 +68,15 @@ const productSchema = z.object({
 });
 
 export type ProductActionState = { status: "idle" | "error" | "success"; message?: string; productId?: string };
+
+/** The admin types a price "per weight_unit" (e.g. 25 EGP/kg), but
+ * products.price is always stored as EGP-per-gram (see
+ * lib/utils/weight-unit.ts) -- this is the one place that conversion
+ * happens on the way in, mirrored by displayUnitPrice() on the way out. */
+function priceToStore(input: number, soldByWeight: boolean, weightUnit: WeightUnit): number {
+  if (!soldByWeight) return input;
+  return input / weightUnitMultiplier(weightUnit);
+}
 
 function parseForm(formData: FormData) {
   return productSchema.safeParse({
@@ -78,6 +92,9 @@ function parseForm(formData: FormData) {
     unit_label_en: String(formData.get("unit_label_en") ?? "").trim() || undefined,
     price: formData.get("price") ?? 0,
     sold_by_weight: formData.get("sold_by_weight") === "on",
+    weight_unit: String(formData.get("weight_unit") ?? "gram"),
+    prep_note_ar: String(formData.get("prep_note_ar") ?? "").trim() || undefined,
+    prep_note_en: String(formData.get("prep_note_en") ?? "").trim() || undefined,
     is_available: formData.get("is_available") === "on",
     requires_reservation: formData.get("requires_reservation") === "on",
     is_featured: formData.get("is_featured") === "on",
@@ -111,8 +128,11 @@ export async function createProductAction(
       description_en: parsed.data.description_en ?? null,
       unit_label_ar: parsed.data.unit_label_ar ?? null,
       unit_label_en: parsed.data.unit_label_en ?? null,
-      price: parsed.data.price,
+      price: priceToStore(parsed.data.price, parsed.data.sold_by_weight, parsed.data.weight_unit),
       sold_by_weight: parsed.data.sold_by_weight,
+      weight_unit: parsed.data.weight_unit,
+      prep_note_ar: parsed.data.prep_note_ar ?? null,
+      prep_note_en: parsed.data.prep_note_en ?? null,
       is_available: parsed.data.is_available,
       requires_reservation: parsed.data.requires_reservation,
       is_featured: parsed.data.is_featured,
@@ -155,8 +175,11 @@ export async function updateProductAction(
       description_en: parsed.data.description_en ?? null,
       unit_label_ar: parsed.data.unit_label_ar ?? null,
       unit_label_en: parsed.data.unit_label_en ?? null,
-      price: parsed.data.price,
+      price: priceToStore(parsed.data.price, parsed.data.sold_by_weight, parsed.data.weight_unit),
       sold_by_weight: parsed.data.sold_by_weight,
+      weight_unit: parsed.data.weight_unit,
+      prep_note_ar: parsed.data.prep_note_ar ?? null,
+      prep_note_en: parsed.data.prep_note_en ?? null,
       is_available: parsed.data.is_available,
       requires_reservation: parsed.data.requires_reservation,
       is_featured: parsed.data.is_featured,
@@ -240,7 +263,7 @@ export type SetBoxContentsState = { status: "idle" | "error"; message?: string }
  */
 export async function setBoxContentsAction(
   productId: string,
-  items: { productId: string; quantity: number }[],
+  items: { productId: string; quantity: number; prepNoteAr?: string | null; prepNoteEn?: string | null }[],
 ): Promise<SetBoxContentsState> {
   try {
     await adminSetBoxContents(productId, items);

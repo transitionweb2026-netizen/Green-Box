@@ -33,7 +33,12 @@ async function BoxContentsSection({ boxProductId }: { boxProductId: string }) {
     <BoxContentsEditor
       boxProductId={boxProductId}
       availableProducts={allProducts}
-      initialItems={boxContents.map((entry) => ({ productId: entry.item.id, quantity: entry.quantity }))}
+      initialItems={boxContents.map((entry) => ({
+        productId: entry.item.id,
+        quantity: entry.quantity,
+        prepNoteAr: entry.prep_note_ar,
+        prepNoteEn: entry.prep_note_en,
+      }))}
     />
   );
 }

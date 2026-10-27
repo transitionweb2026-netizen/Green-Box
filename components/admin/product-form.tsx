@@ -10,6 +10,8 @@ import { Card } from "@/components/ui/card";
 import { FormMessage } from "@/components/ui/form-message";
 import type { ProductActionState } from "@/app/admin/(dashboard)/products/actions";
 import type { Category, Product } from "@/lib/services/catalog";
+import { displayUnitPrice } from "@/lib/utils/weight-unit";
+import type { WeightUnit } from "@/types/database";
 
 export function ProductForm({
   categories,
@@ -23,6 +25,14 @@ export function ProductForm({
   const [state, formAction, isPending] = useActionState(action, { status: "idle" } as ProductActionState);
   const [productType, setProductType] = useState(product?.product_type ?? "standard");
   const [soldByWeight, setSoldByWeight] = useState(product?.sold_by_weight ?? false);
+  const [weightUnit, setWeightUnit] = useState<WeightUnit>(product?.weight_unit ?? "gram");
+  // Price is always stored as EGP-per-gram (see lib/utils/weight-unit.ts);
+  // this is only the one-time initial display conversion for an existing
+  // kg-priced product, computed once from the product's saved weight_unit
+  // (not the live `weightUnit` state) since the <Input> below stays
+  // uncontrolled -- changing the unit dropdown mid-edit doesn't rescale
+  // whatever the admin has already typed.
+  const initialDisplayPrice = product ? displayUnitPrice(product) : undefined;
 
   return (
     <form action={formAction} className="max-w-2xl space-y-5">
@@ -79,26 +89,48 @@ export function ProductForm({
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          {soldByWeight ? (
             <div>
-              <Label htmlFor="unit_label_ar">الوحدة بالعربي (مثال: كجم)</Label>
-              <Input id="unit_label_ar" name="unit_label_ar" defaultValue={product?.unit_label_ar ?? ""} />
+              <Label htmlFor="weight_unit">وحدة البيع</Label>
+              <Select
+                id="weight_unit"
+                name="weight_unit"
+                value={weightUnit}
+                onChange={(e) => setWeightUnit(e.target.value as WeightUnit)}
+                className="max-w-xs"
+              >
+                <option value="gram">جرام</option>
+                <option value="kg">كيلوجرام</option>
+              </Select>
+              <p className="mt-1.5 text-xs text-muted">
+                الوحدة اللي العميل هيشتري بيها ويشوفها في السعر والكمية. لو غيّرتها لمنتج موجود، راجع السعر تحت لأنه مش
+                بيتحول تلقائيًا.
+              </p>
             </div>
-            <div>
-              <Label htmlFor="unit_label_en">الوحدة بالإنجليزي</Label>
-              <Input id="unit_label_en" name="unit_label_en" defaultValue={product?.unit_label_en ?? ""} />
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="unit_label_ar">الوحدة بالعربي (مثال: كجم)</Label>
+                <Input id="unit_label_ar" name="unit_label_ar" defaultValue={product?.unit_label_ar ?? ""} />
+              </div>
+              <div>
+                <Label htmlFor="unit_label_en">الوحدة بالإنجليزي</Label>
+                <Input id="unit_label_en" name="unit_label_en" defaultValue={product?.unit_label_en ?? ""} />
+              </div>
             </div>
-          </div>
+          )}
 
           <div>
-            <Label htmlFor="price">{soldByWeight ? "السعر لكل جرام (جنيه)" : "السعر (جنيه)"}</Label>
+            <Label htmlFor="price">
+              {soldByWeight ? `السعر لكل ${weightUnit === "kg" ? "كيلوجرام" : "جرام"} (جنيه)` : "السعر (جنيه)"}
+            </Label>
             <Input
               id="price"
               name="price"
               type="number"
-              step={soldByWeight ? "0.001" : "0.01"}
+              step={soldByWeight && weightUnit === "gram" ? "0.001" : "0.01"}
               min="0"
-              defaultValue={product?.price ?? ""}
+              defaultValue={initialDisplayPrice ?? ""}
               required
             />
           </div>
@@ -111,14 +143,32 @@ export function ProductForm({
               onChange={(e) => setSoldByWeight(e.target.checked)}
               className="h-4 w-4 accent-[var(--brand-600)]"
             />
-            يُباع بالوزن (تسعير لكل جرام)
+            يُباع بالوزن
           </label>
           {soldByWeight && (
             <p className="text-xs text-muted">
-              العميل هيقدر يحدد الكمية بالجرام، والإجمالي هيتحسب تلقائيًا = عدد الجرامات × السعر لكل جرام. مثال: لو السعر
-              0.5 جنيه/جرام و العميل طلب 300 جرام، الإجمالي = 150 جنيه.
+              العميل هيقدر يحدد الكمية بـ{weightUnit === "kg" ? "الكيلوجرام" : "الجرام"}، والإجمالي هيتحسب تلقائيًا = الكمية
+              × السعر لكل {weightUnit === "kg" ? "كيلوجرام" : "جرام"}.
             </p>
           )}
+        </div>
+      </Card>
+
+      <Card tone="glass">
+        <h2 className="mb-4 font-bold text-foreground">حالة التحضير (اختياري)</h2>
+        <p className="mb-3 text-sm text-muted">
+          لو المنتج جاهز/محضّر بشكل معين (زي &quot;مقورة وجاهزة للحشي&quot; أو &quot;مقطعة مكعبات&quot;)، اكتب وصف قصير
+          هنا عشان يظهر للعميل.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label htmlFor="prep_note_ar">الوصف بالعربي</Label>
+            <Input id="prep_note_ar" name="prep_note_ar" defaultValue={product?.prep_note_ar ?? ""} />
+          </div>
+          <div>
+            <Label htmlFor="prep_note_en">الوصف بالإنجليزي</Label>
+            <Input id="prep_note_en" name="prep_note_en" defaultValue={product?.prep_note_en ?? ""} />
+          </div>
         </div>
       </Card>
 

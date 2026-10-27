@@ -7,6 +7,7 @@ import { PriceDisplay } from "@/components/ui/price-display";
 import { Badge } from "@/components/ui/badge";
 import { categoryPlaceholderKey, placeholderImage } from "@/lib/media/placeholders";
 import type { ProductWithImages } from "@/lib/services/catalog";
+import { displayUnitPrice } from "@/lib/utils/weight-unit";
 import { AddToCartButton } from "./add-to-cart-button";
 
 /** Card background tones, cycling deterministically per product so a grid
@@ -17,7 +18,11 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
   const locale = await getLocale();
   const t = await getTranslations("product");
   const name = pickLocalized(product.name_ar, product.name_en, locale);
-  const unit = pickLocalized(product.unit_label_ar ?? "", product.unit_label_en, locale);
+  const unit = product.sold_by_weight
+    ? product.weight_unit === "kg"
+      ? t("kilograms")
+      : t("grams")
+    : pickLocalized(product.unit_label_ar ?? "", product.unit_label_en, locale);
   const primaryImage =
     product.product_images.find((img) => img.is_primary) ?? product.product_images[0];
   const isBox = product.product_type === "box";
@@ -121,7 +126,7 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
                 </Badge>
               )}
               <div className="pill-price absolute end-[12%] bottom-[10%] transition-transform duration-300 group-hover:-translate-y-0.5">
-                <PriceDisplay value={product.price} locale={locale} size="sm" />
+                <PriceDisplay value={displayUnitPrice(product)} locale={locale} size="sm" />
               </div>
             </div>
           </Link>

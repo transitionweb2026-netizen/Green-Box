@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils/cn";
  */
 export async function HeroCartSummary({ className }: { className?: string }) {
   const t = await getTranslations();
+  const tProduct = await getTranslations("product");
   const locale = await getLocale();
   const isAr = locale !== "en";
   const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
@@ -43,7 +44,13 @@ export async function HeroCartSummary({ className }: { className?: string }) {
           {items.map((item) => {
             const name = pickLocalized(item.products.name_ar, item.products.name_en, locale);
             const image = item.products.product_images.find((img) => img.is_primary) ?? item.products.product_images[0];
-            const unit = pickLocalized(item.products.unit_label_ar ?? "", item.products.unit_label_en, locale);
+            const isKg = item.products.sold_by_weight && item.products.weight_unit === "kg";
+            const unit = item.products.sold_by_weight
+              ? isKg
+                ? tProduct("kilograms")
+                : tProduct("grams")
+              : pickLocalized(item.products.unit_label_ar ?? "", item.products.unit_label_en, locale);
+            const displayQuantity = isKg ? Number((item.quantity / 1000).toFixed(2)) : Math.round(item.quantity);
             return (
               <li key={item.id} className="flex items-center gap-3">
                 <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-brand-50">
@@ -58,7 +65,7 @@ export async function HeroCartSummary({ className }: { className?: string }) {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-foreground">{name}</p>
                   <p className="text-xs text-muted-2">
-                    {item.quantity}
+                    {displayQuantity}
                     {unit ? ` ${unit}` : ""}
                   </p>
                 </div>

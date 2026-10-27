@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { getBoxContents, getProductBySlug, listRecommendedProducts } from "@/lib/services/catalog";
 import { pickLocalized } from "@/lib/i18n/localized";
 import { formatBoxItemQuantity } from "@/lib/i18n/box-item-quantity";
+import { displayUnitPrice } from "@/lib/utils/weight-unit";
 import { getSiteOrigin } from "@/lib/seo/site-url";
 import { categoryPlaceholderKey } from "@/lib/media/placeholders";
 import { Badge } from "@/components/ui/badge";
@@ -66,6 +67,7 @@ export default async function ProductPage({ params }: PageProps) {
   const name = pickLocalized(product.name_ar, product.name_en, locale);
   const description = pickLocalized(product.description_ar ?? "", product.description_en, locale);
   const unit = pickLocalized(product.unit_label_ar ?? "", product.unit_label_en, locale);
+  const prepNote = pickLocalized(product.prep_note_ar ?? "", product.prep_note_en, locale);
   const isBox = product.product_type === "box";
 
   const origin = await getSiteOrigin();
@@ -140,6 +142,11 @@ export default async function ProductPage({ params }: PageProps) {
         <div>
           <h1 className="text-2xl font-extrabold text-foreground sm:text-3xl">{name}</h1>
           {unit && <p className="mt-1.5 text-sm text-muted">{unit}</p>}
+          {prepNote && (
+            <Badge tone="brand" className="mt-2">
+              {prepNote}
+            </Badge>
+          )}
           {product.rating != null && (
             <div className="mt-2.5 flex items-center gap-1.5">
               <div className="relative flex text-deep-100" aria-hidden="true">
@@ -162,7 +169,7 @@ export default async function ProductPage({ params }: PageProps) {
             </div>
           )}
           <div className="mt-4">
-            <PriceDisplay value={product.price} locale={locale} size="lg" />
+            <PriceDisplay value={displayUnitPrice(product)} locale={locale} size="lg" />
           </div>
 
           {(!product.is_available || product.requires_reservation) && (
@@ -178,6 +185,7 @@ export default async function ProductPage({ params }: PageProps) {
               price={product.price}
               unit={unit || undefined}
               soldByWeight={product.sold_by_weight}
+              weightUnit={product.weight_unit}
               disabled={!product.is_available}
             />
           </div>
@@ -208,17 +216,23 @@ export default async function ProductPage({ params }: PageProps) {
             <div className="mt-8">
               <h2 className="text-lg font-bold text-foreground">{t("boxContents")}</h2>
               <ul className="mt-3 space-y-2">
-                {boxContents.map((entry) => (
-                  <li
-                    key={entry.id}
-                    className="flex items-center justify-between rounded-xl border border-border bg-white/60 px-3.5 py-2.5 text-sm"
-                  >
-                    <span className="text-foreground">{pickLocalized(entry.item.name_ar, entry.item.name_en, locale)}</span>
-                    <Badge tone="brand">
-                      {formatBoxItemQuantity(entry.quantity, entry.item.sold_by_weight, t("kilograms"))}
-                    </Badge>
-                  </li>
-                ))}
+                {boxContents.map((entry) => {
+                  const itemPrepNote = pickLocalized(entry.prep_note_ar ?? "", entry.prep_note_en, locale);
+                  return (
+                    <li
+                      key={entry.id}
+                      className="flex items-center justify-between rounded-xl border border-border bg-white/60 px-3.5 py-2.5 text-sm"
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-foreground">{pickLocalized(entry.item.name_ar, entry.item.name_en, locale)}</span>
+                        {itemPrepNote && <span className="text-xs text-muted">{itemPrepNote}</span>}
+                      </div>
+                      <Badge tone="brand">
+                        {formatBoxItemQuantity(entry.quantity, entry.item.sold_by_weight, t("kilograms"))}
+                      </Badge>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}

@@ -358,11 +358,18 @@ export async function updateReservationSettingsAction(
 
 export type HeroImageActionState = { status: "idle" | "error"; message?: string };
 
-/** One upload slot ("box" or "background") at a time -- same single-file-
- * per-submit shape as BannerImageSlot's updateBannerImagesAction, so the
- * same auto-submit-on-file-select UI pattern works unchanged here. */
+const HERO_IMAGE_KEYS = {
+  box: "boxCompositionUrl",
+  background: "backgroundUrl",
+  greenBoxPage: "greenBoxPageUrl",
+} as const;
+
+/** One upload slot ("box", "background", or "greenBoxPage") at a time --
+ * same single-file-per-submit shape as BannerImageSlot's
+ * updateBannerImagesAction, so the same auto-submit-on-file-select UI
+ * pattern works unchanged here. */
 export async function updateHeroImageAction(
-  slot: "box" | "background",
+  slot: keyof typeof HERO_IMAGE_KEYS,
   formData: FormData,
 ): Promise<HeroImageActionState> {
   const file = formData.get("image") as File | null;
@@ -376,16 +383,17 @@ export async function updateHeroImageAction(
     return { status: "error", message: err instanceof Error ? err.message : "فشل رفع الصورة" };
   }
 
-  const key = slot === "box" ? "boxCompositionUrl" : "backgroundUrl";
+  const key = HERO_IMAGE_KEYS[slot];
   const previousUrl = existing[key];
   await adminUpsertSetting(
     "hero_images",
     { ...existing, [key]: url },
-    "Hero section images (box composition + background) -- falls back to the built-in asset when unset.",
+    "Hero section images (box composition + background + Green Box page) -- falls back to the built-in asset when unset.",
   );
   if (previousUrl) await deleteMediaFile(previousUrl).catch(() => {});
 
   revalidatePath("/admin/content");
   revalidatePath("/[locale]", "page");
+  revalidatePath("/[locale]/box", "page");
   return { status: "idle" };
 }

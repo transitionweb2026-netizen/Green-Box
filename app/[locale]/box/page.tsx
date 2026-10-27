@@ -3,11 +3,17 @@ import type { Metadata } from "next";
 import { CheckCircle2, Sparkles } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { listProducts } from "@/lib/services/catalog";
-import { placeholderImage } from "@/lib/media/placeholders";
+import { getSetting, type HeroImages } from "@/lib/services/content";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SectionHeader } from "@/components/ui/section-header";
 import { ProductCard } from "@/components/storefront/product-card";
+
+// Shares the homepage hero's "Green Box" composition asset as a sensible
+// default (same branding) until an admin uploads one specific to this
+// page via Content -> Hero images -- previously this fell back straight
+// to an external placeholder service with no admin upload path at all.
+const FALLBACK_IMAGE = "/images/hero-green-box.webp";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("greenBoxPage");
@@ -16,7 +22,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function GreenBoxPage() {
   const t = await getTranslations("greenBoxPage");
-  const { products } = await listProducts({ productType: "box", pageSize: 48 });
+  const [{ products }, heroImages] = await Promise.all([
+    listProducts({ productType: "box", pageSize: 48 }),
+    getSetting<HeroImages>("hero_images"),
+  ]);
 
   const benefits = [t("benefitCurated"), t("benefitValue"), t("benefitTime")] as const;
 
@@ -42,7 +51,7 @@ export default async function GreenBoxPage() {
           </div>
           <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] shadow-2xl">
             <Image
-              src={placeholderImage("greenBox", { width: 900, height: 900 })}
+              src={heroImages?.greenBoxPageUrl || FALLBACK_IMAGE}
               alt={t("title")}
               fill
               priority

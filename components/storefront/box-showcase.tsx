@@ -17,6 +17,10 @@ export interface BoxShowcaseItem {
   soldByWeight: boolean;
   name: string;
   image: string | null;
+  /** How this specific item is prepared inside this box ("متقورة",
+   * "مقطع"...), set per box item in the admin, not a product-wide
+   * property -- see box-contents-editor.tsx. */
+  prepNote: string | null;
 }
 
 export interface BoxShowcaseBox {
@@ -161,7 +165,10 @@ export function BoxShowcase({ boxes, placeholderImage }: { boxes: BoxShowcaseBox
                           </span>
                         )}
                       </span>
-                      <span className="min-w-0 flex-1 truncate text-sm text-foreground">{entry.name}</span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-sm text-foreground">{entry.name}</span>
+                        {entry.prepNote && <span className="truncate text-xs text-muted">{entry.prepNote}</span>}
+                      </span>
                       <Badge tone="brand">{formatBoxItemQuantity(entry.quantity, entry.soldByWeight, tProduct("kilograms"))}</Badge>
                     </li>
                   ))}

@@ -226,6 +226,8 @@ export interface BoxContentItem {
   id: string;
   quantity: number;
   display_order: number;
+  prep_note_ar: string | null;
+  prep_note_en: string | null;
   item: ProductWithImages;
 }
 
@@ -233,7 +235,9 @@ export async function getBoxContents(boxProductId: string): Promise<BoxContentIt
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("box_items")
-    .select("id, quantity, display_order, item:products!box_items_item_product_id_fkey(*, product_images(*))")
+    .select(
+      "id, quantity, display_order, prep_note_ar, prep_note_en, item:products!box_items_item_product_id_fkey(*, product_images(*))",
+    )
     .eq("box_product_id", boxProductId)
     .order("display_order", { ascending: true });
   if (error) throw error;
@@ -426,12 +430,17 @@ export async function adminSetPrimaryProductImage(productId: string, imageId: st
  */
 export async function adminSetBoxContents(
   boxProductId: string,
-  items: { productId: string; quantity: number }[],
+  items: { productId: string; quantity: number; prepNoteAr?: string | null; prepNoteEn?: string | null }[],
 ): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_set_box_contents", {
     p_box_product_id: boxProductId,
-    p_items: items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+    p_items: items.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      prepNoteAr: item.prepNoteAr || null,
+      prepNoteEn: item.prepNoteEn || null,
+    })),
   });
   if (error) throw error;
 }

@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { pickLocalized, formatPrice } from "@/lib/i18n/localized";
 import { categoryPlaceholderKey, placeholderImage } from "@/lib/media/placeholders";
 import { cn } from "@/lib/utils/cn";
+import { displayUnitPrice } from "@/lib/utils/weight-unit";
 import { removeCartItemAction, updateCartItemAction, updateCartItemNotesAction } from "@/app/[locale]/cart/actions";
 import type { CartItemWithProduct } from "@/lib/services/cart";
 
@@ -23,13 +24,19 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
   const isUnavailable = !item.products.is_available;
 
   const soldByWeight = item.products.sold_by_weight;
-  const unit = soldByWeight ? tProduct("grams") : pickLocalized(item.products.unit_label_ar ?? "", item.products.unit_label_en, locale);
-  const step = soldByWeight ? 50 : 1;
-  const minQuantity = soldByWeight ? 50 : 1;
+  const isKg = soldByWeight && item.products.weight_unit === "kg";
+  const unit = soldByWeight
+    ? isKg
+      ? tProduct("kilograms")
+      : tProduct("grams")
+    : pickLocalized(item.products.unit_label_ar ?? "", item.products.unit_label_en, locale);
+  // Cart quantity is always stored in whole grams underneath (see
+  // ProductPurchaseForm) -- kg mode just steps by a kilogram-sized chunk
+  // of grams and displays the gram amount converted to kg.
+  const step = soldByWeight ? (isKg ? 250 : 50) : 1;
+  const minQuantity = soldByWeight ? (isKg ? 250 : 50) : 1;
+  const displayQuantity = isKg ? Number((item.quantity / 1000).toFixed(2)) : Math.round(item.quantity);
 
-  // Same step/rounding as ProductPurchaseForm: whole grams for
-  // weight-priced products, whole units (trays/nets/pieces) for everything
-  // else -- both are plain integers, just at different step sizes.
   function updateQuantity(quantity: number) {
     startTransition(() => updateCartItemAction(locale, item.id, Math.round(quantity)));
   }
@@ -69,7 +76,7 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
             {t("itemUnavailable")}
           </Badge>
         ) : (
-          <p className="text-sm text-muted">{formatPrice(item.products.price, locale)}</p>
+          <p className="text-sm text-muted">{formatPrice(displayUnitPrice(item.products), locale)}</p>
         )}
         <input
           type="text"
@@ -92,7 +99,7 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
           <Minus className="h-3.5 w-3.5" />
         </button>
         <span className="flex w-12 items-baseline justify-center gap-1 text-center text-sm font-semibold">
-          {Math.round(item.quantity)}
+          {displayQuantity}
           {unit && <span className="text-[0.65rem] font-medium text-muted-2">{unit}</span>}
         </span>
         <button

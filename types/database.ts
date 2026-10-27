@@ -50,6 +50,8 @@ export type SubscriptionStatus = "ACTIVE" | "PAUSED" | "CANCELLED";
 
 export type ProductType = "standard" | "box";
 
+export type WeightUnit = "gram" | "kg";
+
 export type ProfileRole = "customer" | "admin";
 
 export interface Database {
@@ -174,6 +176,9 @@ export interface Database {
           rating: number | null;
           rating_count: number;
           sold_by_weight: boolean;
+          weight_unit: WeightUnit;
+          prep_note_ar: string | null;
+          prep_note_en: string | null;
           search_text_normalized: string;
           search_vector: unknown;
           created_at: string;
@@ -203,6 +208,9 @@ export interface Database {
           rating?: number | null;
           rating_count?: number;
           sold_by_weight?: boolean;
+          weight_unit?: WeightUnit;
+          prep_note_ar?: string | null;
+          prep_note_en?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -230,6 +238,9 @@ export interface Database {
           rating?: number | null;
           rating_count?: number;
           sold_by_weight?: boolean;
+          weight_unit?: WeightUnit;
+          prep_note_ar?: string | null;
+          prep_note_en?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -282,6 +293,8 @@ export interface Database {
           item_product_id: string;
           quantity: number;
           display_order: number;
+          prep_note_ar: string | null;
+          prep_note_en: string | null;
           created_at: string;
         };
         Insert: {
@@ -290,6 +303,8 @@ export interface Database {
           item_product_id: string;
           quantity?: number;
           display_order?: number;
+          prep_note_ar?: string | null;
+          prep_note_en?: string | null;
           created_at?: string;
         };
         Update: {
@@ -298,6 +313,8 @@ export interface Database {
           item_product_id?: string;
           quantity?: number;
           display_order?: number;
+          prep_note_ar?: string | null;
+          prep_note_en?: string | null;
           created_at?: string;
         };
         Relationships: [

@@ -13,6 +13,8 @@ import type { Product } from "@/lib/services/catalog";
 interface BoxItemEntry {
   productId: string;
   quantity: number;
+  prepNoteAr: string;
+  prepNoteEn: string;
 }
 
 /**
@@ -38,9 +40,16 @@ export function BoxContentsEditor({
 }: {
   boxProductId: string;
   availableProducts: Product[];
-  initialItems: { productId: string; quantity: number }[];
+  initialItems: { productId: string; quantity: number; prepNoteAr?: string | null; prepNoteEn?: string | null }[];
 }) {
-  const [items, setItems] = useState<BoxItemEntry[]>(initialItems);
+  const [items, setItems] = useState<BoxItemEntry[]>(
+    initialItems.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      prepNoteAr: item.prepNoteAr ?? "",
+      prepNoteEn: item.prepNoteEn ?? "",
+    })),
+  );
   const [selectedProductId, setSelectedProductId] = useState("");
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -48,12 +57,16 @@ export function BoxContentsEditor({
 
   function addItem() {
     if (!selectedProductId || items.some((i) => i.productId === selectedProductId)) return;
-    setItems([...items, { productId: selectedProductId, quantity: 1 }]);
+    setItems([...items, { productId: selectedProductId, quantity: 1, prepNoteAr: "", prepNoteEn: "" }]);
     setSelectedProductId("");
   }
 
   function updateQuantity(productId: string, quantity: number) {
     setItems(items.map((i) => (i.productId === productId ? { ...i, quantity } : i)));
+  }
+
+  function updatePrepNote(productId: string, field: "prepNoteAr" | "prepNoteEn", value: string) {
+    setItems(items.map((i) => (i.productId === productId ? { ...i, [field]: value } : i)));
   }
 
   function removeItem(productId: string) {
@@ -71,7 +84,15 @@ export function BoxContentsEditor({
   function save() {
     setError(null);
     startTransition(async () => {
-      const result = await setBoxContentsAction(boxProductId, items);
+      const result = await setBoxContentsAction(
+        boxProductId,
+        items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          prepNoteAr: item.prepNoteAr.trim() || null,
+          prepNoteEn: item.prepNoteEn.trim() || null,
+        })),
+      );
       if (result.status === "error") {
         setError(result.message ?? "فشل حفظ محتويات الصندوق");
         return;
@@ -93,58 +114,79 @@ export function BoxContentsEditor({
         {items.map((item, index) => {
           const product = productById.get(item.productId);
           return (
-            <div key={item.productId} className="flex items-center gap-3 rounded-xl border border-border bg-white/60 p-2.5">
-              <div className="flex flex-col">
-                <button
-                  type="button"
-                  onClick={() => moveItem(index, -1)}
-                  disabled={index === 0}
-                  className="flex h-5 w-6 items-center justify-center rounded text-muted transition-colors hover:bg-brand-50 hover:text-brand-700 disabled:pointer-events-none disabled:opacity-30"
-                  aria-label="نقل لأعلى"
-                >
-                  <ChevronUp className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => moveItem(index, 1)}
-                  disabled={index === items.length - 1}
-                  className="flex h-5 w-6 items-center justify-center rounded text-muted transition-colors hover:bg-brand-50 hover:text-brand-700 disabled:pointer-events-none disabled:opacity-30"
-                  aria-label="نقل لأسفل"
-                >
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </button>
-              </div>
-              <span className="flex-1 text-sm font-medium text-foreground">{product?.name_ar ?? item.productId}</span>
-              {product?.sold_by_weight ? (
-                <div className="flex items-center gap-1.5">
+            <div key={item.productId} className="rounded-xl border border-border bg-white/60 p-2.5">
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => moveItem(index, -1)}
+                    disabled={index === 0}
+                    className="flex h-5 w-6 items-center justify-center rounded text-muted transition-colors hover:bg-brand-50 hover:text-brand-700 disabled:pointer-events-none disabled:opacity-30"
+                    aria-label="نقل لأعلى"
+                  >
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveItem(index, 1)}
+                    disabled={index === items.length - 1}
+                    className="flex h-5 w-6 items-center justify-center rounded text-muted transition-colors hover:bg-brand-50 hover:text-brand-700 disabled:pointer-events-none disabled:opacity-30"
+                    aria-label="نقل لأسفل"
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <span className="flex-1 text-sm font-medium text-foreground">{product?.name_ar ?? item.productId}</span>
+                {product?.sold_by_weight ? (
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      min={0.05}
+                      step={0.05}
+                      value={item.quantity}
+                      onChange={(e) => updateQuantity(item.productId, Math.max(0.05, Number(e.target.value) || 0))}
+                      className="h-9 w-20 rounded-lg border border-border bg-white px-2 text-sm"
+                    />
+                    <span className="text-xs font-medium text-muted-2">كجم</span>
+                  </div>
+                ) : (
                   <input
                     type="number"
-                    min={0.05}
-                    step={0.05}
+                    min={1}
+                    step={1}
                     value={item.quantity}
-                    onChange={(e) => updateQuantity(item.productId, Math.max(0.05, Number(e.target.value) || 0))}
+                    onChange={(e) => updateQuantity(item.productId, Math.max(1, Math.round(Number(e.target.value) || 1)))}
                     className="h-9 w-20 rounded-lg border border-border bg-white px-2 text-sm"
                   />
-                  <span className="text-xs font-medium text-muted-2">كجم</span>
-                </div>
-              ) : (
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeItem(item.productId)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-danger transition-colors hover:bg-danger-bg"
+                  aria-label="إزالة"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              {/* Optional prep note ("متقورة", "مقطع"...) -- a label for
+                  HOW this specific item is prepared inside this box, shown
+                  to the customer next to the item on the storefront. */}
+              <div className="mt-2 grid gap-1.5 ps-9 sm:grid-cols-2">
                 <input
-                  type="number"
-                  min={1}
-                  step={1}
-                  value={item.quantity}
-                  onChange={(e) => updateQuantity(item.productId, Math.max(1, Math.round(Number(e.target.value) || 1)))}
-                  className="h-9 w-20 rounded-lg border border-border bg-white px-2 text-sm"
+                  type="text"
+                  placeholder="ملاحظة تحضير بالعربي (اختياري، مثال: مقورة)"
+                  value={item.prepNoteAr}
+                  onChange={(e) => updatePrepNote(item.productId, "prepNoteAr", e.target.value)}
+                  className="h-8 rounded-lg border border-border bg-white/70 px-2.5 text-xs text-foreground placeholder:text-muted-2"
                 />
-              )}
-              <button
-                type="button"
-                onClick={() => removeItem(item.productId)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-danger transition-colors hover:bg-danger-bg"
-                aria-label="إزالة"
-              >
-                <X className="h-4 w-4" />
-              </button>
+                <input
+                  type="text"
+                  placeholder="Prep note in English (optional)"
+                  value={item.prepNoteEn}
+                  onChange={(e) => updatePrepNote(item.productId, "prepNoteEn", e.target.value)}
+                  className="h-8 rounded-lg border border-border bg-white/70 px-2.5 text-xs text-foreground placeholder:text-muted-2"
+                />
+              </div>
             </div>
           );
         })}

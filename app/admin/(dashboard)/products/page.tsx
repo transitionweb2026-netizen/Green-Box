@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Plus, Search, PackageSearch } from "lucide-react";
 import { adminListProducts } from "@/lib/services/catalog";
 import { formatPrice } from "@/lib/i18n/localized";
+import { displayUnitPrice } from "@/lib/utils/weight-unit";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -72,7 +73,7 @@ export default async function AdminProductsPage({
                     <td className="px-4 py-3 text-muted">
                       {(product as { categories?: { name_ar: string } }).categories?.name_ar ?? "—"}
                     </td>
-                    <td className="px-4 py-3 font-semibold text-deep-700">{formatPrice(product.price, "ar")}</td>
+                    <td className="px-4 py-3 font-semibold text-deep-700">{formatPrice(displayUnitPrice(product), "ar")}</td>
                     <td className="px-4 py-3">
                       <Badge tone={product.is_available ? "success" : "neutral"}>
                         {product.is_available ? "متاح" : "غير متاح"}

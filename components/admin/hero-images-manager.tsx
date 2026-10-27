@@ -7,7 +7,15 @@ import { FormMessage } from "@/components/ui/form-message";
 import { updateHeroImageAction } from "@/app/admin/(dashboard)/content/actions";
 import type { HeroImages } from "@/lib/services/content";
 
-function HeroImageSlot({ slot, label, url }: { slot: "box" | "background"; label: string; url: string | null }) {
+function HeroImageSlot({
+  slot,
+  label,
+  url,
+}: {
+  slot: "box" | "background" | "greenBoxPage";
+  label: string;
+  url: string | null;
+}) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -62,11 +70,13 @@ export function HeroImagesManager({ images }: { images: HeroImages | null }) {
     <div>
       <h2 className="mb-1 font-bold text-foreground">صور قسم الهيرو</h2>
       <p className="mb-4 text-sm text-muted">
-        تظهر صورة &quot;الصندوق&quot; طول ما مفيش بانر مضاف. الخلفية ظاهرة دايمًا خلف قسم الهيرو.
+        تظهر صورة &quot;الصندوق&quot; طول ما مفيش بانر مضاف. الخلفية ظاهرة دايمًا خلف قسم الهيرو. صورة &quot;صفحة جرين
+        بوكس&quot; تظهر أعلى صفحة &quot;جرين بوكس&quot; المستقلة (/box).
       </p>
       <div className="flex flex-wrap gap-6">
         <HeroImageSlot slot="box" label="صورة الصندوق" url={images?.boxCompositionUrl ?? null} />
         <HeroImageSlot slot="background" label="الخلفية" url={images?.backgroundUrl ?? null} />
+        <HeroImageSlot slot="greenBoxPage" label="صورة صفحة جرين بوكس" url={images?.greenBoxPageUrl ?? null} />
       </div>
     </div>
   );

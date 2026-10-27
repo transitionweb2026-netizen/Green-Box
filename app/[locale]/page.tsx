@@ -69,6 +69,7 @@ export default async function HomePage() {
             soldByWeight: entry.item.sold_by_weight,
             name: pickLocalized(entry.item.name_ar, entry.item.name_en, locale),
             image: itemImage?.url ?? null,
+            prepNote: pickLocalized(entry.prep_note_ar ?? "", entry.prep_note_en, locale) || null,
           };
         }),
       };
