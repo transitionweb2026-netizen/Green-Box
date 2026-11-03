@@ -166,10 +166,14 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
               </div>
             )}
 
-            {/* One unified pale-green action bar -- unit, Add to box, and
-                the quick-add circle share a single pill-shaped surface
-                instead of sitting as three separate free-floating
-                controls. */}
+            {/* One unified pale-green action bar -- the unit pill and Add
+                to box button share a single pill-shaped surface instead of
+                sitting as separate free-floating controls. (A second,
+                compact "+" AddToCartButton used to render here alongside
+                this one -- same productId/quantity, so it was a literal
+                duplicate of this exact action, just cramping the bar
+                further on narrow cards. Removed rather than kept, since
+                nothing distinguished what either click did.) */}
             <div className="mt-auto flex items-center gap-1 rounded-full bg-white/50 p-1.5 shadow-[inset_0_1px_2px_rgba(14,27,20,0.08)]">
               {unit && (
                 <span className="hidden shrink-0 items-center gap-0.5 rounded-full bg-white/90 px-2.5 py-2 text-xs font-bold whitespace-nowrap text-deep-800 shadow-sm sm:inline-flex">
@@ -180,7 +184,6 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
               <div className="min-w-0 flex-1">
                 <AddToCartButton productId={product.id} disabled={!product.is_available} />
               </div>
-              <AddToCartButton productId={product.id} disabled={!product.is_available} compact />
             </div>
           </div>
         </div>

@@ -124,7 +124,7 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
         >
           <Minus className="h-3.5 w-3.5" />
         </button>
-        <span className="flex w-14 items-baseline justify-center gap-1">
+        <span className="flex w-20 items-baseline justify-center gap-1">
           <input
             type="text"
             inputMode={isKg ? "decimal" : "numeric"}
@@ -139,7 +139,7 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
             }}
             disabled={isPending || isUnavailable}
             aria-label={tProduct("quantity")}
-            className="w-8 bg-transparent text-center text-sm font-semibold text-foreground focus-visible:outline-none disabled:opacity-50"
+            className="w-11 bg-transparent text-center text-sm font-semibold text-foreground focus-visible:outline-none disabled:opacity-50"
           />
           {unit && <span className="text-[0.65rem] font-medium text-muted-2">{unit}</span>}
         </span>
