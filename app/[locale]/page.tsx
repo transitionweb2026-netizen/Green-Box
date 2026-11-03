@@ -136,21 +136,32 @@ export default async function HomePage() {
             The source image (hero-bg-botanical.webp, 1996x788) is a wide
             panoramic banner: leaf/droplet decoration lives only in the far
             left/right thirds, with a plain blurred-cream center. HeroCarousel
-            stacks image-then-text below lg: (grid-cols-1 until lg:), so the
-            hero section is much taller and narrower than this image at
-            every width below lg: -- bg-cover + bg-center zoomed into just
-            that plain center strip there, cropping out the leaves/droplets
-            entirely and leaving what looked like a flat, textureless
-            background. bg-contain (below lg:) keeps the whole image, both
-            decorated edges included, in frame regardless of the container's
-            aspect ratio; the sampled fallback color seamlessly fills
-            whatever strip bg-contain doesn't cover, matching the image's
-            own washed-out highlight tone so the letterboxing is invisible.
-            lg:bg-cover restores the exact original full-bleed desktop look,
-            where the section's aspect ratio is close enough to the image's
-            own that cover never crops into the decorated edges. */}
+            stacks image-then-text below lg: (grid-cols-1 until lg:), so this
+            whole section -- box, headline, CTA/note, category-shortcut pills
+            -- is much taller than the image at every width below lg:.
+            bg-cover + bg-center (the original code) zoomed into just the
+            plain center strip, cropping the decoration out entirely. A
+            later bg-contain attempt kept the full image in frame, but
+            bg-center's vertical centering landed that cropped band
+            wherever the section's midpoint happened to fall across all
+            that stacked content -- in practice, directly behind the CTA
+            button and hand-written note, reading as a stray decorative
+            mistake clashing with the button rather than ambiance (and
+            confirmed exactly that from a real phone screenshot).
+
+            HeroCarousel's own box-scoped leaf-frame layer (see its
+            heroBackgroundImage prop) already supplies the real decoration
+            precisely around the box, correctly, at every breakpoint -- so
+            below lg: this whole-section layer no longer needs to show the
+            image at all; a plain sampled fallback color (matching the
+            image's own washed-out highlight tone) is enough ambiance
+            without any risk of a stray band landing over interactive
+            content. lg:block switches back to the exact original
+            image+bg-cover look, unchanged, at the width it already
+            worked correctly. */}
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[#f9f7e8] lg:hidden" aria-hidden="true" />
         <div
-          className="pointer-events-none absolute inset-0 -z-10 bg-[#f9f7e8] bg-contain bg-center bg-no-repeat lg:bg-cover"
+          className="pointer-events-none absolute inset-0 -z-10 hidden bg-cover bg-center lg:block"
           style={{
             backgroundImage: `url(${heroImages?.backgroundUrl || "/images/hero-bg-botanical.webp"})`,
             filter: "saturate(1.55) contrast(1.12) brightness(0.95)",
