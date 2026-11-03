@@ -23,6 +23,11 @@ const FIXED_HERO_IMAGE = "/images/hero.jpg";
 // cutout system entirely -- see hero-carousel.tsx git history for that.
 const BOX_COMPOSITION_IMAGE = "/images/hero-green-box.webp";
 
+// Same default as page.tsx's section-wide botanical backdrop -- kept in
+// sync manually since this is the fallback for a separate, box-scoped
+// copy of that same image (see heroBackgroundImage above).
+const HERO_BACKGROUND_IMAGE = "/images/hero-bg-botanical.webp";
+
 interface HeroSlide {
   subtitle: string;
   image: string;
@@ -52,6 +57,7 @@ export function HeroCarousel({
   heroCta,
   heroNote,
   boxCompositionImage,
+  heroBackgroundImage,
   cartSummary,
 }: {
   banners: Banner[];
@@ -66,6 +72,14 @@ export function HeroCarousel({
    * lib/services/content.ts's HeroImages) -- falls back to the shipped
    * asset when unset. */
   boxCompositionImage?: string;
+  /** Same botanical backdrop the hero section itself uses behind
+   * everything (see page.tsx) -- also layered here, scoped to the box's
+   * own fixed aspect-[4/3] container, so the leaf/droplet framing around
+   * the box is pixel-identical at every breakpoint. The section-wide
+   * copy can't guarantee that alone: the section's own aspect ratio
+   * swings from tall+narrow (stacked, below lg:) to wide+short (side by
+   * side, lg:+), while this box container's ratio never changes. */
+  heroBackgroundImage?: string;
   /** Rendered server-side (it reads the real cart) and handed down as a
    * slot -- a client component can't import/invoke an async Server
    * Component itself, but it can render one passed in as a prop/child. */
@@ -217,6 +231,40 @@ export function HeroCarousel({
       <div className="relative order-1 lg:order-2 lg:-mx-6 xl:-mx-10">
         {showBoxComposition ? (
           <div className="relative aspect-[4/3] w-full" style={{ perspective: "1600px" }}>
+            {/* Leaf/droplet framing around the box, below lg: only. The
+                source image is a wide 2.533:1 panoramic banner with real
+                decoration confined to its far left/right edges and a
+                plain blurred center -- a single bg-cover crop on THIS
+                container's much narrower 4:3 ratio still lands almost
+                entirely in that plain center (cover crops to the
+                container's own ratio relative to the image's, here
+                leaving only the middle ~53% of the image's width in
+                frame, nowhere near the edges), so that approach was
+                tried and rejected. Two independent copies of the same
+                image instead, each pinned to its own edge of this
+                container at full container height with its natural
+                (uncropped-by-ratio) width -- background-position "left
+                center"/"right center" anchors each copy's own
+                leaf-decorated edge to the matching edge of this box, so
+                the decoration is visible regardless of how much (or
+                little) of each copy's full width the container actually
+                shows. lg:hidden: at lg:+ the hero returns to its
+                side-by-side layout, where the section-wide backdrop
+                (the plain single-layer version, see page.tsx) already
+                reaches the box correctly on its own, unchanged from
+                before this fix -- stacking this layer on top there too
+                would double-expose the two copies across most of a wide
+                container instead of just framing its edges. */}
+            <div
+              className="absolute inset-0 -z-10 bg-no-repeat lg:hidden"
+              style={{
+                backgroundImage: `url(${heroBackgroundImage || HERO_BACKGROUND_IMAGE}), url(${heroBackgroundImage || HERO_BACKGROUND_IMAGE})`,
+                backgroundPosition: "left center, right center",
+                backgroundSize: "auto 100%, auto 100%",
+                filter: "saturate(1.55) contrast(1.12) brightness(0.95)",
+              }}
+              aria-hidden="true"
+            />
             {/* Ambient glow -- a soft, wide halo behind the box so it
                 separates from the botanical backdrop by light, not a hard
                 edge, and reads as lit by the same soft daylight as the

@@ -167,6 +167,7 @@ export default async function HomePage() {
           heroCta={t("home.heroCta")}
           heroNote={t("home.heroNote")}
           boxCompositionImage={heroImages?.boxCompositionUrl}
+          heroBackgroundImage={heroImages?.backgroundUrl}
           cartSummary={<HeroCartSummary />}
         />
 
