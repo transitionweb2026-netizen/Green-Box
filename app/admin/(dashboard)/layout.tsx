@@ -31,7 +31,15 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
         </div>
       </aside>
       <div className="min-w-0 flex-1">
-        <header className="glass sticky top-0 z-30 hidden items-center justify-between !rounded-none border-x-0 border-t-0 px-6 py-3 md:flex">
+        <header
+          className="glass sticky top-0 z-30 hidden items-center justify-between !rounded-none border-x-0 border-t-0 px-6 py-3 md:flex"
+          // Same unlayered-CSS-beats-utilities issue as search-box.tsx's
+          // dropdown: .glass declares `position: relative` in globals.css,
+          // which always wins over the `sticky` utility above regardless
+          // of source order, so this header silently scrolled away with
+          // the page instead of staying pinned at the top.
+          style={{ position: "sticky" }}
+        >
           <span className="text-sm text-muted">
             أهلاً، <span className="font-bold text-foreground">{profile.full_name ?? profile.email}</span>
           </span>

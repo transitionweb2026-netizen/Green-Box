@@ -118,7 +118,21 @@ export function SearchBox({ initialQuery = "" }: { initialQuery?: string }) {
         />
       </form>
       {open && suggestions.length > 0 && (
-        <ul id={listboxId} role="listbox" className="glass glass-panel absolute z-20 mt-2 w-full overflow-hidden !rounded-2xl !p-1.5">
+        <ul
+          id={listboxId}
+          role="listbox"
+          className="glass glass-panel absolute z-20 mt-2 w-full overflow-hidden !rounded-2xl !p-1.5"
+          // .glass itself declares `position: relative` in unlayered CSS
+          // (globals.css -- see its own doc comment on .card-image-mask for
+          // why), which always beats the `absolute` Tailwind utility above
+          // regardless of source order. Without this inline override (which
+          // nothing in CSS, including !important-free utilities, can lose
+          // to) this dropdown rendered position: relative instead of
+          // absolute -- not floating over the page at all, just pushing
+          // whatever came after it down in normal flow instead of
+          // overlaying below the search input.
+          style={{ position: "absolute" }}
+        >
           {suggestions.map((s, index) => (
             <li key={`${s.kind}-${s.id}`} role="presentation">
               <button
