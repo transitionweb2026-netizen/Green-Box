@@ -131,9 +131,26 @@ export default async function HomePage() {
             behind the Green Box real leaf/droplet/glass depth instead of
             three flat CSS blobs, so the box has an actual environment to
             sit inside rather than an empty gap between it and the page's
-            plain cream canvas. */}
+            plain cream canvas.
+
+            The source image (hero-bg-botanical.webp, 1996x788) is a wide
+            panoramic banner: leaf/droplet decoration lives only in the far
+            left/right thirds, with a plain blurred-cream center. HeroCarousel
+            stacks image-then-text below lg: (grid-cols-1 until lg:), so the
+            hero section is much taller and narrower than this image at
+            every width below lg: -- bg-cover + bg-center zoomed into just
+            that plain center strip there, cropping out the leaves/droplets
+            entirely and leaving what looked like a flat, textureless
+            background. bg-contain (below lg:) keeps the whole image, both
+            decorated edges included, in frame regardless of the container's
+            aspect ratio; the sampled fallback color seamlessly fills
+            whatever strip bg-contain doesn't cover, matching the image's
+            own washed-out highlight tone so the letterboxing is invisible.
+            lg:bg-cover restores the exact original full-bleed desktop look,
+            where the section's aspect ratio is close enough to the image's
+            own that cover never crops into the decorated edges. */}
         <div
-          className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center"
+          className="pointer-events-none absolute inset-0 -z-10 bg-[#f9f7e8] bg-contain bg-center bg-no-repeat lg:bg-cover"
           style={{
             backgroundImage: `url(${heroImages?.backgroundUrl || "/images/hero-bg-botanical.webp"})`,
             filter: "saturate(1.55) contrast(1.12) brightness(0.95)",
