@@ -441,9 +441,19 @@ body {
  * Centered pill-shaped primary nav, replacing a flat link row -- the
  * header's main wayfinding element on the reference. Glassy so it still
  * reads on the plain white header row without a hard outline.
+ *
+ * No `display` here on purpose: pill-nav.tsx applies `hidden lg:inline-flex`
+ * in its className, and this file is unlayered CSS (only `@import
+ * "tailwindcss"`, no `@layer` wrapper) -- unlayered rules always beat
+ * Tailwind's `@layer utilities` classes regardless of specificity or
+ * source order (same gotcha documented above for .card-image-mask's
+ * `position`). A `display` declared here would make the nav permanently
+ * visible at every viewport, including mobile, overlapping the header's
+ * hamburger menu -- which is exactly what shipped until this comment was
+ * added. Let the JSX's own `hidden`/`lg:inline-flex` utilities own display
+ * entirely; this class only supplies the pill's cosmetic chrome.
  */
 .pill-nav {
-  display: inline-flex;
   align-items: center;
   gap: 0.125rem;
   border-radius: 9999px;
