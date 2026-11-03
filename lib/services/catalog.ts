@@ -242,7 +242,12 @@ export async function getBoxContents(boxProductId: string): Promise<BoxContentIt
     .eq("box_product_id", boxProductId)
     .order("display_order", { ascending: true });
   if (error) throw error;
-  return (data as unknown as BoxContentItem[]) ?? [];
+  // `item` comes back null if RLS/a dangling reference hides the joined
+  // product row (see 0038_box_item_product_visibility.sql for the normal
+  // case this now prevents) -- filtered out here as a safety net so one
+  // bad row degrades that box's shown contents instead of crashing every
+  // page that renders them.
+  return ((data as unknown as BoxContentItem[]) ?? []).filter((entry) => entry.item != null);
 }
 
 /**
