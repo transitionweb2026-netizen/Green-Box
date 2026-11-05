@@ -1,24 +1,35 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { ImageIcon, Upload } from "lucide-react";
+import { ImageIcon, Upload, X } from "lucide-react";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { FormMessage } from "@/components/ui/form-message";
-import { updateHeroImageAction } from "@/app/admin/(dashboard)/content/actions";
+import { updateHeroImageAction, removeHeroImageAction } from "@/app/admin/(dashboard)/content/actions";
 import type { HeroImages } from "@/lib/services/content";
+
+type HeroImageSlotName = "box" | "background" | "greenBoxPage" | "greenBoxTeaser" | "freshSplit" | "preparedSplit";
 
 function HeroImageSlot({
   slot,
   label,
   url,
 }: {
-  slot: "box" | "background" | "greenBoxPage" | "greenBoxTeaser" | "freshSplit" | "preparedSplit";
+  slot: HeroImageSlotName;
   label: string;
   url: string | null;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
+  const [isRemoving, startRemoveTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  function remove() {
+    setError(null);
+    startRemoveTransition(async () => {
+      const result = await removeHeroImageAction(slot);
+      if (result.status === "error") setError(result.message ?? "فشل حذف الصورة");
+    });
+  }
 
   return (
     <form
@@ -34,7 +45,18 @@ function HeroImageSlot({
     >
       <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-lg bg-brand-50">
         {url ? (
-          <Image src={url} alt={label} fill sizes="128px" className="object-cover" />
+          <>
+            <Image src={url} alt={label} fill sizes="128px" className="object-cover" />
+            <button
+              type="button"
+              onClick={remove}
+              disabled={isRemoving}
+              aria-label="حذف الصورة والرجوع للصورة الافتراضية"
+              className="absolute end-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-deep-900/70 text-white transition-colors hover:bg-danger disabled:opacity-50"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </>
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-1 text-muted-2">
             <ImageIcon className="h-5 w-5" />
@@ -44,13 +66,13 @@ function HeroImageSlot({
       </div>
       <label className="flex cursor-pointer items-center gap-1 text-xs font-semibold text-deep-700 hover:text-deep-800">
         <Upload className="h-3.5 w-3.5" />
-        {isPending ? "جارٍ الرفع..." : label}
+        {isPending ? "جارٍ الرفع..." : isRemoving ? "جارٍ الحذف..." : label}
         <input
           type="file"
           name="image"
           accept="image/jpeg,image/png,image/webp"
           className="hidden"
-          disabled={isPending}
+          disabled={isPending || isRemoving}
           onChange={() => formRef.current?.requestSubmit()}
         />
       </label>

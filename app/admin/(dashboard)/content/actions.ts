@@ -400,3 +400,27 @@ export async function updateHeroImageAction(
   revalidatePath("/[locale]/box", "page");
   return { status: "idle" };
 }
+
+/** Clears an uploaded hero image back to its built-in default -- the
+ * upload slot had no way to undo a replacement before this, only
+ * overwrite it with another file. */
+export async function removeHeroImageAction(slot: keyof typeof HERO_IMAGE_KEYS): Promise<HeroImageActionState> {
+  const existing = (await getSetting<HeroImages>("hero_images")) ?? {};
+  const key = HERO_IMAGE_KEYS[slot];
+  const previousUrl = existing[key];
+  if (!previousUrl) return { status: "idle" };
+
+  const next = { ...existing };
+  delete next[key];
+  await adminUpsertSetting(
+    "hero_images",
+    next,
+    "Hero section images (box composition + background + Green Box page) -- falls back to the built-in asset when unset.",
+  );
+  await deleteMediaFile(previousUrl).catch(() => {});
+
+  revalidatePath("/admin/content");
+  revalidatePath("/[locale]", "page");
+  revalidatePath("/[locale]/box", "page");
+  return { status: "idle" };
+}
