@@ -12,7 +12,7 @@ function HeroImageSlot({
   label,
   url,
 }: {
-  slot: "box" | "background" | "greenBoxPage";
+  slot: "box" | "background" | "greenBoxPage" | "greenBoxTeaser" | "freshSplit" | "preparedSplit";
   label: string;
   url: string | null;
 }) {
@@ -60,23 +60,30 @@ function HeroImageSlot({
 }
 
 /**
- * The two hero images that had no upload path before (see
+ * Every homepage/hero image that had no upload path before (see
  * lib/services/content.ts's HeroImages doc comment) -- separate from
  * BannerManager above, which covers the rotating banner images once an
- * admin has added at least one banner.
+ * admin has added at least one banner, and from the category grid's own
+ * per-category image (edited from each category's own edit page, not
+ * here).
  */
 export function HeroImagesManager({ images }: { images: HeroImages | null }) {
   return (
     <div>
-      <h2 className="mb-1 font-bold text-foreground">صور قسم الهيرو</h2>
+      <h2 className="mb-1 font-bold text-foreground">صور الصفحة الرئيسية</h2>
       <p className="mb-4 text-sm text-muted">
         تظهر صورة &quot;الصندوق&quot; طول ما مفيش بانر مضاف. الخلفية ظاهرة دايمًا خلف قسم الهيرو. صورة &quot;صفحة جرين
-        بوكس&quot; تظهر أعلى صفحة &quot;جرين بوكس&quot; المستقلة (/box).
+        بوكس&quot; تظهر أعلى صفحة &quot;جرين بوكس&quot; المستقلة (/box). صور &quot;جرين بوكس التعريفية&quot; و&quot;طازج&quot;
+        و&quot;جاهز للاستخدام&quot; تظهر في أقسام الصفحة الرئيسية بنفس الأسماء. صور كروت الأقسام (خضروات طازجة، فواكه
+        طازجة...) بتتعدل من صفحة تعديل كل قسم على حدة، مش هنا.
       </p>
       <div className="flex flex-wrap gap-6">
         <HeroImageSlot slot="box" label="صورة الصندوق" url={images?.boxCompositionUrl ?? null} />
         <HeroImageSlot slot="background" label="الخلفية" url={images?.backgroundUrl ?? null} />
         <HeroImageSlot slot="greenBoxPage" label="صورة صفحة جرين بوكس" url={images?.greenBoxPageUrl ?? null} />
+        <HeroImageSlot slot="greenBoxTeaser" label="صورة جرين بوكس التعريفية" url={images?.greenBoxTeaserUrl ?? null} />
+        <HeroImageSlot slot="freshSplit" label='صورة "طازج"' url={images?.freshSplitUrl ?? null} />
+        <HeroImageSlot slot="preparedSplit" label='صورة "جاهز للاستخدام"' url={images?.preparedSplitUrl ?? null} />
       </div>
     </div>
   );

@@ -356,7 +356,7 @@ export default async function HomePage() {
               </div>
               <div className="relative order-1 aspect-[4/3] overflow-hidden rounded-2xl lg:order-2 lg:aspect-square">
                 <Image
-                  src={placeholderImage("greenBox", { width: 900, height: 900 })}
+                  src={heroImages?.greenBoxTeaserUrl || placeholderImage("greenBox", { width: 900, height: 900 })}
                   alt={t("home.greenBoxTitle")}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -389,7 +389,7 @@ export default async function HomePage() {
           <div className="mt-8 grid gap-4 sm:grid-cols-2 sm:gap-5">
             <div className="group relative flex min-h-[22rem] flex-col justify-end overflow-hidden rounded-2xl">
               <Image
-                src={placeholderImage("farmHarvest")}
+                src={heroImages?.freshSplitUrl || placeholderImage("farmHarvest")}
                 alt={t("home.freshTitle")}
                 fill
                 sizes="(max-width: 640px) 100vw, 50vw"
@@ -405,7 +405,7 @@ export default async function HomePage() {
             </div>
             <div className="group relative flex min-h-[22rem] flex-col justify-end overflow-hidden rounded-2xl">
               <Image
-                src={placeholderImage("kitchen")}
+                src={heroImages?.preparedSplitUrl || placeholderImage("kitchen")}
                 alt={t("home.preparedTitle")}
                 fill
                 sizes="(max-width: 640px) 100vw, 50vw"

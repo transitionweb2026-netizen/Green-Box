@@ -80,6 +80,14 @@ export interface HeroImages {
    * placeholder image (see app/[locale]/box/page.tsx git history). Falls
    * back to the homepage's box composition asset when unset. */
   greenBoxPageUrl?: string;
+  /** Homepage "A curated box of fresh essentials" teaser photo (the dark
+   * green Green Box promo section, above the real box showcase). */
+  greenBoxTeaserUrl?: string;
+  /** Homepage "Fresh vs Prepared" split -- left card ("Fresh..."). */
+  freshSplitUrl?: string;
+  /** Homepage "Fresh vs Prepared" split -- right card ("Or ready to
+   * go?"). */
+  preparedSplitUrl?: string;
 }
 
 /**

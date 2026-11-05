@@ -362,6 +362,9 @@ const HERO_IMAGE_KEYS = {
   box: "boxCompositionUrl",
   background: "backgroundUrl",
   greenBoxPage: "greenBoxPageUrl",
+  greenBoxTeaser: "greenBoxTeaserUrl",
+  freshSplit: "freshSplitUrl",
+  preparedSplit: "preparedSplitUrl",
 } as const;
 
 /** One upload slot ("box", "background", or "greenBoxPage") at a time --
