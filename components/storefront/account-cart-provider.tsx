@@ -27,16 +27,43 @@ function subscribe() {
   return () => {};
 }
 
+// getSnapshot must return a STABLE reference when nothing has actually
+// changed -- useSyncExternalStore compares successive snapshots with
+// Object.is, and JSON.parse() returns a brand-new object every call even
+// for the identical string. Returning a fresh object on every call (the
+// original bug here) makes it conclude "changed" on every single check,
+// forever, which is an infinite render loop (React error #185, "Maximum
+// update depth exceeded") the moment localStorage actually has a value
+// to parse -- it crashed the tab for any returning visitor, confirmed
+// live. Caching the last raw string alongside its parsed result, and
+// only re-parsing when the raw string itself differs, is what makes
+// repeated calls return the SAME reference when the stored value hasn't
+// changed.
+let cachedRaw: string | null = null;
+let cachedSnapshot: AccountCartState = DEFAULT_STATE;
+
 function getSnapshot(): AccountCartState {
+  let raw: string | null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_STATE;
-    const parsed = JSON.parse(raw);
-    if (typeof parsed?.isLoggedIn === "boolean" && typeof parsed?.cartCount === "number") return parsed;
-    return DEFAULT_STATE;
+    raw = localStorage.getItem(STORAGE_KEY);
   } catch {
-    return DEFAULT_STATE;
+    raw = null;
   }
+  if (raw === cachedRaw) return cachedSnapshot;
+  cachedRaw = raw;
+
+  if (!raw) {
+    cachedSnapshot = DEFAULT_STATE;
+    return cachedSnapshot;
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    cachedSnapshot =
+      typeof parsed?.isLoggedIn === "boolean" && typeof parsed?.cartCount === "number" ? parsed : DEFAULT_STATE;
+  } catch {
+    cachedSnapshot = DEFAULT_STATE;
+  }
+  return cachedSnapshot;
 }
 
 function getServerSnapshot(): AccountCartState {
