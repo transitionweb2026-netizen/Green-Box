@@ -281,6 +281,7 @@ export async function setBoxContentsAction(
   revalidatePath(`/admin/products/${productId}/edit`);
   revalidatePath(`/admin/boxes/${productId}/edit`);
   revalidateTag("products", "max");
+  revalidateTag("box_items", "max");
   revalidateStorefrontProductPaths();
   return { status: "idle" };
 }

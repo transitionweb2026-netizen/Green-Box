@@ -9,6 +9,11 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CartItemRow } from "@/components/storefront/cart-item-row";
 
+// Explicit per Phase 1 item 4 ("/cart stays dynamic") -- requireAuth's
+// cookies() call plus this page's own live, per-user cart read already
+// made it dynamic; this makes that deliberate rather than incidental.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata() {
   const t = await getTranslations("cart");
   return { title: t("title"), robots: { index: false, follow: false } };

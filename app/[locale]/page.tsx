@@ -18,6 +18,15 @@ import { HeroCarousel } from "@/components/storefront/hero-carousel";
 import { HeroCartSummary } from "@/components/storefront/hero-cart-summary";
 import { BoxShowcase, type BoxShowcaseBox } from "@/components/storefront/box-showcase";
 
+// Static/ISR per Phase 1 item 4 -- see app/[locale]/c/[categorySlug]/page.tsx's
+// comment for what dynamic = 'error' guards against. SiteHeader's
+// account/cart state (account-cart-provider.tsx) and HeroCartSummary are
+// both client-fetched now, and getBoxContents/listActiveBanners/getSetting
+// all moved to the cached public-client pattern -- this page no longer
+// calls any dynamic API anywhere in its tree.
+export const dynamic = "error";
+export const revalidate = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   return {

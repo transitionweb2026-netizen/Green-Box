@@ -54,7 +54,7 @@ export function ProductGallery({
               aria-label={`${alt} ${index + 1}`}
               aria-current={index === activeIndex}
             >
-              <Image src={image.url} alt="" fill className="object-cover" />
+              <Image src={image.url} alt="" fill sizes="64px" className="object-cover" />
             </button>
           ))}
         </div>

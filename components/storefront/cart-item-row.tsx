@@ -11,6 +11,7 @@ import { categoryPlaceholderKey, placeholderImage } from "@/lib/media/placeholde
 import { cn } from "@/lib/utils/cn";
 import { displayUnitPrice } from "@/lib/utils/weight-unit";
 import { removeCartItemAction, updateCartItemAction, updateCartItemNotesAction } from "@/app/[locale]/cart/actions";
+import { useAccountCartState } from "./account-cart-provider";
 import type { CartItemWithProduct } from "@/lib/services/cart";
 
 export function CartItemRow({ item }: { item: CartItemWithProduct }) {
@@ -18,6 +19,9 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
   const tProduct = useTranslations("product");
   const locale = useLocale();
   const [isPending, startTransition] = useTransition();
+  // SiteHeader's cart badge is client-fetched (account-cart-provider.tsx),
+  // not re-derived from this page's own revalidated RSC render.
+  const { refresh: refreshAccountCartState } = useAccountCartState();
   const [notes, setNotes] = useState(item.notes ?? "");
   const name = pickLocalized(item.products.name_ar, item.products.name_en, locale);
   const image = item.products.product_images.find((img) => img.is_primary) ?? item.products.product_images[0];
@@ -54,7 +58,10 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
   }
 
   function updateQuantity(quantity: number) {
-    startTransition(() => updateCartItemAction(locale, item.id, Math.round(quantity)));
+    startTransition(async () => {
+      await updateCartItemAction(locale, item.id, Math.round(quantity));
+      refreshAccountCartState();
+    });
   }
 
   function commitQuantityText() {
@@ -68,7 +75,10 @@ export function CartItemRow({ item }: { item: CartItemWithProduct }) {
   }
 
   function remove() {
-    startTransition(() => removeCartItemAction(locale, item.id));
+    startTransition(async () => {
+      await removeCartItemAction(locale, item.id);
+      refreshAccountCartState();
+    });
   }
 
   function saveNotes() {

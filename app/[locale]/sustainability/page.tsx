@@ -5,6 +5,9 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { getSetting, type SustainabilityContent } from "@/lib/services/content";
 import { pickLocalizedOrDefault } from "@/lib/i18n/localized";
 
+export const dynamic = "error";
+export const revalidate = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("sustainabilityPage");
   return { title: t("title") };

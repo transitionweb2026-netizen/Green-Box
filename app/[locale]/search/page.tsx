@@ -8,6 +8,11 @@ import { Pagination } from "@/components/ui/pagination";
 
 const PAGE_SIZE = 20;
 
+// Explicit per Phase 1 item 4 ("/search stays dynamic") -- this page
+// reads searchParams (q, page) directly by design (query-driven search
+// results), which already made it dynamic; this makes that deliberate.
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   searchParams: Promise<{ q?: string; page?: string }>;
 }

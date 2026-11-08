@@ -15,6 +15,9 @@ import { ProductCard } from "@/components/storefront/product-card";
 // to an external placeholder service with no admin upload path at all.
 const FALLBACK_IMAGE = "/images/hero-green-box.webp";
 
+export const dynamic = "error";
+export const revalidate = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("greenBoxPage");
   return { title: t("title"), description: t("subtitle") };
@@ -55,6 +58,8 @@ export default async function GreenBoxPage() {
               alt={t("title")}
               fill
               priority
+              fetchPriority="high"
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />
             <div className="absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-white/20" />

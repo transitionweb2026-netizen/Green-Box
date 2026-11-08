@@ -4,10 +4,16 @@ import { useTransition } from "react";
 import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "@/i18n/navigation";
+import { useAccountCartState } from "./account-cart-provider";
 
 export function LogoutButton({ label }: { label: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  // SiteHeader's account icon/cart badge are client-fetched once on
+  // mount (account-cart-provider.tsx) -- a client-side route change
+  // (router.push below) doesn't remount that provider, so without this
+  // the header would keep showing "logged in" after signing out.
+  const { refresh: refreshAccountCartState } = useAccountCartState();
 
   function handleLogout() {
     startTransition(async () => {
@@ -15,6 +21,7 @@ export function LogoutButton({ label }: { label: string }) {
       await supabase.auth.signOut();
       router.push("/");
       router.refresh();
+      refreshAccountCartState();
     });
   }
 

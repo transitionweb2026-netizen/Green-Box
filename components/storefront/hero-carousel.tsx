@@ -80,9 +80,11 @@ export function HeroCarousel({
    * swings from tall+narrow (stacked, below lg:) to wide+short (side by
    * side, lg:+), while this box container's ratio never changes. */
   heroBackgroundImage?: string;
-  /** Rendered server-side (it reads the real cart) and handed down as a
-   * slot -- a client component can't import/invoke an async Server
-   * Component itself, but it can render one passed in as a prop/child. */
+  /** Handed down as a slot from page.tsx rather than imported directly
+   * here -- HeroCartSummary is a client component itself now (it used to
+   * be an async Server Component, which this component, being a client
+   * component, couldn't have imported/invoked directly; now it's just a
+   * normal prop/child, kept as-is since nothing requires changing it). */
   cartSummary: ReactNode;
 }) {
   const isAr = locale !== "en";
@@ -149,15 +151,20 @@ export function HeroCarousel({
             </span>
           ))}
         </p>
-        {/* The script accent font (Caveat) bakes a lot of extra vertical
-            space into its own line box (room for tall ascenders/loops)
-            even at leading-none, so closing the gap to the line above --
-            and to the subtitle below -- takes negative margins, not just
-            removing positive ones. Those margins are Caveat-specific: for
-            Arabic, font-script's own fallback chain (--font-caveat,
-            --font-cairo, cursive) already renders this span in Cairo
-            instead (Caveat has no Arabic glyphs), which has a normal
-            line-box, so it gets a plain small positive margin instead.
+        {/* The negative margins below (-mt-3/-mt-4/-mt-5/-mt-7 for the
+            English/Latin case) were tuned for Caveat, the script font
+            --font-script used before Phase 1's font consolidation
+            remapped it to Playfair Display (globals.css) -- Caveat baked
+            a lot of extra vertical space into its own line box (room for
+            tall ascenders/loops) even at leading-none, which these
+            margins closed. Playfair's line-box doesn't have that same
+            excess, so these specific values are likely tighter than
+            intended now and worth revisiting -- deliberately left
+            as-is here since Phase 3 ("tidy hierarchy and spacing") owns
+            re-tuning hero spacing, not this font-swap step. Arabic
+            already rendered in Cairo either way (font-script's fallback
+            chain), unaffected by the swap, so its plain positive margin
+            below is untouched and still correct.
             The Arabic accent text is also a noticeably smaller size: at
             the English sizes, the two-word Arabic translation ("بأسلوب
             جديد", vs. the single word "reimagined") wrapped onto two
@@ -287,6 +294,7 @@ export function HeroCarousel({
               alt={heroHeadline}
               fill
               priority
+              fetchPriority="high"
               sizes="(max-width: 1024px) 95vw, 55vw"
               className="relative object-contain drop-shadow-[0_10px_12px_rgba(14,27,20,0.32)] drop-shadow-[0_40px_44px_rgba(14,27,20,0.3)]"
               style={{ transform: "rotateY(-4deg) rotateX(2deg)" }}
@@ -308,6 +316,7 @@ export function HeroCarousel({
                     alt={slide.subtitle}
                     fill
                     priority={i === 0}
+                    fetchPriority={i === 0 ? "high" : undefined}
                     sizes="100vw"
                     className="object-cover sm:hidden"
                   />
@@ -316,6 +325,7 @@ export function HeroCarousel({
                     alt={slide.subtitle}
                     fill
                     priority={i === 0}
+                    fetchPriority={i === 0 ? "high" : undefined}
                     sizes="50vw"
                     className="hidden object-cover sm:block"
                   />

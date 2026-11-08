@@ -9,6 +9,9 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { placeholderImage } from "@/lib/media/placeholders";
 import { LayoutGrid } from "lucide-react";
 
+export const dynamic = "error";
+export const revalidate = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("nav");
   return { title: t("categories") };

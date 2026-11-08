@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ChevronLeft, ChevronRight, PackageCheck, ShieldCheck, Star, Truck } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getBoxContents, getProductBySlug, listRecommendedProducts } from "@/lib/services/catalog";
+import { getBoxContents, getProductBySlug, listProducts, listRecommendedProducts } from "@/lib/services/catalog";
 import { pickLocalized } from "@/lib/i18n/localized";
 import { formatBoxItemQuantity } from "@/lib/i18n/box-item-quantity";
 import { displayUnitPrice } from "@/lib/utils/weight-unit";
@@ -18,6 +18,14 @@ import { ProductCard } from "@/components/storefront/product-card";
 
 interface PageProps {
   params: Promise<{ productSlug: string }>;
+}
+
+export const dynamic = "error";
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const { products } = await listProducts({ pageSize: 1000 });
+  return products.map((product) => ({ productSlug: product.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

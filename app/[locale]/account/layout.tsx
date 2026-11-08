@@ -2,6 +2,12 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { requireAuth } from "@/lib/auth/session";
 import { AccountNav } from "@/components/storefront/account-nav";
 
+// Explicit per Phase 1 item 4 ("/account/* stays dynamic") -- requireAuth's
+// cookies() call already made this dynamic implicitly, but with the rest
+// of the app moving to static/ISR this makes it a deliberate choice
+// rather than an incidental side effect, for every page under this layout.
+export const dynamic = "force-dynamic";
+
 export const metadata = { robots: { index: false, follow: false } };
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {

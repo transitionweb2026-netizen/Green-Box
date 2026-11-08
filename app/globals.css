@@ -126,10 +126,15 @@
      headline to match its reference design -- Arabic text falls back to
      font-sans since no Arabic serif in that style exists. */
   --font-serif: var(--font-playfair), var(--font-cairo), serif;
-  /* Latin-only display face for the hero's rotated sticker tag only. */
-  --font-sticker: var(--font-baloo), var(--font-cairo), sans-serif;
-  /* Latin-only casual script for the hero headline's accent word only. */
-  --font-script: var(--font-caveat), var(--font-cairo), cursive;
+  /* Was Baloo 2 (a bold rounded display face), used just for the hero's
+     rotated sticker tag -- removed per Phase 1's font consolidation
+     (only Cairo + Playfair Display now), remapped to the same Playfair
+     Display already used for --font-serif above. Arabic still falls
+     back to font-sans/Cairo, unchanged. */
+  --font-sticker: var(--font-playfair), var(--font-cairo), sans-serif;
+  /* Was Caveat (a casual script face), used just for the hero headline's
+     accent word -- same consolidation/remap as --font-sticker above. */
+  --font-script: var(--font-playfair), var(--font-cairo), cursive;
 
   --animate-fade-up: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-shimmer: shimmer 1.8s ease-in-out infinite;
@@ -198,6 +203,12 @@ body {
  */
 .glass {
   position: relative;
+  /* Was also backdrop-filter: blur(18px) saturate(140%) -- removed per
+     Phase 1 item 7 (replace backdrop-blur with solid/semi-opaque
+     backgrounds): backdrop-filter is a real, continuous GPU cost
+     wherever this panel sits over scrolling/animated content, and the
+     gradient below (already 60-78% opaque) already reads as a frosted
+     glass card without it. */
   background: linear-gradient(155deg, var(--glass-bg-strong), var(--glass-bg) 60%);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-card);
@@ -205,8 +216,6 @@ body {
     inset 0 1px 0 var(--glass-highlight),
     inset 0 0 0 1px rgba(255, 255, 255, 0.25),
     var(--shadow-soft);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 
 .glass::before {
@@ -241,14 +250,14 @@ body {
 
 .glass-dark {
   position: relative;
+  /* Was also backdrop-filter: blur(20px) saturate(130%) -- removed, same
+     reasoning as .glass above. */
   background: linear-gradient(155deg, rgba(47, 102, 80, 0.55), var(--glass-dark-bg) 65%);
   border: 1px solid var(--glass-dark-border);
   border-radius: var(--radius-card);
   box-shadow:
     inset 0 1px 0 var(--glass-dark-highlight),
     0 20px 48px -16px rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(20px) saturate(130%);
-  -webkit-backdrop-filter: blur(20px) saturate(130%);
   color: #f2f6f0;
 }
 
@@ -458,11 +467,12 @@ body {
   gap: 0.125rem;
   border-radius: 9999px;
   border: 1px solid var(--border);
+  /* Was also backdrop-filter: blur(10px) -- removed per Phase 1 item 7,
+     same reasoning as .glass above; this sits in the sticky header, so
+     it would otherwise re-blur on every scroll frame. */
   background: rgba(255, 255, 255, 0.7);
   padding: 0.3rem;
   box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .pill-nav-link {
@@ -503,12 +513,24 @@ body {
 }
 
 /*
- * Storefront-wide botanical atmosphere -- one fixed, full-viewport layer
- * rendered once in the storefront root layout (app/[locale]/layout.tsx),
- * behind every page, instead of a background re-implemented per section.
- * `position: fixed` (not `absolute`) is what makes this a single
- * continuous environment: it never scrolls, tiles, or seams between
- * sections or between pages, it's just always there behind the content.
+ * Storefront botanical atmosphere -- one layer rendered once in the
+ * storefront root layout (app/[locale]/layout.tsx), behind every page,
+ * instead of a background re-implemented per section.
+ *
+ * Was `position: fixed; inset: 0` (a single continuous environment that
+ * stayed pinned behind the content for the entire scroll, on every
+ * page). Per Phase 1 item 7 ("scope .site-atmosphere to the hero only,
+ * not fixed"), it's now `position: absolute` with an explicit height
+ * instead of a full-height `inset: 0` -- `absolute` with no positioned
+ * ancestor still measures `inset: 0`'s bottom edge against the full
+ * document height (not one viewport), so constraining the height
+ * explicitly is what actually keeps this near the top of the page
+ * (roughly the hero's own height, wherever one exists) rather than
+ * stretching the same cover/mask treatment down the entire page. It now
+ * scrolls away with the page past that point instead of staying pinned,
+ * which is both the requested behavior and removes a full-viewport
+ * fixed-position paint/composite cost that applied to every page,
+ * hero or not.
  *
  * Two stacked layers:
  *  - `::before` -- soft brand-toned corner washes (existing brand-500 /
@@ -528,8 +550,10 @@ body {
  * clicks/scroll/focus.
  */
 .site-atmosphere {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 100vh;
   z-index: -1;
   pointer-events: none;
 }

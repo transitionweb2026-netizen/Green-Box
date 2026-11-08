@@ -4,10 +4,18 @@ import { Clock, Users } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { Link } from "@/i18n/navigation";
-import { getPublishedRecipeBySlug } from "@/lib/services/recipes";
+import { getPublishedRecipeBySlug, listPublishedRecipes } from "@/lib/services/recipes";
 import { pickLocalized } from "@/lib/i18n/localized";
 import { placeholderImage } from "@/lib/media/placeholders";
 import { buttonVariants } from "@/components/ui/button";
+
+export const dynamic = "error";
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const recipes = await listPublishedRecipes();
+  return recipes.map((recipe) => ({ slug: recipe.slug }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

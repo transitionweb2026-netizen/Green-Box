@@ -26,7 +26,15 @@ export function PageHeroBanner({ locale, siteName }: { locale: string; siteName:
   return (
     <div className="relative grid grid-cols-1 overflow-hidden bg-brand-200 lg:grid-cols-[54%_46%]">
       <div className={`relative h-20 overflow-hidden sm:h-24 lg:h-auto ${imageClipClass}`}>
-        <Image src="/images/hero.jpg" alt="" fill priority sizes="(max-width: 1024px) 100vw, 54vw" className="object-cover" />
+        <Image
+          src="/images/hero.jpg"
+          alt=""
+          fill
+          priority
+          fetchPriority="high"
+          sizes="(max-width: 1024px) 100vw, 54vw"
+          className="object-cover"
+        />
       </div>
 
       <div className="absolute top-[30%] start-1/2 z-20 -translate-x-1/2 -translate-y-1/2 -rotate-[9deg] rounded-md bg-deep-700 px-2.5 py-1 shadow-[0_4px_10px_rgba(0,0,0,0.3)] lg:start-[52%]">

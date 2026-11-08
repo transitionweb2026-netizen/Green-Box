@@ -232,58 +232,76 @@ export interface BoxContentItem {
   item: ProductWithImages;
 }
 
-export async function getBoxContents(boxProductId: string): Promise<BoxContentItem[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("box_items")
-    .select(
-      "id, quantity, quantity_unit, display_order, prep_note_ar, prep_note_en, item:products!box_items_item_product_id_fkey(*, product_images(*))",
-    )
-    .eq("box_product_id", boxProductId)
-    .order("display_order", { ascending: true });
-  if (error) throw error;
-  // `item` comes back null if RLS/a dangling reference hides the joined
-  // product row (see 0038_box_item_product_visibility.sql for the normal
-  // case this now prevents) -- filtered out here as a safety net so one
-  // bad row degrades that box's shown contents instead of crashing every
-  // page that renders them.
-  return ((data as unknown as BoxContentItem[]) ?? []).filter((entry) => entry.item != null);
-}
+/**
+ * Cached with the cookie-free public client -- same reasoning as
+ * listActiveCategories above. This was the last storefront catalog read
+ * still on the cookie-aware client, which alone forced every page that
+ * renders a box's contents (home, a box's own product page) into fully
+ * dynamic rendering. Tagged "box_items" (on top of "products", since it
+ * also depends on which products are available/visible) so admin box-
+ * content edits (setBoxContentsAction) can invalidate it precisely.
+ */
+export const getBoxContents = unstable_cache(
+  async (boxProductId: string): Promise<BoxContentItem[]> => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("box_items")
+      .select(
+        "id, quantity, quantity_unit, display_order, prep_note_ar, prep_note_en, item:products!box_items_item_product_id_fkey(*, product_images(*))",
+      )
+      .eq("box_product_id", boxProductId)
+      .order("display_order", { ascending: true });
+    if (error) throw error;
+    // `item` comes back null if RLS/a dangling reference hides the joined
+    // product row (see 0038_box_item_product_visibility.sql for the normal
+    // case this now prevents) -- filtered out here as a safety net so one
+    // bad row degrades that box's shown contents instead of crashing every
+    // page that renders them.
+    return ((data as unknown as BoxContentItem[]) ?? []).filter((entry) => entry.item != null);
+  },
+  ["catalog-box-contents"],
+  { revalidate: 60, tags: ["box_items", "products"] },
+);
 
 /**
  * Same-category products first; if that category is too thin to fill
  * `limit` (e.g. a single-product category), tops up with other available
  * products so the storefront's "Recommended Products" section never
  * renders empty just because this particular category has nothing else.
+ * Cached with the public client -- see listActiveCategories.
  */
-export async function listRecommendedProducts(categoryId: string, excludeProductId: string, limit = 4): Promise<ProductWithImages[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*, product_images(*)")
-    .eq("category_id", categoryId)
-    .eq("is_available", true)
-    .neq("id", excludeProductId)
-    .order("display_order", { ascending: true })
-    .limit(limit);
-  if (error) throw error;
-  const sameCategory = (data as ProductWithImages[]) ?? [];
+export const listRecommendedProducts = unstable_cache(
+  async (categoryId: string, excludeProductId: string, limit = 4): Promise<ProductWithImages[]> => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*, product_images(*)")
+      .eq("category_id", categoryId)
+      .eq("is_available", true)
+      .neq("id", excludeProductId)
+      .order("display_order", { ascending: true })
+      .limit(limit);
+    if (error) throw error;
+    const sameCategory = (data as ProductWithImages[]) ?? [];
 
-  if (sameCategory.length >= limit) return sameCategory;
+    if (sameCategory.length >= limit) return sameCategory;
 
-  const excludeIds = [excludeProductId, ...sameCategory.map((p) => p.id)];
-  const { data: fillerData, error: fillerError } = await supabase
-    .from("products")
-    .select("*, product_images(*)")
-    .eq("is_available", true)
-    .not("id", "in", `(${excludeIds.join(",")})`)
-    .order("is_featured", { ascending: false })
-    .order("display_order", { ascending: true })
-    .limit(limit - sameCategory.length);
-  if (fillerError) throw fillerError;
+    const excludeIds = [excludeProductId, ...sameCategory.map((p) => p.id)];
+    const { data: fillerData, error: fillerError } = await supabase
+      .from("products")
+      .select("*, product_images(*)")
+      .eq("is_available", true)
+      .not("id", "in", `(${excludeIds.join(",")})`)
+      .order("is_featured", { ascending: false })
+      .order("display_order", { ascending: true })
+      .limit(limit - sameCategory.length);
+    if (fillerError) throw fillerError;
 
-  return [...sameCategory, ...((fillerData as ProductWithImages[]) ?? [])];
-}
+    return [...sameCategory, ...((fillerData as ProductWithImages[]) ?? [])];
+  },
+  ["catalog-recommended-products"],
+  { revalidate: 60, tags: ["products"] },
+);
 
 // --- Admin: categories ---------------------------------------------
 

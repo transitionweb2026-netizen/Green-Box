@@ -15,8 +15,11 @@ const variantClasses: Record<ButtonVariant, string> = {
     "rounded-full bg-gold-400 text-deep-900 shadow-[0_2px_0_rgba(0,0,0,0.08)] hover:bg-gold-500 hover:-translate-y-0.5 active:translate-y-0 active:bg-gold-500 focus-visible:outline-gold-500",
   secondary:
     "rounded-xl bg-deep-700 text-white shadow-[0_1px_0_rgba(255,255,255,0.12)_inset,0_10px_24px_-8px_rgba(14,27,20,0.55)] hover:bg-deep-600 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-deep-600",
+  // backdrop-blur-sm removed per Phase 1 item 7 (replace backdrop-blur
+  // with solid/semi-opaque backgrounds) -- bg-white/70 alone already
+  // reads as a translucent surface without the ongoing GPU blur cost.
   outline:
-    "rounded-xl border border-border-strong bg-white/70 text-foreground backdrop-blur-sm hover:border-brand-400 hover:bg-brand-50 focus-visible:outline-brand-600",
+    "rounded-xl border border-border-strong bg-white/70 text-foreground hover:border-brand-400 hover:bg-brand-50 focus-visible:outline-brand-600",
   ghost:
     "rounded-xl text-foreground hover:bg-brand-50 focus-visible:outline-brand-600",
   dark:

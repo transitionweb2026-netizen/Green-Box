@@ -24,7 +24,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttrib
     <textarea
       ref={ref}
       className={cn(
-        "w-full rounded-xl border border-border bg-white/80 px-3.5 py-2.5 text-base text-foreground shadow-[inset_0_1px_2px_rgba(14,27,20,0.04)] backdrop-blur-sm transition-colors placeholder:text-muted-2 hover:border-border-strong focus-visible:border-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-300 disabled:opacity-50",
+        // backdrop-blur-sm removed per Phase 1 item 7, same as
+        // input.tsx's inputClasses (this duplicates that string rather
+        // than reusing it, so the same removal is needed here too).
+        "w-full rounded-xl border border-border bg-white/80 px-3.5 py-2.5 text-base text-foreground shadow-[inset_0_1px_2px_rgba(14,27,20,0.04)] transition-colors placeholder:text-muted-2 hover:border-border-strong focus-visible:border-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-300 disabled:opacity-50",
         className,
       )}
       {...props}

@@ -8,6 +8,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { addToCartAction } from "@/app/[locale]/cart/actions";
+import { useAccountCartState } from "./account-cart-provider";
 
 export function AddToCartButton({
   productId,
@@ -26,6 +27,11 @@ export function AddToCartButton({
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [added, setAdded] = useState(false);
+  // SiteHeader's cart badge is client-fetched now (see
+  // account-cart-provider.tsx), not re-derived from this page's own RSC
+  // render -- router.refresh() alone no longer updates it, so this calls
+  // the shared refresh() too.
+  const { refresh: refreshAccountCartState } = useAccountCartState();
 
   function handleClick() {
     startTransition(async () => {
@@ -33,6 +39,7 @@ export function AddToCartButton({
       if (result.status === "success") {
         setAdded(true);
         router.refresh();
+        refreshAccountCartState();
         setTimeout(() => setAdded(false), 1500);
       }
     });

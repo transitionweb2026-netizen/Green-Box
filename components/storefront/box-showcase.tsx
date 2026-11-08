@@ -125,7 +125,7 @@ export function BoxShowcase({ boxes, placeholderImage }: { boxes: BoxShowcaseBox
           <button
             aria-label={tCommon("close")}
             tabIndex={-1}
-            className="absolute inset-0 bg-deep-900/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-deep-900/60"
             onClick={close}
           />
           <div className="absolute inset-x-4 top-1/2 max-h-[85vh] max-w-lg -translate-y-1/2 overflow-y-auto rounded-[1.75rem] bg-background p-6 shadow-2xl sm:mx-auto sm:p-8">

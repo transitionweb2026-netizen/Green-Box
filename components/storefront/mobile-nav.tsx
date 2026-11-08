@@ -6,27 +6,33 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { SearchBox } from "./search-box";
 import { LocaleSwitcher } from "./locale-switcher";
+import { useAccountCartState } from "./account-cart-provider";
 
 interface NavLink {
   href: string;
   label: string;
 }
 
+/** isLoggedIn no longer a prop -- read from AccountCartProvider's context
+ * (see site-header.tsx), same reasoning as CartLink/AccountIconLink. The
+ * account/login block only renders once the drawer is actually opened
+ * ({open && ...} below), so there's no SSR/CLS concern here at all --
+ * by the time a visitor opens the menu, the one-time state fetch has
+ * essentially always already resolved. */
 export function MobileNav({
   links,
-  isLoggedIn,
   accountLabel,
   loginLabel,
   registerLabel,
   menuLabel,
 }: {
   links: NavLink[];
-  isLoggedIn: boolean;
   accountLabel: string;
   loginLabel: string;
   registerLabel: string;
   menuLabel: string;
 }) {
+  const { isLoggedIn } = useAccountCartState();
   const [open, setOpen] = useState(false);
   const locale = useLocale();
   const tCommon = useTranslations("common");
@@ -69,7 +75,8 @@ export function MobileNav({
           <button
             aria-label={tCommon("close")}
             tabIndex={-1}
-            className="absolute inset-0 bg-deep-900/50 backdrop-blur-sm"
+            // backdrop-blur-sm removed per Phase 1 item 7.
+            className="absolute inset-0 bg-deep-900/50"
             onClick={close}
           />
           <div className="bg-deep-800 absolute inset-y-0 start-0 flex w-[86%] max-w-sm flex-col gap-6 overflow-y-auto rounded-none rounded-e-3xl p-6 shadow-2xl">

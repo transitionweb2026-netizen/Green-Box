@@ -9,6 +9,9 @@ import { listPublishedRecipes } from "@/lib/services/recipes";
 import { pickLocalized } from "@/lib/i18n/localized";
 import { placeholderImage } from "@/lib/media/placeholders";
 
+export const dynamic = "error";
+export const revalidate = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("recipesPage");
   return { title: t("title") };

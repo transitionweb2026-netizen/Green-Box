@@ -11,6 +11,11 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { buttonVariants } from "@/components/ui/button";
 import { CheckoutForm } from "@/components/storefront/checkout-form";
 
+// Explicit per Phase 1 item 4 ("/checkout stays dynamic") -- requireAuth
+// plus several live, per-user reads (cart, addresses, loyalty) already
+// made it dynamic; this makes that deliberate rather than incidental.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata() {
   const t = await getTranslations("checkout");
   return { title: t("title"), robots: { index: false, follow: false } };

@@ -1,6 +1,7 @@
 import { ChevronDown, Leaf, Star } from "lucide-react";
 import { AppImage as Image } from "@/components/ui/app-image";
 import { getLocale, getTranslations } from "next-intl/server";
+import type { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { pickLocalized } from "@/lib/i18n/localized";
 import { PriceDisplay } from "@/components/ui/price-display";
@@ -14,9 +15,35 @@ import { AddToCartButton } from "./add-to-cart-button";
  * reads as varied rather than uniform. */
 const CARD_TONES = ["bg-brand-50", "bg-danger-bg", "bg-warning-bg", "bg-brand-100"];
 
+/** Server Component entry point -- resolves locale/translations itself,
+ * same call signature every existing call site already uses. */
 export async function ProductCard({ product }: { product: ProductWithImages }) {
   const locale = await getLocale();
   const t = await getTranslations("product");
+  return <ProductCardView product={product} locale={locale} t={t} />;
+}
+
+/**
+ * The actual card -- pulled out as a plain, non-async component (locale/t
+ * taken as props instead of called internally via next-intl/server) so a
+ * CLIENT component can also render it directly. Needed specifically for
+ * the category page's client-side pagination beyond page 1 (see
+ * category-product-grid.tsx): that page can't read searchParams itself
+ * without losing static/ISR rendering, so page >1's grid has to be
+ * client-rendered, and ProductCard (async, server-only APIs) couldn't be
+ * invoked from there otherwise. next-intl's useTranslations() (client)
+ * and getTranslations() (server) return the same callable shape, so one
+ * view works unchanged from either caller.
+ */
+export function ProductCardView({
+  product,
+  locale,
+  t,
+}: {
+  product: ProductWithImages;
+  locale: string;
+  t: ReturnType<typeof useTranslations>;
+}) {
   const name = pickLocalized(product.name_ar, product.name_en, locale);
   const unit = product.sold_by_weight
     ? product.weight_unit === "kg"
@@ -102,7 +129,7 @@ export async function ProductCard({ product }: { product: ProductWithImages }) {
                   />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
                   {!product.is_available && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]">
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/70">
                       <Badge tone="danger">{t("outOfStock")}</Badge>
                     </div>
                   )}

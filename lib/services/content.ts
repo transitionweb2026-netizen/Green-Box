@@ -1,5 +1,5 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { setDeepValue, deleteDeepValue } from "@/lib/i18n/deep-object";
@@ -169,25 +169,56 @@ export interface SustainabilityContent {
   pillar3Body_en?: string;
 }
 
-export async function listActiveBanners(): Promise<Banner[]> {
-  const supabase = await createClient();
-  const nowIso = new Date().toISOString();
-  const { data, error } = await supabase
-    .from("banners")
-    .select("*")
-    .eq("is_active", true)
-    .or(`starts_at.is.null,starts_at.lte.${nowIso}`)
-    .or(`ends_at.is.null,ends_at.gte.${nowIso}`)
-    .order("display_order", { ascending: true });
-  if (error) throw error;
-  return data ?? [];
-}
+/**
+ * Cached with the cookie-free public client -- same reasoning as
+ * catalog.ts's listActiveCategories. This (plus getSetting below) was
+ * called from the root layout and the homepage on every single request
+ * (store_info, hero_images, homepage_content...), so it was one of the
+ * biggest remaining blockers to static rendering, not just a home-page
+ * concern. Banners are never personalized, so the public client is safe.
+ */
+export const listActiveBanners = unstable_cache(
+  async (): Promise<Banner[]> => {
+    const supabase = createPublicClient();
+    const nowIso = new Date().toISOString();
+    const { data, error } = await supabase
+      .from("banners")
+      .select("*")
+      .eq("is_active", true)
+      .or(`starts_at.is.null,starts_at.lte.${nowIso}`)
+      .or(`ends_at.is.null,ends_at.gte.${nowIso}`)
+      .order("display_order", { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+  },
+  ["content-active-banners"],
+  { revalidate: 60, tags: ["banners"] },
+);
+
+/**
+ * getSetting itself can't be unstable_cache'd directly and keep its
+ * generic `<T>` -- unstable_cache would lock the wrapped function's
+ * return type to whatever it infers at the one place it's defined
+ * (Json | null), breaking every caller's getSetting<StoreInfo>(...)-style
+ * usage. This wraps a non-generic cached fetch instead and casts at the
+ * public API boundary, exactly like every other caller here already
+ * treats this value (there's no runtime validation of `settings.value`
+ * against T anywhere in this codebase -- this changes nothing about
+ * that, only where the DB round-trip happens).
+ */
+const getCachedSetting = unstable_cache(
+  async (key: string): Promise<Json | null> => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase.from("settings").select("value").eq("key", key).maybeSingle();
+    if (error) throw error;
+    return data?.value ?? null;
+  },
+  ["content-setting"],
+  { revalidate: 60, tags: ["settings"] },
+);
 
 export async function getSetting<T = Json>(key: string): Promise<T | null> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.from("settings").select("value").eq("key", key).maybeSingle();
-  if (error) throw error;
-  return (data?.value as T) ?? null;
+  return ((await getCachedSetting(key)) as T) ?? null;
 }
 
 /**
@@ -239,10 +270,18 @@ export async function adminGetBanner(id: string): Promise<Banner | null> {
   return data;
 }
 
+/**
+ * revalidateTag calls live here (the shared write path), not in each
+ * calling Server Action -- banners/settings are written from ~20
+ * different admin actions across content/actions.ts, and putting the
+ * invalidation in the one place they all funnel through means none of
+ * them can forget it, including any added later.
+ */
 export async function adminCreateBanner(input: TablesInsert<"banners">): Promise<Banner> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("banners").insert(input).select("*").single();
   if (error) throw error;
+  revalidateTag("banners", "max");
   return data;
 }
 
@@ -250,6 +289,7 @@ export async function adminUpdateBanner(id: string, input: TablesUpdate<"banners
   const supabase = await createClient();
   const { data, error } = await supabase.from("banners").update(input).eq("id", id).select("*").single();
   if (error) throw error;
+  revalidateTag("banners", "max");
   return data;
 }
 
@@ -257,6 +297,7 @@ export async function adminDeleteBanner(id: string): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase.from("banners").delete().eq("id", id);
   if (error) throw error;
+  revalidateTag("banners", "max");
 }
 
 export async function adminUpsertSetting(key: string, value: Json, description?: string): Promise<Setting> {
@@ -267,6 +308,7 @@ export async function adminUpsertSetting(key: string, value: Json, description?:
     .select("*")
     .single();
   if (error) throw error;
+  revalidateTag("settings", "max");
   return data;
 }
 

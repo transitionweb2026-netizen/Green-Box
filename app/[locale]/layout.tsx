@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Baloo_2, Cairo, Caveat, Playfair_Display } from "next/font/google";
+import { Cairo, Playfair_Display } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
@@ -18,30 +18,17 @@ const cairo = Cairo({
   subsets: ["arabic", "latin"],
 });
 
-// Latin-only -- used solely for the Contact page's hero headline (see
-// globals.css --font-serif); every other heading on the site stays on
-// Cairo so bilingual pages don't mix type systems.
+// Latin-only -- used for the Contact page's hero headline (see
+// globals.css --font-serif), and, per Phase 1's font consolidation, also
+// for the two display faces that used to be separate Google Fonts
+// (--font-sticker, --font-script: a bold rounded face and a casual
+// script, respectively) -- down to 2 font families sitewide (this one +
+// Cairo) instead of 4. Every other heading stays on Cairo so bilingual
+// pages don't mix type systems.
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   weight: ["700", "800", "900"],
-});
-
-// Latin-only -- used solely for the hero's rotated "sticker" tag (a bold,
-// rounded display face matching that badge's reference design), never for
-// running text.
-const baloo = Baloo_2({
-  variable: "--font-baloo",
-  subsets: ["latin"],
-  weight: ["700", "800"],
-});
-
-// Latin-only -- the casual bold script accent on the homepage hero headline
-// ("reimagined."). Arabic falls back to Cairo like the other display faces.
-const caveat = Caveat({
-  variable: "--font-caveat",
-  subsets: ["latin"],
-  weight: ["600", "700"],
 });
 
 export function generateStaticParams() {
@@ -97,7 +84,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${cairo.variable} ${playfair.variable} ${baloo.variable} ${caveat.variable} h-full antialiased`}
+      className={`${cairo.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="bg-background flex min-h-full flex-col font-sans text-foreground">
         <div className="site-atmosphere" aria-hidden="true" />
