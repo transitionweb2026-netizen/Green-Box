@@ -365,6 +365,24 @@ body {
 .card-organic-surface {
   position: relative;
   height: 100%;
+  /* Forces its own GPU compositing layer, separate from the DOM-parent
+     .card-organic-shadow's filter: drop-shadow above it. Reported live
+     on a Samsung Galaxy S25 Ultra (Chrome for Android): the product
+     name/rating/"Add to box" button inside this masked layer rendered
+     as solid visual noise on some cards, while the sibling image layer
+     (card-image-shadow/card-image-mask, deliberately split onto two
+     elements for the exact filter+mask-compositing hazard explained in
+     that pair's own comment below) rendered correctly -- this element
+     is masked too, just two DOM levels inside a filter'd ancestor
+     rather than carrying a filter of its own, which still falls in the
+     same hazard class on some mobile GPU/driver combinations. Giving it
+     its own layer up front, before the browser has to merge a masked
+     child's content back through an ancestor's filter-created offscreen
+     buffer, is the standard mitigation. Unverified on an actual S25
+     Ultra (no access to the device) -- please confirm it's actually
+     fixed there after this deploys.
+  */
+  transform: translateZ(0);
   -webkit-mask-image: var(--card-organic-mask);
   mask-image: var(--card-organic-mask);
   -webkit-mask-size: 100% 100%;
