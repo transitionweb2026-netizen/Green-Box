@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import type { Database } from "@/types/database";
 
 /**
  * Lands here after a Supabase auth email link (password recovery or signup
@@ -10,17 +11,22 @@ import { createClient } from "@/lib/supabase/server";
  * server-side before anything downstream (e.g. updatePassword in
  * ../actions.ts) has a session to act on.
  *
- * This route didn't exist at all until now even though requestPasswordReset
- * and register (../actions.ts) both already built their redirectTo/
- * emailRedirectTo around this exact path -- every recovery/confirmation
- * link pointed at a route that 404'd, so neither flow could ever complete.
+ * Deliberately NOT using the shared createClient() from lib/supabase/server
+ * here -- confirmed live, via a temporary debug readout, that its cookie
+ * writes (next/headers' cookies().set(), wrapped in a try/catch that
+ * silently swallows failures for the Server Component case) were not
+ * reliably landing on this route's redirect response: exchangeCodeForSession
+ * reported success, but the following page load had no session at all.
+ * Building the NextResponse first and writing cookies directly onto IT
+ * (same pattern proxy.ts already uses for its own session refresh) is the
+ * robust way to do this from a Route Handler.
  */
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ locale: string }> },
 ) {
   const { locale } = await params;
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get("code");
   const requestedNext = searchParams.get("next") ?? `/${locale}`;
   // Only ever follow a same-site, locale-prefixed destination -- Supabase
@@ -33,16 +39,29 @@ export async function GET(
       : `/${locale}`;
 
   if (code) {
-    const supabase = await createClient();
+    const response = NextResponse.redirect(`${origin}${next}`);
+    const supabase = createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            for (const { name, value, options } of cookiesToSet) {
+              response.cookies.set(name, value, options);
+            }
+          },
+        },
+      },
+    );
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return response;
     }
-    // TEMPORARY -- remove once the live intermittent "invalid link" bug is
-    // diagnosed. No Vercel log access in this environment, so surfacing
-    // the real exchange failure reason (e.g. a code already consumed by
-    // an email scanner's pre-fetch would show up here as something like
-    // bad_code_verifier/invalid_grant) directly in the redirect.
+    // TEMPORARY -- remove once confirmed fixed live. Surfaces the real
+    // exchange failure reason instead of guessing.
     return NextResponse.redirect(
       `${origin}/${locale}/auth/reset-password?error=invalid_link&detail=${encodeURIComponent(`${error.code ?? error.name}: ${error.message}`)}`,
     );
