@@ -166,7 +166,13 @@ export async function updatePassword(
   // never happened (expired/invalid link), this fails with no session.
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (error) {
-    return { status: "error", errorCode: "GENERIC", debugMessage: `${error.name}: ${error.message} (status ${error.status})` };
+    if (error.code === "same_password") {
+      return { status: "error", errorCode: "SAME_PASSWORD" };
+    }
+    if (error.code === "weak_password") {
+      return { status: "error", errorCode: "WEAK_PASSWORD" };
+    }
+    return { status: "error", errorCode: "GENERIC" };
   }
 
   // Recovery sessions are meant to be used once, right after the emailed

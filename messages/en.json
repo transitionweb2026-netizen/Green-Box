@@ -188,6 +188,8 @@
       "submit": "Update password",
       "submitting": "Updating...",
       "errorPasswordMismatch": "Passwords do not match.",
+      "errorSamePassword": "Your new password must be different from your old one.",
+      "errorWeakPassword": "That password is too weak. Try a stronger one.",
       "errorGeneric": "Something went wrong while updating your password. Please try again.",
       "successUpdated": "Your password has been updated. You can now log in with your new password.",
       "goToLogin": "Go to login",

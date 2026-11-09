@@ -64,12 +64,16 @@ export function ResetPasswordForm({ linkInvalid }: { linkInvalid?: boolean }) {
         )}
       </div>
 
-      {state.status === "error" && state.errorCode !== "PASSWORD_MISMATCH" && <FormMessage>{t("errorGeneric")}</FormMessage>}
-      {state.status === "error" && state.debugMessage && (
-        <p className="rounded-lg bg-black/80 p-2 font-mono text-xs text-white" dir="ltr">
-          DEBUG: {state.debugMessage}
-        </p>
+      {state.status === "error" && state.errorCode === "SAME_PASSWORD" && (
+        <FormMessage>{t("errorSamePassword")}</FormMessage>
       )}
+      {state.status === "error" && state.errorCode === "WEAK_PASSWORD" && (
+        <FormMessage>{t("errorWeakPassword")}</FormMessage>
+      )}
+      {state.status === "error" &&
+        state.errorCode !== "PASSWORD_MISMATCH" &&
+        state.errorCode !== "SAME_PASSWORD" &&
+        state.errorCode !== "WEAK_PASSWORD" && <FormMessage>{t("errorGeneric")}</FormMessage>}
 
       <Button type="submit" disabled={isPending} loading={isPending} className="mt-2 w-full">
         {!isPending && <KeyRound className="h-4 w-4" />}
