@@ -11,7 +11,7 @@ import { FormMessage } from "@/components/ui/form-message";
 import { updatePassword } from "@/app/[locale]/auth/actions";
 import { initialResetPasswordState } from "@/app/[locale]/auth/auth-state";
 
-export function ResetPasswordForm({ linkInvalid }: { linkInvalid?: boolean }) {
+export function ResetPasswordForm({ linkInvalid, debugDetail }: { linkInvalid?: boolean; debugDetail?: string }) {
   const t = useTranslations("auth.resetPassword");
   const locale = useLocale();
   const [state, formAction, isPending] = useActionState(updatePassword.bind(null, locale), initialResetPasswordState);
@@ -24,6 +24,13 @@ export function ResetPasswordForm({ linkInvalid }: { linkInvalid?: boolean }) {
         <Link href="/auth/forgot-password" className="mt-2 font-medium text-brand-700 hover:underline">
           {t("requestNewLink")}
         </Link>
+        {/* TEMPORARY debug readout -- remove once the live intermittent
+            invalid-link bug is diagnosed. */}
+        {debugDetail && (
+          <p className="mt-2 rounded-lg bg-black/80 p-2 font-mono text-xs text-white" dir="ltr">
+            DEBUG: {debugDetail}
+          </p>
+        )}
       </div>
     );
   }

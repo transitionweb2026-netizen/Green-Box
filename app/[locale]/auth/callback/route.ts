@@ -38,10 +38,18 @@ export async function GET(
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    // TEMPORARY -- remove once the live intermittent "invalid link" bug is
+    // diagnosed. No Vercel log access in this environment, so surfacing
+    // the real exchange failure reason (e.g. a code already consumed by
+    // an email scanner's pre-fetch would show up here as something like
+    // bad_code_verifier/invalid_grant) directly in the redirect.
+    return NextResponse.redirect(
+      `${origin}/${locale}/auth/reset-password?error=invalid_link&detail=${encodeURIComponent(`${error.code ?? error.name}: ${error.message}`)}`,
+    );
   }
 
-  // No code, or the exchange failed (link already used, or expired) --
-  // reset-password's own page already renders a "link invalid, request a
-  // new one" state for exactly this via ?error=, see auth/reset-password/page.tsx.
-  return NextResponse.redirect(`${origin}/${locale}/auth/reset-password?error=invalid_link`);
+  // No `code` at all -- reset-password's own page already renders a "link
+  // invalid, request a new one" state for exactly this via ?error=, see
+  // auth/reset-password/page.tsx.
+  return NextResponse.redirect(`${origin}/${locale}/auth/reset-password?error=invalid_link&detail=no_code_param`);
 }

@@ -11,10 +11,10 @@ export async function generateMetadata() {
 export default async function ResetPasswordPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; detail?: string }>;
 }) {
   const t = await getTranslations("auth.resetPassword");
-  const { error } = await searchParams;
+  const { error, detail } = await searchParams;
   // The callback route only gets here after successfully exchanging the
   // emailed code for a session -- if there's no session at all, the link
   // was invalid, already used, or expired, so there's nothing to update.
@@ -23,7 +23,11 @@ export default async function ResetPasswordPage({
 
   return (
     <AuthShell title={t("title")} subtitle={t("subtitle")}>
-      {linkInvalid ? <ResetPasswordForm linkInvalid /> : <ResetPasswordForm />}
+      {linkInvalid ? (
+        <ResetPasswordForm linkInvalid debugDetail={detail ?? (!user ? "no_session_no_error_param" : undefined)} />
+      ) : (
+        <ResetPasswordForm />
+      )}
     </AuthShell>
   );
 }
