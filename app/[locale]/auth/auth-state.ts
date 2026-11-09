@@ -8,7 +8,7 @@
  */
 export type LoginState = {
   status: "idle" | "error";
-  errorCode?: "INVALID_CREDENTIALS";
+  errorCode?: "INVALID_CREDENTIALS" | "EMAIL_NOT_CONFIRMED";
 };
 
 export const initialLoginState: LoginState = { status: "idle" };

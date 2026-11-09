@@ -36,6 +36,14 @@ export async function login(
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
+    // Supabase gives this one a distinct code -- surfacing it separately
+    // means someone who signed up but hasn't clicked the confirmation
+    // email yet sees "confirm your email first" instead of the generic
+    // "wrong email/password", which reads as a login failure and not what
+    // it actually is.
+    if (error.code === "email_not_confirmed") {
+      return { status: "error", errorCode: "EMAIL_NOT_CONFIRMED" };
+    }
     return { status: "error", errorCode: "INVALID_CREDENTIALS" };
   }
 

@@ -46,7 +46,9 @@ export function LoginForm({ next }: { next?: string }) {
         <FormMessage>
           {state.errorCode === "INVALID_CREDENTIALS"
             ? t("errorInvalidCredentials")
-            : t("errorGeneric")}
+            : state.errorCode === "EMAIL_NOT_CONFIRMED"
+              ? t("errorEmailNotConfirmed")
+              : t("errorGeneric")}
         </FormMessage>
       )}
 

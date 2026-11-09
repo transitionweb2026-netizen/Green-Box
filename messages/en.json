@@ -150,6 +150,7 @@
       "registerLink": "Create an account",
       "forgotPassword": "Forgot password?",
       "errorInvalidCredentials": "Incorrect email or password.",
+      "errorEmailNotConfirmed": "You need to confirm your email before you can log in. Check your inbox (and spam/junk folder) and click the confirmation link.",
       "errorGeneric": "Something went wrong while logging in. Please try again."
     },
     "register": {
