@@ -55,6 +55,23 @@ async function refreshSession(request: NextRequest) {
   return response;
 }
 
+// Supabase refresh tokens are single-use/rotating: each getUser()-triggered
+// refresh consumes the current one and writes a brand new one to cookies.
+// /auth/callback exchanges a one-time recovery/confirmation code for a
+// session of its own, and /auth/reset-password both reads that session and
+// (via its Server Action, posted back to this same path) updates the
+// password with it -- every one of those is a request this proxy also
+// matches and used to run its own getUser()-triggered refresh on top of,
+// racing the token rotation against the session the route itself was
+// trying to establish/use. Confirmed live: this produced exactly the
+// intermittent "invalid link" / password-update failures reported, not
+// reproducible by calling the same Supabase operations directly outside
+// the proxy. These two routes manage their own short-lived session
+// directly (see app/[locale]/auth/callback/route.ts and updatePassword in
+// ../actions.ts) and don't need -- and are actively harmed by -- the
+// general-purpose keep-alive refresh below.
+const SENSITIVE_AUTH_FLOW = /\/auth\/(callback|reset-password)(\/|$)/;
+
 /**
  * /admin sits outside next-intl's routing entirely (see i18n/routing.ts),
  * so it only needs the session refresh above; every other route also needs
@@ -62,6 +79,10 @@ async function refreshSession(request: NextRequest) {
  * carried over onto whichever response next-intl produces.
  */
 export default async function proxy(request: NextRequest) {
+  if (SENSITIVE_AUTH_FLOW.test(request.nextUrl.pathname)) {
+    return intlMiddleware(request);
+  }
+
   const sessionResponse = await refreshSession(request);
 
   if (request.nextUrl.pathname.startsWith("/admin")) {
