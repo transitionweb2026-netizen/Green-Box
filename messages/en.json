@@ -459,7 +459,15 @@
     "save": "Save changes",
     "saving": "Saving...",
     "saved": "Saved successfully.",
-    "errorGeneric": "Sorry, we couldn't save your changes. Please try again."
+    "errorGeneric": "Sorry, we couldn't save your changes. Please try again.",
+    "changePasswordTitle": "Change password",
+    "newPasswordLabel": "New password",
+    "confirmNewPasswordLabel": "Confirm new password",
+    "changePassword": "Change password",
+    "passwordMismatch": "Passwords do not match.",
+    "samePassword": "Your new password must be different from your old one.",
+    "weakPassword": "That password is too weak. It must be at least 8 characters.",
+    "passwordChanged": "Your password has been changed successfully."
   },
   "addresses": {
     "title": "My Addresses",
