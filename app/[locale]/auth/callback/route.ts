@@ -38,6 +38,14 @@ export async function GET(
       ? requestedNext
       : `/${locale}`;
 
+  // TEMPORARY canary -- isolates whether Set-Cookie on a redirect from this
+  // route survives the proxy/CDN pipeline at all, independent of Supabase.
+  if (searchParams.get("canary") === "1") {
+    const canaryResponse = NextResponse.redirect(`${origin}/${locale}`);
+    canaryResponse.cookies.set("callback_canary", "it-worked", { path: "/", maxAge: 300 });
+    return canaryResponse;
+  }
+
   if (code) {
     const response = NextResponse.redirect(`${origin}${next}`);
     const supabase = createServerClient<Database>(
