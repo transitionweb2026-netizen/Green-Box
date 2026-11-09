@@ -59,6 +59,7 @@ export async function register(
   _prevState: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
+  const locale = String(formData.get("locale") ?? "ar");
   const parsed = registerSchema.safeParse({
     fullName: String(formData.get("fullName") ?? "").trim(),
     email: String(formData.get("email") ?? "").trim(),
@@ -77,6 +78,7 @@ export async function register(
     };
   }
 
+  const origin = await getSiteOrigin();
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
@@ -86,6 +88,14 @@ export async function register(
         full_name: parsed.data.fullName,
         phone: parsed.data.phone,
       },
+      // Without this, Supabase falls back to the project's dashboard-level
+      // "Site URL" default, which is whatever it was left at (commonly
+      // still the localhost default from when the project was created) --
+      // confirmed live: confirmation links were sending people to a dead
+      // localhost URL. Building it explicitly here, the same way
+      // requestPasswordReset below already does, makes it correct
+      // regardless of that dashboard setting.
+      emailRedirectTo: `${origin}/${locale}/auth/callback?next=${encodeURIComponent(`/${locale}`)}`,
     },
   });
 
