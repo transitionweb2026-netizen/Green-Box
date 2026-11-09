@@ -76,7 +76,11 @@ export function RegisterForm({ next }: { next?: string }) {
         )}
       </div>
 
-      {state.status === "error" && state.errorCode !== "PASSWORD_MISMATCH" && (
+      {state.status === "error" && state.errorCode === "EMAIL_TAKEN" && (
+        <FormMessage>{t("errorEmailTaken")}</FormMessage>
+      )}
+
+      {state.status === "error" && state.errorCode !== "PASSWORD_MISMATCH" && state.errorCode !== "EMAIL_TAKEN" && (
         <FormMessage>{t("errorGeneric")}</FormMessage>
       )}
 

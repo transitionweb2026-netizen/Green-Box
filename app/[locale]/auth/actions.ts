@@ -70,7 +70,7 @@ export async function register(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
@@ -83,6 +83,21 @@ export async function register(
 
   if (error) {
     return { status: "error", errorCode: "GENERIC" };
+  }
+
+  // Supabase's anti-enumeration design: signing up with an email that
+  // already has an account returns HTTP 200 with NO error and a
+  // plausible-looking (but fabricated) user object, specifically so a
+  // caller can't use signUp() to probe which emails are registered. The
+  // one reliable tell is an empty identities array -- a genuine new
+  // signup always has exactly one. Without this check the form showed
+  // "success, check your email" for an already-registered email with
+  // nothing actually created, which is exactly what was reported: no new
+  // row, nothing in the admin dashboard, and the password just entered
+  // not working to log in (because no account was ever created or
+  // touched).
+  if (!data.user?.identities || data.user.identities.length === 0) {
+    return { status: "error", errorCode: "EMAIL_TAKEN" };
   }
 
   return { status: "success" };

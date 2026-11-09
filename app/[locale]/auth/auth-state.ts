@@ -15,7 +15,7 @@ export const initialLoginState: LoginState = { status: "idle" };
 
 export type RegisterState = {
   status: "idle" | "error" | "success";
-  errorCode?: "VALIDATION" | "PASSWORD_MISMATCH" | "GENERIC";
+  errorCode?: "VALIDATION" | "PASSWORD_MISMATCH" | "GENERIC" | "EMAIL_TAKEN";
 };
 
 export const initialRegisterState: RegisterState = { status: "idle" };

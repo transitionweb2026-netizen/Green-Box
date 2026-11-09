@@ -166,6 +166,7 @@
       "loginLink": "Log in",
       "errorPasswordMismatch": "Passwords do not match.",
       "errorGeneric": "Something went wrong while creating your account. Please try again.",
+      "errorEmailTaken": "This email already has an account. Log in instead, or use \"forgot password\" if you don't remember it.",
       "successCheckEmail": "Account created! Check your email to confirm your account."
     },
     "forgotPassword": {
