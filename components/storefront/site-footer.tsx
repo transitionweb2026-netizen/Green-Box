@@ -20,6 +20,11 @@ export async function SiteFooter() {
   ]);
   const siteName = pickStrictLocalized(storeInfo?.store_name_ar, storeInfo?.store_name_en, locale, t("common.siteName"));
 
+  // Every Link below is prefetch={false} -- this footer renders on every
+  // page with 15-20+ links in three lists, and once it scrolls into view
+  // Next's default prefetch fires a full RSC fetch for all of them at once.
+  // See product-card.tsx and category-nav-bar.tsx for the same fix with the
+  // measurement that justified it.
   const shopLinks = [
     { href: "/c", label: t("nav.categories") },
     { href: "/box", label: t("nav.greenBox") },
@@ -54,7 +59,7 @@ export async function SiteFooter() {
             <ul className="mt-4 space-y-2.5 text-sm">
               {shopLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="transition-colors hover:text-brand-300">
+                  <Link href={link.href} prefetch={false} className="transition-colors hover:text-brand-300">
                     {link.label}
                   </Link>
                 </li>
@@ -67,7 +72,7 @@ export async function SiteFooter() {
             <ul className="mt-4 space-y-2.5 text-sm">
               {categories.map((category) => (
                 <li key={category.id}>
-                  <Link href={`/c/${category.slug}`} className="transition-colors hover:text-brand-300">
+                  <Link href={`/c/${category.slug}`} prefetch={false} className="transition-colors hover:text-brand-300">
                     {pickLocalized(category.name_ar, category.name_en, locale)}
                   </Link>
                 </li>
@@ -80,7 +85,7 @@ export async function SiteFooter() {
             <ul className="mt-4 space-y-2.5 text-sm">
               {accountLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="transition-colors hover:text-brand-300">
+                  <Link href={link.href} prefetch={false} className="transition-colors hover:text-brand-300">
                     {link.label}
                   </Link>
                 </li>

@@ -15,6 +15,14 @@ import { AddToCartButton } from "./add-to-cart-button";
  * reads as varied rather than uniform. */
 const CARD_TONES = ["bg-brand-50", "bg-danger-bg", "bg-warning-bg", "bg-brand-100"];
 
+// prefetch={false} on both of this card's Links: a category/homepage grid
+// renders many of these at once, and Next's default viewport-triggered
+// prefetch fires a full RSC fetch for EVERY card the instant it scrolls
+// into view -- measured live, this flooded the connection with a dozen-plus
+// competing requests on page load and was a real contributor to slow
+// perceived load, especially on mobile. A click still fetches normally, it
+// just isn't pre-warmed.
+
 /** Server Component entry point -- resolves locale/translations itself,
  * same call signature every existing call site already uses. */
 export async function ProductCard({ product }: { product: ProductWithImages }) {
@@ -64,7 +72,7 @@ export function ProductCardView({
     <div className="card-organic-shadow group">
       <div className="card-organic-border">
         <div className={`card-organic-surface flex flex-col p-4 sm:p-5 ${tone}`}>
-          <Link href={`/p/${product.slug}`} className="relative block pb-4">
+          <Link href={`/p/${product.slug}`} prefetch={false} className="relative block pb-4">
             {/* Large product-visual "stage" -- no circle, no rectangular
                 photo box. The panel itself is shaped by the
                 --card-image-mask data-URI (organic top corners + a
@@ -166,7 +174,7 @@ export function ProductCardView({
               height stays unchanged while the image above genuinely
               extends further and this content stack starts lower. */}
           <div className="flex flex-1 flex-col gap-0.5 pt-0 text-center">
-            <Link href={`/p/${product.slug}`}>
+            <Link href={`/p/${product.slug}`} prefetch={false}>
               <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-bold text-deep-900 transition-colors group-hover:text-brand-700">
                 {name}
               </h3>

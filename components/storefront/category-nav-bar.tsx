@@ -80,14 +80,24 @@ export function CategoryNavBar({
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) scheduleClose();
       }}
     >
+      {/* prefetch={false} on this bar's own links: it sits right under the
+          header on EVERY page, always visible, so its links are in the
+          viewport the instant the page paints -- Next's default prefetch
+          fired a full RSC fetch for every single one of them (this bar plus
+          Home plus Green Box) at that exact moment, competing with the
+          hero image/fonts/critical JS for the same connection. Measured
+          live, this was a real contributor to slow load, worst on mobile.
+          The hover-opened mega-menu's own links below are unaffected --
+          those only mount once a category is actually being hovered, where
+          prefetching the thing the user is about to click is the point. */}
       <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-4 py-1">
-        <Link href="/box" className={`${linkClass} shrink-0 text-brand-300 hover:text-brand-200`}>
+        <Link href="/box" prefetch={false} className={`${linkClass} shrink-0 text-brand-300 hover:text-brand-200`}>
           {greenBoxLabel}
         </Link>
         <div className="flex flex-1 items-center justify-evenly gap-1">
           {categoryMenus.map(({ category }) => (
             <div key={category.id} onMouseEnter={() => open(category.id)}>
-              <Link href={`/c/${category.slug}`} className={linkClass} onFocus={() => open(category.id)}>
+              <Link href={`/c/${category.slug}`} prefetch={false} className={linkClass} onFocus={() => open(category.id)}>
                 {pickLocalized(category.name_ar, category.name_en, locale)}
               </Link>
             </div>
@@ -95,6 +105,7 @@ export function CategoryNavBar({
         </div>
         <Link
           href="/"
+          prefetch={false}
           aria-label={homeLabel}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold-400 text-deep-900 transition-colors hover:bg-gold-500"
         >

@@ -256,7 +256,12 @@ export default async function HomePage() {
                 const name = pickLocalized(category.name_ar, category.name_en, locale);
                 const description = pickLocalized(category.description_ar ?? "", category.description_en, locale);
                 return (
-                  <Link key={category.id} href={`/c/${category.slug}`} className="card-blob group block bg-brand-50 p-2.5">
+                  // prefetch={false}: these links repeat the same category
+                  // routes CategoryNavBar already renders in the header above
+                  // (see its own comment) -- prefetching them again here just
+                  // doubles up on wasted bandwidth for routes that bar never
+                  // got to prefetch either.
+                  <Link key={category.id} href={`/c/${category.slug}`} prefetch={false} className="card-blob group block bg-brand-50 p-2.5">
                     <div className="relative aspect-square w-full overflow-hidden rounded-[1.35rem] bg-white/50">
                       <Image
                         src={category.image_url || placeholderImage(categoryPlaceholderKey(category.slug))}
