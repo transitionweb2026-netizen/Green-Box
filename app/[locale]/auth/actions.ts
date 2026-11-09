@@ -2,9 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "@/lib/validation/auth";
+import { loginSchema, registerSchema, resetPasswordSchema } from "@/lib/validation/auth";
 import { getSiteOrigin } from "@/lib/seo/site-url";
-import type { ForgotPasswordState, LoginState, RegisterState, ResetPasswordState } from "./auth-state";
+import type { LoginState, RegisterState, ResetPasswordState } from "./auth-state";
 
 /**
  * Error codes only -- no translated text. Server Actions cannot use
@@ -118,32 +118,6 @@ export async function register(
     return { status: "error", errorCode: "EMAIL_TAKEN" };
   }
 
-  return { status: "success" };
-}
-
-export async function requestPasswordReset(
-  locale: string,
-  _prevState: ForgotPasswordState,
-  formData: FormData,
-): Promise<ForgotPasswordState> {
-  const parsed = forgotPasswordSchema.safeParse({
-    email: String(formData.get("email") ?? "").trim(),
-  });
-  if (!parsed.success) {
-    return { status: "error", errorCode: "VALIDATION" };
-  }
-
-  const origin = await getSiteOrigin();
-  const supabase = await createClient();
-  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${origin}/${locale}/auth/callback?next=${encodeURIComponent(`/${locale}/auth/reset-password`)}`,
-  });
-
-  // Never reveal whether the email exists -- always report success so this
-  // can't be used to enumerate registered customers.
-  if (error) {
-    console.error("resetPasswordForEmail failed:", error.message);
-  }
   return { status: "success" };
 }
 

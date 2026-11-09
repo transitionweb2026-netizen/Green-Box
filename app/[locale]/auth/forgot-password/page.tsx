@@ -7,12 +7,17 @@ export async function generateMetadata() {
   return { title: t("title") };
 }
 
-export default async function ForgotPasswordPage() {
+export default async function ForgotPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sent?: string; error?: string }>;
+}) {
   const t = await getTranslations("auth.forgotPassword");
+  const { sent, error } = await searchParams;
 
   return (
     <AuthShell title={t("title")} subtitle={t("subtitle")}>
-      <ForgotPasswordForm />
+      <ForgotPasswordForm sent={sent === "1"} hasError={Boolean(error)} />
     </AuthShell>
   );
 }

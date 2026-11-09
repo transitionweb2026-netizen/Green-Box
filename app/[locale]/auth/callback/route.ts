@@ -12,14 +12,17 @@ import type { Database } from "@/types/database";
  * ../actions.ts) has a session to act on.
  *
  * Deliberately NOT using the shared createClient() from lib/supabase/server
- * here -- confirmed live, via a temporary debug readout, that its cookie
- * writes (next/headers' cookies().set(), wrapped in a try/catch that
- * silently swallows failures for the Server Component case) were not
- * reliably landing on this route's redirect response: exchangeCodeForSession
- * reported success, but the following page load had no session at all.
- * Building the NextResponse first and writing cookies directly onto IT
- * (same pattern proxy.ts already uses for its own session refresh) is the
- * robust way to do this from a Route Handler.
+ * here -- building the NextResponse first and writing cookies directly
+ * onto IT (same pattern proxy.ts already uses for its own session
+ * refresh, confirmed reliable live with a canary cookie) is the robust
+ * way to do this from a Route Handler, vs next/headers' cookies().set()
+ * which has no response object to attach to outside a redirect()/plain
+ * return. The matching write-side fix is in
+ * auth/forgot-password/submit/route.ts -- exchangeCodeForSession here was
+ * reporting success but finding no session on the next page load turned
+ * out to be the PKCE code_verifier cookie never surviving the
+ * requestPasswordReset Server Action's write in the first place, not an
+ * issue on this read side.
  */
 export async function GET(
   request: NextRequest,
@@ -37,14 +40,6 @@ export async function GET(
     requestedNext.startsWith(`/${locale}/`) || requestedNext === `/${locale}`
       ? requestedNext
       : `/${locale}`;
-
-  // TEMPORARY canary -- isolates whether Set-Cookie on a redirect from this
-  // route survives the proxy/CDN pipeline at all, independent of Supabase.
-  if (searchParams.get("canary") === "1") {
-    const canaryResponse = NextResponse.redirect(`${origin}/${locale}`);
-    canaryResponse.cookies.set("callback_canary", "it-worked", { path: "/", maxAge: 300 });
-    return canaryResponse;
-  }
 
   if (code) {
     const response = NextResponse.redirect(`${origin}${next}`);
