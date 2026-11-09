@@ -30,6 +30,10 @@ export const initialForgotPasswordState: ForgotPasswordState = { status: "idle" 
 export type ResetPasswordState = {
   status: "idle" | "error" | "success";
   errorCode?: "VALIDATION" | "PASSWORD_MISMATCH" | "GENERIC";
+  // TEMPORARY -- remove once the live "Something went wrong" reset-password
+  // bug is actually diagnosed. Surfaces the real Supabase error message so
+  // it's visible without Vercel log access.
+  debugMessage?: string;
 };
 
 export const initialResetPasswordState: ResetPasswordState = { status: "idle" };

@@ -65,6 +65,11 @@ export function ResetPasswordForm({ linkInvalid }: { linkInvalid?: boolean }) {
       </div>
 
       {state.status === "error" && state.errorCode !== "PASSWORD_MISMATCH" && <FormMessage>{t("errorGeneric")}</FormMessage>}
+      {state.status === "error" && state.debugMessage && (
+        <p className="rounded-lg bg-black/80 p-2 font-mono text-xs text-white" dir="ltr">
+          DEBUG: {state.debugMessage}
+        </p>
+      )}
 
       <Button type="submit" disabled={isPending} loading={isPending} className="mt-2 w-full">
         {!isPending && <KeyRound className="h-4 w-4" />}
