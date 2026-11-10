@@ -1,13 +1,16 @@
-import { Leaf, Package } from "lucide-react";
+import { Leaf } from "lucide-react";
+import { AppImage as Image } from "@/components/ui/app-image";
 import { cn } from "@/lib/utils/cn";
 
 /**
  * Wordmark + box mark used across the storefront header/footer, auth
  * pages, and (via a dark-tuned instance) the admin shell -- kept as one
- * component so the brand mark stays identical everywhere. The mark is a
- * literal box (not a leaf) since the brand name is "Green Box" -- the
- * small leaf above the wordmark is a decorative accent alongside it, not
- * a replacement for the box mark.
+ * component so the brand mark stays identical everywhere. The box mark
+ * is the client's own supplied artwork (public/images/logo-icon.webp,
+ * an open box of produce on a brand-gradient background -- replaced a
+ * generic Lucide Package glyph on a hand-coded gradient square). The
+ * small leaf above the wordmark is a separate decorative accent, not
+ * part of the box mark itself.
  */
 export function Logo({
   siteName,
@@ -21,12 +24,10 @@ export function Logo({
   return (
     <span className={cn("inline-flex items-center gap-2 font-extrabold tracking-tight", className)}>
       <span
-        className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-[0_6px_16px_-6px_rgba(84,120,41,0.7)]",
-        )}
+        className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl shadow-[0_6px_16px_-6px_rgba(84,120,41,0.7)]"
         aria-hidden="true"
       >
-        <Package className="h-5 w-5" strokeWidth={2} />
+        <Image src="/images/logo-icon.webp" alt="" fill sizes="36px" className="object-cover" />
       </span>
       <span className="relative inline-block">
         <Leaf
