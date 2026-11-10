@@ -28,11 +28,11 @@ export function VerifyCodeForm({ email, hasError }: { email: string; hasError?: 
           type="text"
           inputMode="numeric"
           autoComplete="one-time-code"
-          placeholder="000000"
+          placeholder="00000000"
           required
           minLength={6}
-          maxLength={6}
-          className="text-center text-lg tracking-[0.5em]"
+          maxLength={8}
+          className="text-center text-lg tracking-[0.4em]"
         />
       </div>
 
