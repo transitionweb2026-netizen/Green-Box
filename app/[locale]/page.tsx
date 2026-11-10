@@ -134,7 +134,7 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Hero -- cream, editorial, carousel-driven image + text */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden bg-background">
         {/* Botanical backdrop, local to the hero only (the sitewide
             .site-atmosphere layer is untouched) -- gives the area directly
             behind the Green Box real leaf/droplet/glass depth instead of
@@ -168,33 +168,58 @@ export default async function HomePage() {
             content. lg:block switches back to the exact original
             image+bg-cover look, unchanged, at the width it already
             worked correctly. */}
+        {/* The section's own bg-background (above) is the base tone for
+            everything below the photo -- pills' trailing gap, trust strip,
+            and past the section's end, all the same flat --background --
+            so there's one real color to match, not a gradient guessing
+            where the photo's capped wrapper (next) happens to end at
+            whatever height the carousel renders at. The photo below is
+            capped to its own natural height instead of being
+            force-stretched to match this section's full, variable height:
+            that stretch was the real cause of a visible band cutting
+            across the pills/trust-strip area once the trust strip made
+            this section taller (reported live, with a screenshot). */}
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[#f9f7e8] lg:hidden" aria-hidden="true" />
-        {/* Base tone, always covering the FULL section -- pills + trust
-            strip included, whatever height they add -- brand-50 fading to
-            the page's own --background. The photo below is now capped to
-            its own natural height (see the wrapper's comment) instead of
-            being force-stretched to match this section's full, variable
-            height: that stretch was the real cause of a visible band
-            cutting across the pills/trust-strip area once the trust strip
-            made this section taller (reported live, with a screenshot).
-            Once the photo fades out (its mask, below), this base tone
-            shows through -- already matching --background, so it also
-            meets the next (bg-less) section with nothing visible at the
-            edge. */}
-        <div
-          className="pointer-events-none absolute inset-0 -z-20 hidden lg:block"
-          style={{ background: "linear-gradient(to bottom, var(--brand-50), var(--background) 80%)" }}
-          aria-hidden="true"
-        />
         <div className="relative">
+          {/* Photo stays fully visible through the whole carousel+pills
+              zone, pills included -- no mask here. (A mask-image fade was
+              tried first, sized to 85% of this wrapper's own height, but
+              on a wrapper this tall 15% is itself a tall span that landed
+              squarely across the pills row -- fading out from partway
+              above "Green Box Boxes" rather than below it, reported live
+              against a screenshot as the photo not reaching that pill at
+              all plus a visible edge where the mask crossed it.)
+
+              bg-center, not bg-top: the image's own vertical middle is
+              where its real leaf/droplet decoration sits -- bg-top instead
+              showed a washed-out band from near its top edge (also
+              confirmed live, visibly paler than before). bg-center's
+              original bug was never "center" itself, it was that the
+              OLD, unsplit layer spanned the whole variable-height section
+              (pills + trust strip), so which slice counted as "center"
+              shifted depending on trust-strip height. Capped to this
+              wrapper's own stable height (carousel + pills only, now
+              unaffected by whatever follows it), that slice is consistent
+              again. */}
           <div
-            className="pointer-events-none absolute inset-0 -z-10 hidden bg-cover bg-top lg:block"
+            className="pointer-events-none absolute inset-0 -z-10 hidden bg-cover bg-center lg:block"
             style={{
               backgroundImage: `url(${heroImages?.backgroundUrl || "/images/hero-bg-botanical.webp"})`,
               filter: "saturate(1.55) contrast(1.12) brightness(0.95)",
-              maskImage: "linear-gradient(to bottom, black 0%, black 85%, transparent 100%)",
-              WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 85%, transparent 100%)",
             }}
+            aria-hidden="true"
+          />
+          {/* Fade-to-base-tone overlay, fixed to the last 40px of this
+              wrapper -- exactly the pills container's own pb-10 gap below
+              them, never the pills themselves -- instead of a percentage
+              of total height, so it holds regardless of how tall the
+              carousel above happens to render. Painted as an opaque-color
+              gradient on top of the photo (not a mask on the photo itself),
+              which is the plainer, more predictable way to dissolve a
+              filtered background image into a flat color. */}
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 hidden h-10 lg:block"
+            style={{ background: "linear-gradient(to bottom, transparent, var(--background))" }}
             aria-hidden="true"
           />
           <HeroCarousel
