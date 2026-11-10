@@ -2,7 +2,6 @@ import { AppImage as Image } from "@/components/ui/app-image";
 import { type ReactNode } from "react";
 import { ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { placeholderImage } from "@/lib/media/placeholders";
 import { Logo } from "./logo";
 
 export async function AuthShell({
@@ -27,8 +26,15 @@ export async function AuthShell({
         <div className="blob h-72 w-72 bg-brand-500/25 -top-16 -start-16 animate-float-slow" aria-hidden="true" />
         <Logo siteName={t("siteName")} tone="dark" />
         <div className="relative">
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl">
-            <Image src={placeholderImage("familyKitchen")} alt="" fill sizes="50vw" className="object-cover" />
+          {/* Was a loremflickr placeholder (filler until real photography),
+              which this environment has seen fail to load unpredictably
+              (see AppImage's own comment on that host) -- reported live as
+              an empty gap in this panel. Replaced with the client's own
+              photo; aspect-[3/4] matches its real 1000x1319 proportions
+              (a tall shot: truck/facility above, produce crates below)
+              instead of cropping it into the old landscape box. */}
+          <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
+            <Image src="/images/auth-hero.webp" alt="" fill sizes="50vw" className="object-cover" />
           </div>
           <ul className="mt-6 space-y-3">
             {highlights.map((h) => (
