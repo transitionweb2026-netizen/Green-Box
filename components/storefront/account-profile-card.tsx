@@ -27,7 +27,16 @@ export function AccountProfileCard({
       <div className="relative flex items-center gap-3">
         <AvatarInitial name={name} className="h-14 w-14 text-xl" />
         <div className="min-w-0">
-          <p className="truncate font-serif text-lg font-bold">{name}</p>
+          {/* dir="auto" (not a hardcoded ltr/rtl) -- a customer's name can
+              be typed in Arabic or Latin script regardless of site locale,
+              and text-overflow: ellipsis truncates from the paragraph's
+              OWN direction, not the script of the text inside it. Without
+              this, a Latin name inside the ambient dir="rtl" page clipped
+              from the wrong end (showed "...n Eltanany" instead of "Akram
+              Ayman E..."). */}
+          <p dir="auto" className="truncate font-serif text-lg font-bold">
+            {name}
+          </p>
           <p dir="ltr" className="truncate text-end text-xs text-white/60">
             {email}
           </p>
