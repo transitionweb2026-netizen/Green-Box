@@ -149,9 +149,19 @@ export async function updatePassword(
     return { status: "error", errorCode: "GENERIC" };
   }
 
-  // Recovery sessions are meant to be used once, right after the emailed
-  // link -- sign out so the browser returns to a normal logged-out state
-  // and the customer logs back in deliberately with their new password.
-  await supabase.auth.signOut();
+  // Deliberately NOT signing out here (an earlier version did, to force a
+  // deliberate re-login with the new password) -- confirmed live, via a
+  // real browser session, that it broke the success message entirely: a
+  // Server Action's response triggers Next.js to re-render the current
+  // route's Server Components, so signing out here made
+  // reset-password/page.tsx's own getCurrentUser() check (which decides
+  // whether to render this form at all vs. its "link invalid" state) find
+  // no session anymore and swap to the invalid-link screen, wiping out
+  // this very state update before the customer ever saw it -- the
+  // password change itself was succeeding the whole time, confirmed via a
+  // direct sign-in with the new password while the UI showed an error.
+  // Leaving the session intact sidesteps that entirely and is also just a
+  // better experience: the customer already typed and confirmed the new
+  // password, no reason to make them type it again immediately after.
   return { status: "success" };
 }

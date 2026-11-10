@@ -35,8 +35,8 @@ export function ResetPasswordForm({ linkInvalid }: { linkInvalid?: boolean }) {
         <FormMessage variant="success" className="mt-0">
           {t("successUpdated")}
         </FormMessage>
-        <Link href="/auth/login" className="mt-2 font-medium text-brand-700 hover:underline">
-          {t("goToLogin")}
+        <Link href="/account" className="mt-2 font-medium text-brand-700 hover:underline">
+          {t("goToAccount")}
         </Link>
       </div>
     );

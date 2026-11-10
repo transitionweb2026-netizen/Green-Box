@@ -180,7 +180,7 @@
       "successCheckEmail": "If an account exists for that email, we've sent a password reset code. Check your inbox.",
       "errorGeneric": "Something went wrong. Please try again.",
       "verifyTitle": "Enter the code",
-      "verifySubtitle": "We sent a 6-digit code to your email -- enter it below.",
+      "verifySubtitle": "We sent a code to your email -- enter it below.",
       "codeLabel": "Code",
       "codeError": "That code is wrong or has expired. Try again or request a new one.",
       "verifySubmit": "Verify code"
@@ -196,8 +196,8 @@
       "errorSamePassword": "Your new password must be different from your old one.",
       "errorWeakPassword": "That password is too weak. Try a stronger one.",
       "errorGeneric": "Something went wrong while updating your password. Please try again.",
-      "successUpdated": "Your password has been updated. You can now log in with your new password.",
-      "goToLogin": "Go to login",
+      "successUpdated": "Your password has been updated, and you're now logged in.",
+      "goToAccount": "Go to my account",
       "linkInvalid": "This password reset link is invalid or has expired.",
       "requestNewLink": "Request a new link"
     }
