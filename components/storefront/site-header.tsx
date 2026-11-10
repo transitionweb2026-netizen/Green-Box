@@ -1,4 +1,4 @@
-import { Leaf, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getSetting } from "@/lib/services/content";
@@ -120,12 +120,6 @@ export async function SiteHeader() {
                 className="hidden h-10 w-10 items-center justify-center rounded-xl text-deep-700 transition-colors hover:bg-brand-50 lg:flex"
               />
               <span className="hidden h-8 w-px bg-border sm:block" aria-hidden="true" />
-              <div className="hidden items-center gap-1.5 sm:flex">
-                <Leaf className="h-3.5 w-3.5 shrink-0 text-brand-600" aria-hidden="true" />
-                <p className="max-w-[6.5rem] text-end text-[0.7rem] leading-tight font-bold text-deep-800">
-                  {t("common.microTagline")}
-                </p>
-              </div>
               <CartLink label={t("nav.cart")} />
             </div>
           </div>

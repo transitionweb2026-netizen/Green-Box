@@ -5,15 +5,17 @@ import { Link } from "@/i18n/navigation";
 import { AvatarInitial } from "@/components/ui/avatar-initial";
 import { useAccountCartState } from "./account-cart-provider";
 
-/** The thin utility bar's text account/login+register links -- reads
- * from AccountCartProvider's context for the same reason as
+const pillClass =
+  "flex items-center gap-1 rounded-full bg-brand-600 py-1 pe-3 ps-2.5 font-semibold text-white transition-colors hover:bg-brand-700";
+
+/** The thin utility bar's account/login+register pills -- reads from
+ * AccountCartProvider's context for the same reason as
  * AccountIconLink/CartLink/MobileNav. Unlike those (fixed-size icon
  * boxes), "Account" vs "Login + Register" are genuinely different
  * widths, but this bar is `justify-between` with free space on both
  * sides, so the swap only moves within this group's own flex item --
- * it doesn't push any other element on the page. Small icons/avatar
- * added for a touch more weight than bare text, sized to this bar's own
- * text-xs scale rather than the header's full-size icons. */
+ * it doesn't push any other element on the page. Solid brand-green
+ * pills (not bare text) sized to this bar's own text-xs scale. */
 export function UtilityAccountLinks({
   accountLabel,
   loginLabel,
@@ -26,20 +28,17 @@ export function UtilityAccountLinks({
   const { isLoggedIn, firstName } = useAccountCartState();
 
   return isLoggedIn ? (
-    <Link href="/account" className="flex items-center gap-1.5 transition-colors hover:text-brand-700">
+    <Link href="/account" className={pillClass}>
       <AvatarInitial name={firstName} className="h-4 w-4 text-[0.6rem]" />
       {accountLabel}
     </Link>
   ) : (
     <>
-      <Link href="/auth/login" className="flex items-center gap-1 transition-colors hover:text-brand-700">
+      <Link href="/auth/login" className={pillClass}>
         <LogIn className="h-3 w-3" strokeWidth={2} />
         {loginLabel}
       </Link>
-      <Link
-        href="/auth/register"
-        className="flex items-center gap-1 font-semibold text-brand-700 transition-colors hover:text-brand-800"
-      >
+      <Link href="/auth/register" className={pillClass}>
         <UserPlus className="h-3 w-3" strokeWidth={2} />
         {registerLabel}
       </Link>
