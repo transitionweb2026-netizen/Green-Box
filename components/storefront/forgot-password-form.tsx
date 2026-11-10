@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -8,20 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormMessage } from "@/components/ui/form-message";
 
-export function ForgotPasswordForm({ sent, hasError }: { sent?: boolean; hasError?: boolean }) {
+export function ForgotPasswordForm({ hasError }: { hasError?: boolean }) {
   const t = useTranslations("auth.forgotPassword");
   const locale = useLocale();
-
-  if (sent) {
-    return (
-      <div className="flex flex-col items-center gap-3 rounded-2xl bg-success-bg px-5 py-8 text-center">
-        <CheckCircle2 className="h-10 w-10 text-success" />
-        <FormMessage variant="success" className="mt-0">
-          {t("successCheckEmail")}
-        </FormMessage>
-      </div>
-    );
-  }
 
   return (
     <form action={`/${locale}/auth/forgot-password/submit`} method="post" className="flex flex-col gap-4">

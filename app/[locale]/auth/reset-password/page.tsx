@@ -8,26 +8,17 @@ export async function generateMetadata() {
   return { title: t("title") };
 }
 
-export default async function ResetPasswordPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string; detail?: string }>;
-}) {
+export default async function ResetPasswordPage() {
   const t = await getTranslations("auth.resetPassword");
-  const { error, detail } = await searchParams;
-  // The callback route only gets here after successfully exchanging the
-  // emailed code for a session -- if there's no session at all, the link
-  // was invalid, already used, or expired, so there's nothing to update.
+  // Reached only after forgot-password/verify establishes a real session
+  // from the emailed one-time code -- if there's no session at all here,
+  // the customer navigated straight to this URL without going through
+  // that step (or their code never verified), so there's nothing to update.
   const user = await getCurrentUser();
-  const linkInvalid = Boolean(error) || !user;
 
   return (
     <AuthShell title={t("title")} subtitle={t("subtitle")}>
-      {linkInvalid ? (
-        <ResetPasswordForm linkInvalid debugDetail={detail ?? (!user ? "no_session_no_error_param" : undefined)} />
-      ) : (
-        <ResetPasswordForm />
-      )}
+      {user ? <ResetPasswordForm /> : <ResetPasswordForm linkInvalid />}
     </AuthShell>
   );
 }

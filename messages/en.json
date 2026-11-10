@@ -172,13 +172,18 @@
     },
     "forgotPassword": {
       "title": "Reset your password",
-      "subtitle": "Enter your email and we'll send you a link to reset your password.",
+      "subtitle": "Enter your email and we'll send you a code to reset your password.",
       "emailLabel": "Email",
-      "submit": "Send reset link",
+      "submit": "Send code",
       "submitting": "Sending...",
       "backToLogin": "Back to login",
-      "successCheckEmail": "If an account exists for that email, we've sent a password reset link. Check your inbox.",
-      "errorGeneric": "Something went wrong. Please try again."
+      "successCheckEmail": "If an account exists for that email, we've sent a password reset code. Check your inbox.",
+      "errorGeneric": "Something went wrong. Please try again.",
+      "verifyTitle": "Enter the code",
+      "verifySubtitle": "We sent a 6-digit code to your email -- enter it below.",
+      "codeLabel": "Code",
+      "codeError": "That code is wrong or has expired. Try again or request a new one.",
+      "verifySubmit": "Verify code"
     },
     "resetPassword": {
       "title": "Choose a new password",

@@ -10,14 +10,14 @@ export async function generateMetadata() {
 export default async function ForgotPasswordPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sent?: string; error?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const t = await getTranslations("auth.forgotPassword");
-  const { sent, error } = await searchParams;
+  const { error } = await searchParams;
 
   return (
     <AuthShell title={t("title")} subtitle={t("subtitle")}>
-      <ForgotPasswordForm sent={sent === "1"} hasError={Boolean(error)} />
+      <ForgotPasswordForm hasError={Boolean(error)} />
     </AuthShell>
   );
 }
