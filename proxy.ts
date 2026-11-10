@@ -57,19 +57,27 @@ async function refreshSession(request: NextRequest) {
 
 // Supabase refresh tokens are single-use/rotating: each getUser()-triggered
 // refresh consumes the current one and writes a brand new one to cookies.
-// /auth/forgot-password/submit and /auth/callback each write a one-time
-// PKCE code_verifier / exchange a one-time code for a session of their
-// own, and /auth/reset-password both reads that session and (via its
-// Server Action, posted back to this same path) updates the password
-// with it -- every one of those is a request this proxy also matches, so
-// keep its general-purpose getUser()-triggered refresh from running on
-// top of them and potentially racing the token rotation against the
-// session the route itself is establishing/using. These routes manage
-// their own short-lived session directly (see
-// app/[locale]/auth/forgot-password/submit/route.ts,
-// app/[locale]/auth/callback/route.ts, and updatePassword in
-// ../actions.ts).
-const SENSITIVE_AUTH_FLOW = /\/auth\/(callback|reset-password|forgot-password\/submit)(\/|$)/;
+// /auth/forgot-password/submit, /auth/forgot-password/verify/submit, and
+// /auth/callback each write a one-time PKCE code_verifier / establish a
+// session from a one-time code or OTP of their own, and /auth/reset-password
+// both reads that session and (via its Server Action, posted back to this
+// same path) updates the password with it -- every one of those is a
+// request this proxy also matches, so keep its general-purpose
+// getUser()-triggered refresh from running on top of them and potentially
+// racing the token rotation against the session the route itself is
+// establishing/using. These routes manage their own short-lived session
+// directly (see app/[locale]/auth/forgot-password/submit/route.ts,
+// app/[locale]/auth/forgot-password/verify/submit/route.ts,
+// app/[locale]/auth/callback/route.ts, and updatePassword in ../actions.ts).
+//
+// Missing forgot-password/verify/submit here the first time this list was
+// written is exactly what caused the live bug where the OTP-code step
+// worked (reached the "choose a new password" form) but the password
+// update right after it kept failing -- the session verifyOtp() had just
+// established was getting raced by this proxy's own refresh on that same
+// request before the browser ever got a stable cookie to submit the
+// password update with.
+const SENSITIVE_AUTH_FLOW = /\/auth\/(callback|reset-password|forgot-password\/(submit|verify\/submit))(\/|$)/;
 
 /**
  * /admin sits outside next-intl's routing entirely (see i18n/routing.ts),
