@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useSyncExternalStore, t
 import { usePathname } from "next/navigation";
 import { getAccountCartStateAction, type AccountCartState } from "./account-cart-state";
 
-const DEFAULT_STATE: AccountCartState = { isLoggedIn: false, cartCount: 0 };
+const DEFAULT_STATE: AccountCartState = { isLoggedIn: false, cartCount: 0, firstName: null };
 const STORAGE_KEY = "gb_account_cart_state";
 
 /**
@@ -58,8 +58,13 @@ function getSnapshot(): AccountCartState {
   }
   try {
     const parsed = JSON.parse(raw);
+    // firstName is read leniently (missing/undefined -> null) -- an older
+    // cached blob from before this field existed is still a valid hint,
+    // just without a name for the avatar initial yet.
     cachedSnapshot =
-      typeof parsed?.isLoggedIn === "boolean" && typeof parsed?.cartCount === "number" ? parsed : DEFAULT_STATE;
+      typeof parsed?.isLoggedIn === "boolean" && typeof parsed?.cartCount === "number"
+        ? { ...parsed, firstName: typeof parsed?.firstName === "string" ? parsed.firstName : null }
+        : DEFAULT_STATE;
   } catch {
     cachedSnapshot = DEFAULT_STATE;
   }

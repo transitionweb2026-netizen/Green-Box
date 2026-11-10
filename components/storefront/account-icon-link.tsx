@@ -1,7 +1,8 @@
 "use client";
 
-import { LogIn, User } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { AvatarInitial } from "@/components/ui/avatar-initial";
 import { useAccountCartState } from "./account-cart-provider";
 
 /**
@@ -10,6 +11,10 @@ import { useAccountCartState } from "./account-cart-provider";
  * different href/icon/label, so swapping which one shows post-hydration
  * never shifts layout, only (briefly, for a first-time-this-session
  * visitor) the icon itself. See account-cart-provider.tsx.
+ *
+ * Logged-in state swapped from a generic User icon to the customer's own
+ * initial avatar -- same h-10 w-10 footprint, no layout shift, but now
+ * reads as "your account" rather than a stock icon.
  */
 export function AccountIconLink({
   loginLabel,
@@ -20,11 +25,11 @@ export function AccountIconLink({
   accountLabel: string;
   className?: string;
 }) {
-  const { isLoggedIn } = useAccountCartState();
+  const { isLoggedIn, firstName } = useAccountCartState();
 
   return isLoggedIn ? (
     <Link href="/account" className={className} aria-label={accountLabel}>
-      <User className="h-4 w-4" strokeWidth={1.75} />
+      <AvatarInitial name={firstName} className="h-8 w-8 text-sm" />
     </Link>
   ) : (
     <Link href="/auth/login" className={className} aria-label={loginLabel}>

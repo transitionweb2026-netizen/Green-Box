@@ -6,6 +6,9 @@ import { getCartItemCountForUser, getCartSummaryForCurrentUser, type CartSummary
 export interface AccountCartState {
   isLoggedIn: boolean;
   cartCount: number;
+  /** First name only (or null if not set) -- just enough for the header's
+   * avatar initial, not the full profile. */
+  firstName: string | null;
 }
 
 /**
@@ -20,7 +23,9 @@ export interface AccountCartState {
 export async function getAccountCartStateAction(): Promise<AccountCartState> {
   const user = await getCurrentUser();
   const cartCount = user ? await getCartItemCountForUser() : 0;
-  return { isLoggedIn: !!user, cartCount };
+  const fullName = typeof user?.user_metadata?.full_name === "string" ? user.user_metadata.full_name : null;
+  const firstName = fullName?.trim().split(/\s+/)[0] ?? null;
+  return { isLoggedIn: !!user, cartCount, firstName };
 }
 
 /** Same reasoning as getAccountCartStateAction, for HeroCartSummary's

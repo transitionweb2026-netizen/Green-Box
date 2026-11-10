@@ -1,6 +1,8 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { requireAuth } from "@/lib/auth/session";
+import { getCurrentProfile, requireAuth } from "@/lib/auth/session";
+import { getLoyaltySettings, getMyLoyaltyAccount } from "@/lib/services/loyalty";
 import { AccountNav } from "@/components/storefront/account-nav";
+import { AccountProfileCard } from "@/components/storefront/account-profile-card";
 
 // Explicit per Phase 1 item 4 ("/account/* stays dynamic") -- requireAuth's
 // cookies() call already made this dynamic implicitly, but with the rest
@@ -14,6 +16,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
   const locale = await getLocale();
   await requireAuth(locale, `/${locale}/account`);
   const t = await getTranslations("account.nav");
+  const tLoyalty = await getTranslations("loyalty");
 
   const links = [
     { key: "profile" as const, href: "/account/profile", label: t("profile") },
@@ -23,10 +26,21 @@ export default async function AccountLayout({ children }: { children: React.Reac
     { key: "subscriptions" as const, href: "/account/subscriptions", label: t("subscriptions") },
   ];
 
+  const [profile, loyaltySettings] = await Promise.all([getCurrentProfile(), getLoyaltySettings()]);
+  const loyaltyAccount = loyaltySettings?.is_enabled ? await getMyLoyaltyAccount() : null;
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
       <div className="grid gap-6 md:grid-cols-[220px_1fr]">
-        <AccountNav links={links} logoutLabel={t("logout")} />
+        <div className="flex flex-col gap-4">
+          <AccountProfileCard
+            name={profile?.full_name || t("profile")}
+            email={profile?.email ?? ""}
+            points={loyaltyAccount?.points_balance}
+            pointsLabel={tLoyalty("points")}
+          />
+          <AccountNav links={links} logoutLabel={t("logout")} />
+        </div>
         <div className="min-w-0">{children}</div>
       </div>
     </div>
