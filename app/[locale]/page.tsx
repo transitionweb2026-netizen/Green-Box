@@ -211,12 +211,23 @@ export default async function HomePage() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="glass glass-hover flex min-w-0 items-center gap-2.5 !rounded-full py-2 pe-4 ps-2 sm:gap-3 sm:pe-6"
+                  // !rounded-2xl on mobile instead of !rounded-full: a name
+                  // that wraps to 2 lines inside a true "pill" (rounded-full
+                  // on a now-taller box) rounds the ends into an odd blob --
+                  // a softer rounded-rect handles a two-line label cleanly.
+                  // sm: and up is still single-line content-width pills
+                  // (unchanged), so !rounded-full is restored there.
+                  className="glass glass-hover flex min-w-0 items-center gap-2.5 !rounded-2xl py-2 pe-3 ps-2 sm:!rounded-full sm:gap-3 sm:pe-6"
                 >
                   <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-brand-50">
                     <Image src={item.image} alt={item.name} fill sizes="44px" className="object-cover" />
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-sm font-bold text-deep-800 sm:flex-none sm:text-base">
+                  {/* No truncate -- the name must stay fully readable (a
+                      category whose text got clipped to "..." is not
+                      usable). Wraps to 2 lines on mobile if it has to;
+                      flex-wrap's content-width sizing at sm: and up means
+                      it already fits on one line there without help. */}
+                  <span className="min-w-0 flex-1 text-sm leading-tight font-bold text-deep-800 sm:flex-none sm:text-base">
                     {item.name}
                   </span>
                   <ArrowIcon className="h-4 w-4 shrink-0 text-brand-600" />
