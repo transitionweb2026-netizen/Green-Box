@@ -169,15 +169,35 @@ export default async function HomePage() {
             image+bg-cover look, unchanged, at the width it already
             worked correctly. */}
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[#f9f7e8] lg:hidden" aria-hidden="true" />
+        {/* Base tone, always covering the FULL section -- pills + trust
+            strip included, whatever height they add -- brand-50 fading to
+            the page's own --background. The photo below is now capped to
+            its own natural height (see the wrapper's comment) instead of
+            being force-stretched to match this section's full, variable
+            height: that stretch was the real cause of a visible band
+            cutting across the pills/trust-strip area once the trust strip
+            made this section taller (reported live, with a screenshot).
+            Once the photo fades out (its mask, below), this base tone
+            shows through -- already matching --background, so it also
+            meets the next (bg-less) section with nothing visible at the
+            edge. */}
         <div
-          className="pointer-events-none absolute inset-0 -z-10 hidden bg-cover bg-center lg:block"
-          style={{
-            backgroundImage: `url(${heroImages?.backgroundUrl || "/images/hero-bg-botanical.webp"})`,
-            filter: "saturate(1.55) contrast(1.12) brightness(0.95)",
-          }}
+          className="pointer-events-none absolute inset-0 -z-20 hidden lg:block"
+          style={{ background: "linear-gradient(to bottom, var(--brand-50), var(--background) 80%)" }}
           aria-hidden="true"
         />
-        <HeroCarousel
+        <div className="relative">
+          <div
+            className="pointer-events-none absolute inset-0 -z-10 hidden bg-cover bg-top lg:block"
+            style={{
+              backgroundImage: `url(${heroImages?.backgroundUrl || "/images/hero-bg-botanical.webp"})`,
+              filter: "saturate(1.55) contrast(1.12) brightness(0.95)",
+              maskImage: "linear-gradient(to bottom, black 0%, black 85%, transparent 100%)",
+              WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 85%, transparent 100%)",
+            }}
+            aria-hidden="true"
+          />
+          <HeroCarousel
           banners={banners}
           locale={locale}
           heroEyebrow={t("home.heroEyebrow")}
@@ -236,16 +256,15 @@ export default async function HomePage() {
             </div>
           </div>
         )}
+        </div>
 
-        {/* Trust strip -- moved inside the hero section (was its own
-            section right after, with its own plain border/background)
-            specifically so it sits on the SAME absolutely-positioned
-            backdrop above instead of a hard seam where that backdrop
-            stopped and a flat section began -- reported live as a
-            visible cut line. The backdrop covers the whole section
-            (inset-0 on a `relative` ancestor), so content added here
-            just extends how much of it is in view, no separate image. */}
-        <div className="relative mx-auto grid max-w-7xl grid-cols-2 gap-4 border-t border-white/40 px-4 py-4 sm:grid-cols-4">
+        {/* Trust strip -- sits on the base-tone layer above (-z-20), not
+            the photo (now capped to the carousel/pills zone right above,
+            with its own bottom fade -- see that wrapper's comment). No
+            border here either: the base tone already matches --background
+            by the time it reaches this far down, so there's nothing left
+            for a border to separate. */}
+        <div className="relative mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-4 sm:grid-cols-4">
           {trustItems.map((item) => (
             <div key={item.title} className="flex items-center gap-2.5">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-700">
