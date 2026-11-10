@@ -199,18 +199,27 @@ export default async function HomePage() {
             here instead of large cards. */}
         {heroCategoryShortcuts.length > 0 && (
           <div className="relative mx-auto max-w-7xl px-4 pb-10">
-            <div className="flex flex-wrap justify-center gap-3">
+            {/* grid grid-cols-2 on mobile, not flex-wrap -- flex-wrap sizes
+                each pill to its own content, and two pills' combined
+                natural width doesn't fit a phone screen, so they fell back
+                to one per row. A fixed 2-column grid forces pairs
+                regardless of content width (reported live on an actual
+                phone). sm: and up reverts to the original content-sized
+                flex-wrap row, unchanged from before. */}
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center">
               {heroCategoryShortcuts.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="glass glass-hover flex items-center gap-3 !rounded-full py-2 pe-6 ps-2"
+                  className="glass glass-hover flex min-w-0 items-center gap-2.5 !rounded-full py-2 pe-4 ps-2 sm:gap-3 sm:pe-6"
                 >
                   <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-brand-50">
                     <Image src={item.image} alt={item.name} fill sizes="44px" className="object-cover" />
                   </span>
-                  <span className="text-base font-bold text-deep-800">{item.name}</span>
-                  <ArrowIcon className="h-4 w-4 text-brand-600" />
+                  <span className="min-w-0 flex-1 truncate text-sm font-bold text-deep-800 sm:flex-none sm:text-base">
+                    {item.name}
+                  </span>
+                  <ArrowIcon className="h-4 w-4 shrink-0 text-brand-600" />
                 </Link>
               ))}
             </div>
