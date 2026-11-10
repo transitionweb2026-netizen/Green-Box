@@ -236,11 +236,16 @@ export default async function HomePage() {
             </div>
           </div>
         )}
-      </section>
 
-      {/* Compact trust strip */}
-      <section className="border-y border-border">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-4 sm:grid-cols-4">
+        {/* Trust strip -- moved inside the hero section (was its own
+            section right after, with its own plain border/background)
+            specifically so it sits on the SAME absolutely-positioned
+            backdrop above instead of a hard seam where that backdrop
+            stopped and a flat section began -- reported live as a
+            visible cut line. The backdrop covers the whole section
+            (inset-0 on a `relative` ancestor), so content added here
+            just extends how much of it is in view, no separate image. */}
+        <div className="relative mx-auto grid max-w-7xl grid-cols-2 gap-4 border-t border-white/40 px-4 py-4 sm:grid-cols-4">
           {trustItems.map((item) => (
             <div key={item.title} className="flex items-center gap-2.5">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-700">
