@@ -177,7 +177,15 @@ export function HeroCarousel({
           <span className="font-sticker block text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem]">{heroHeadline}</span>
           <span
             className={cn(
-              "font-script block text-brand-600",
+              // text-brand-600, but darker (brand-900) from lg: up: that's
+              // exactly where the hero section switches on its vivid
+              // green/photo backdrop (see the section's own comment) --
+              // brand-600 reads fine on the plain pale fallback below lg:,
+              // but on that backdrop it's too close in tone to read
+              // (confirmed live). brand-900 keeps this word visibly green
+              // rather than falling back to the headline's own near-black,
+              // while still contrasting against brand-200..500.
+              "font-script block text-brand-600 lg:text-brand-900",
               isAr
                 ? "mt-1 text-4xl leading-tight sm:text-5xl lg:text-6xl xl:text-7xl"
                 : "-mt-3 text-6xl leading-none sm:-mt-4 sm:text-7xl lg:-mt-5 lg:text-8xl xl:-mt-7 xl:text-9xl",

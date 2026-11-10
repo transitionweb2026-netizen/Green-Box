@@ -134,95 +134,60 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Hero -- cream, editorial, carousel-driven image + text */}
-      <section className="relative overflow-hidden bg-background">
+      <section className="relative isolate overflow-hidden bg-background">
         {/* Botanical backdrop, local to the hero only (the sitewide
-            .site-atmosphere layer is untouched) -- gives the area directly
-            behind the Green Box real leaf/droplet/glass depth instead of
-            three flat CSS blobs, so the box has an actual environment to
-            sit inside rather than an empty gap between it and the page's
-            plain cream canvas.
+            .site-atmosphere layer is untouched), covering the FULL section
+            -- carousel, pills, and the trust strip further down -- as one
+            continuous surface instead of a hard stop partway down
+            (reported live, twice: once as a visible band where a plain
+            bg-cover photo got over-stretched to this section's full,
+            variable height, then again, after capping the photo to a
+            shorter zone, as the vivid look disappearing under the pills
+            entirely instead of just not-seamed).
 
             The source image (hero-bg-botanical.webp, 1996x788) is a wide
-            panoramic banner: leaf/droplet decoration lives only in the far
-            left/right thirds, with a plain blurred-cream center. HeroCarousel
-            stacks image-then-text below lg: (grid-cols-1 until lg:), so this
-            whole section -- box, headline, CTA/note, category-shortcut pills
-            -- is much taller than the image at every width below lg:.
-            bg-cover + bg-center (the original code) zoomed into just the
-            plain center strip, cropping the decoration out entirely. A
-            later bg-contain attempt kept the full image in frame, but
-            bg-center's vertical centering landed that cropped band
-            wherever the section's midpoint happened to fall across all
-            that stacked content -- in practice, directly behind the CTA
-            button and hand-written note, reading as a stray decorative
-            mistake clashing with the button rather than ambiance (and
-            confirmed exactly that from a real phone screenshot).
-
-            HeroCarousel's own box-scoped leaf-frame layer (see its
-            heroBackgroundImage prop) already supplies the real decoration
-            precisely around the box, correctly, at every breakpoint -- so
-            below lg: this whole-section layer no longer needs to show the
-            image at all; a plain sampled fallback color (matching the
-            image's own washed-out highlight tone) is enough ambiance
-            without any risk of a stray band landing over interactive
-            content. lg:block switches back to the exact original
-            image+bg-cover look, unchanged, at the width it already
-            worked correctly. */}
-        {/* The section's own bg-background (above) is the base tone for
-            everything below the photo -- pills' trailing gap, trust strip,
-            and past the section's end, all the same flat --background --
-            so there's one real color to match, not a gradient guessing
-            where the photo's capped wrapper (next) happens to end at
-            whatever height the carousel renders at. The photo below is
-            capped to its own natural height instead of being
-            force-stretched to match this section's full, variable height:
-            that stretch was the real cause of a visible band cutting
-            across the pills/trust-strip area once the trust strip made
-            this section taller (reported live, with a screenshot). */}
+            panoramic banner: real leaf/droplet decoration only in the far
+            left/right thirds, a plain blurred-cream center in between --
+            at this section's actual width that center third is most of
+            what's ever in frame. Three stacked layers fix both problems
+            at once instead of trading one for the other:
+              1. a brand-green gradient -- a flat CSS gradient can't ever
+                 band, at any height, unlike a single stretched raster image.
+              2. the photo on top, blend-mode multiply: its pale center
+                 picks up the gradient's own green (pale ~ white pixels
+                 leave the base showing through), while its real leaf/
+                 droplet pixels darken into it as visible texture -- vivid
+                 everywhere, not just at the two edges, and the photo no
+                 longer has to BE the vivid color by itself.
+              3. a short fade to the page's own --background, fixed to the
+                 section's last ~96px (not a %, so it never drifts onto the
+                 pills again), finishing the hand-off to the plain section
+                 below with nothing visible at the edge.
+            lg:hidden below: HeroCarousel's own box-scoped leaf-frame layer
+            already supplies the real decoration precisely around the box
+            at every width below lg:, so this whole-section backdrop isn't
+            needed there -- a plain sampled fallback color is enough. */}
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[#f9f7e8] lg:hidden" aria-hidden="true" />
-        <div className="relative">
-          {/* Photo stays fully visible through the whole carousel+pills
-              zone, pills included -- no mask here. (A mask-image fade was
-              tried first, sized to 85% of this wrapper's own height, but
-              on a wrapper this tall 15% is itself a tall span that landed
-              squarely across the pills row -- fading out from partway
-              above "Green Box Boxes" rather than below it, reported live
-              against a screenshot as the photo not reaching that pill at
-              all plus a visible edge where the mask crossed it.)
-
-              bg-center, not bg-top: the image's own vertical middle is
-              where its real leaf/droplet decoration sits -- bg-top instead
-              showed a washed-out band from near its top edge (also
-              confirmed live, visibly paler than before). bg-center's
-              original bug was never "center" itself, it was that the
-              OLD, unsplit layer spanned the whole variable-height section
-              (pills + trust strip), so which slice counted as "center"
-              shifted depending on trust-strip height. Capped to this
-              wrapper's own stable height (carousel + pills only, now
-              unaffected by whatever follows it), that slice is consistent
-              again. */}
-          <div
-            className="pointer-events-none absolute inset-0 -z-10 hidden bg-cover bg-center lg:block"
-            style={{
-              backgroundImage: `url(${heroImages?.backgroundUrl || "/images/hero-bg-botanical.webp"})`,
-              filter: "saturate(1.55) contrast(1.12) brightness(0.95)",
-            }}
-            aria-hidden="true"
-          />
-          {/* Fade-to-base-tone overlay, fixed to the last 40px of this
-              wrapper -- exactly the pills container's own pb-10 gap below
-              them, never the pills themselves -- instead of a percentage
-              of total height, so it holds regardless of how tall the
-              carousel above happens to render. Painted as an opaque-color
-              gradient on top of the photo (not a mask on the photo itself),
-              which is the plainer, more predictable way to dissolve a
-              filtered background image into a flat color. */}
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 hidden h-10 lg:block"
-            style={{ background: "linear-gradient(to bottom, transparent, var(--background))" }}
-            aria-hidden="true"
-          />
-          <HeroCarousel
+        <div
+          className="pointer-events-none absolute inset-0 -z-30 hidden lg:block"
+          style={{ background: "linear-gradient(165deg, var(--brand-200), var(--brand-400) 55%, var(--brand-500))" }}
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 -z-20 hidden bg-cover bg-center lg:block"
+          style={{
+            backgroundImage: `url(${heroImages?.backgroundUrl || "/images/hero-bg-botanical.webp"})`,
+            filter: "saturate(1.3) contrast(1.05)",
+            mixBlendMode: "multiply",
+          }}
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 hidden h-24 lg:block"
+          style={{ background: "linear-gradient(to bottom, transparent, var(--background))" }}
+          aria-hidden="true"
+        />
+        <HeroCarousel
           banners={banners}
           locale={locale}
           heroEyebrow={t("home.heroEyebrow")}
@@ -281,14 +246,12 @@ export default async function HomePage() {
             </div>
           </div>
         )}
-        </div>
 
-        {/* Trust strip -- sits on the base-tone layer above (-z-20), not
-            the photo (now capped to the carousel/pills zone right above,
-            with its own bottom fade -- see that wrapper's comment). No
-            border here either: the base tone already matches --background
-            by the time it reaches this far down, so there's nothing left
-            for a border to separate. */}
+        {/* Trust strip -- sits on the same backdrop as the pills above
+            (gradient + multiply-blended photo), fading to --background in
+            the section's last ~96px (see the backdrop's own comment). No
+            border here: there's no edge in the backdrop itself for one to
+            mark. */}
         <div className="relative mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-4 sm:grid-cols-4">
           {trustItems.map((item) => (
             <div key={item.title} className="flex items-center gap-2.5">
