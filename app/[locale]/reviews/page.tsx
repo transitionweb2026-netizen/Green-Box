@@ -40,7 +40,11 @@ export default async function ReviewsPage() {
                 <p className="mt-3 text-sm leading-relaxed text-foreground">
                   &ldquo;{pickLocalized(review.quote_ar, review.quote_en, locale)}&rdquo;
                 </p>
-                <div className="mt-4 flex items-center gap-2.5">
+                {/* Blurred, matching the privacy blur already on the
+                    customer's name/avatar in the real screenshots these
+                    quotes were copied from (an explicit choice, not a
+                    placeholder waiting on real names). */}
+                <div className="mt-4 flex items-center gap-2.5 blur-[3px] select-none" aria-hidden="true">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">
                     {review.customer_name.charAt(0)}
                   </span>
