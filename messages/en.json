@@ -32,7 +32,8 @@
     "viewAll": "View all",
     "noItems": "No products yet",
     "reviews": "Customer Reviews",
-    "contactUs": "Contact Us"
+    "contactUs": "Contact Us",
+    "terms": "Terms & Conditions"
   },
   "home": {
     "heroEyebrow": "Real food\nBrighter tomorrows",
@@ -304,7 +305,15 @@
   },
   "terms": {
     "title": "Terms & Conditions",
-    "body": "Our full terms and conditions for orders, offers, and promotions will be published here soon. In the meantime, contact us if you have any questions."
+    "teaser": "Read our policies on receiving, delivery, and cancellations before you check out.",
+    "cta": "Read the full terms"
+  },
+  "termsPage": {
+    "eyebrow": "Our policies",
+    "title": "Terms & Conditions",
+    "subtitle": "Our policies on orders, delivery, and cancellations, so your experience with us is clear from the first step.",
+    "fallbackNotice": "Our full terms and conditions for orders, offers, and promotions will be published here soon. In the meantime, contact us if you have any questions.",
+    "metaDescription": "Green Box's terms and conditions for orders: receiving, delivery, cancellations, and substitutions."
   },
   "contactPage": {
     "heroTitle": "Contact Us",

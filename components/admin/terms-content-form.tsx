@@ -16,15 +16,17 @@ export function TermsContentForm({ content }: { content: TermsContent | null }) 
   return (
     <form action={formAction} className="space-y-4">
       <p className="text-sm text-muted">
-        النص اللي بيظهر تحت قسم الأسئلة الشائعة فوق الفوتر في كل صفحات الموقع. اترك الحقل فاضي عشان يظهر النص الافتراضي بدل منه.
+        النص اللي بيظهر في صفحة الشروط والأحكام الكاملة (/terms). اكتب كل بند في سطر لوحده بالصيغة
+        &quot;1. عنوان البند&quot; وتحته وصفه، واسيب سطر فاضي بين كل بند والتاني عشان يتقسّموا صح في الصفحة. اترك
+        الحقل فاضي عشان يظهر النص الافتراضي بدل منه.
       </p>
       <div>
         <Label htmlFor="body_ar">النص بالعربي</Label>
-        <Textarea id="body_ar" name="body_ar" rows={3} defaultValue={content?.body_ar ?? ""} />
+        <Textarea id="body_ar" name="body_ar" rows={16} defaultValue={content?.body_ar ?? ""} />
       </div>
       <div>
         <Label htmlFor="body_en">النص بالإنجليزي</Label>
-        <Textarea id="body_en" name="body_en" rows={3} defaultValue={content?.body_en ?? ""} />
+        <Textarea id="body_en" name="body_en" rows={16} defaultValue={content?.body_en ?? ""} />
       </div>
       {state.status === "success" && <FormMessage variant="success">تم الحفظ بنجاح.</FormMessage>}
       {state.status === "error" && <FormMessage>حصل خطأ أثناء الحفظ. حاول تاني.</FormMessage>}

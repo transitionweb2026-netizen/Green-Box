@@ -1,25 +1,25 @@
-import { getLocale, getTranslations } from "next-intl/server";
-import { getSetting, type TermsContent } from "@/lib/services/content";
-import { pickLocalizedOrDefault } from "@/lib/i18n/localized";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 
 /**
- * Sitewide Terms & Conditions blurb, stacked directly under FaqSection
+ * Sitewide Terms & Conditions teaser, stacked directly under FaqSection
  * (both sit above the footer on every page -- see app/[locale]/layout.tsx).
- * Content is admin-editable (Content -> "الشروط والأحكام" in
- * /admin/content); ships with an honest placeholder rather than fabricated
- * legal text.
+ * Just a title + one line + a link to the real /terms page now -- the full
+ * 11-point policy text (admin-editable, Content -> "الشروط والأحكام" in
+ * /admin/content) is real legal/operational content, not a short blurb, so
+ * it lives on its own page instead of repeating on every single page.
  */
 export async function TermsSection() {
   const t = await getTranslations("terms");
-  const locale = await getLocale();
-  const content = await getSetting<TermsContent>("terms_content");
-  const body = pickLocalizedOrDefault(content?.body_ar, content?.body_en, locale, t("body"));
 
   return (
     <section className="border-t border-border py-12">
       <div className="mx-auto max-w-3xl px-4 text-center">
         <h2 className="font-serif text-xl font-bold text-deep-800 sm:text-2xl">{t("title")}</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted">{body}</p>
+        <p className="mt-3 text-sm leading-relaxed text-muted">{t("teaser")}</p>
+        <Link href="/terms" className="mt-4 inline-block text-sm font-bold text-brand-700 hover:underline">
+          {t("cta")}
+        </Link>
       </div>
     </section>
   );

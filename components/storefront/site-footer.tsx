@@ -34,6 +34,7 @@ export async function SiteFooter() {
     { href: "/search", label: t("nav.search") },
     { href: "/reviews", label: t("nav.reviews") },
     { href: "/contact", label: t("nav.contactUs") },
+    { href: "/terms", label: t("nav.terms") },
   ];
   const accountLinks = [
     { href: "/account/orders", label: t("account.nav.orders") },
